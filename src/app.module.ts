@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PrestamoModule } from './modules/prestamo/prestamo.module';
 import { ValidacionModule } from './modules/validacion/validacion.module';
+import { EntregaUnidadModule } from './modules/entrega_unidad/entrega_unidad.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ValidacionModule } from './modules/validacion/validacion.module';
     }),
     PrestamoModule,
     ValidacionModule,
+    EntregaUnidadModule,
   ],
   controllers: [],
   providers: [],
