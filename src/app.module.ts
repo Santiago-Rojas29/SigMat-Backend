@@ -4,7 +4,7 @@ import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PrestamoModule } from './modules/prestamo/prestamo.module';
-
+import { ValidacionModule } from './modules/validacion/validacion.module';
 
 @Module({
   imports: [
@@ -19,11 +19,11 @@ import { PrestamoModule } from './modules/prestamo/prestamo.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      autoLoadEntities:true,
+      autoLoadEntities: true,
       synchronize: true,
     }),
     PrestamoModule,
-
+    ValidacionModule,
   ],
   controllers: [],
   providers: [],

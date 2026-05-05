@@ -1,10 +1,27 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+
+export enum DecisionValidacion {
+  APROBADO = 'aprobado',
+  RECHAZADO = 'rechazado',
+}
 
 @Entity('validacion')
 export class ValidacionOrmEntity {
-  @PrimaryColumn()
-  id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column()
-  name: string;
+  @Column('text')
+  id_solicitud!: string;
+
+  @Column('text')
+  id_validador!: string;
+
+  @Column({ type: 'timestamp' })
+  fecha_validacion!: Date;
+
+  @Column({ type: 'enum', enum: DecisionValidacion, default: DecisionValidacion.APROBADO })
+  decision!: DecisionValidacion;
+
+  @Column('text')
+  observaciones!: string;
 }
