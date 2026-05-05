@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { CreatePrestamoUseCase } from '../../../application/use-cases/create-prestamo.use-case';
 import { ActualizarPrestamoUseCase } from '../../../application/use-cases/actualizar-prestamo.use-case';
 import { EliminarPrestamoUseCase } from '../../../application/use-cases/eliminar-prestamo.use-case';

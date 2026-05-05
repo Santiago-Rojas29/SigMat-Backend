@@ -19,7 +19,11 @@ export class ValidacionOrmEntity {
   @Column({ type: 'timestamp' })
   fecha_validacion!: Date;
 
-  @Column({ type: 'enum', enum: DecisionValidacion, default: DecisionValidacion.APROBADO })
+  @Column({
+    type: 'enum',
+    enum: DecisionValidacion,
+    default: DecisionValidacion.APROBADO,
+  })
   decision!: DecisionValidacion;
 
   @Column('text')

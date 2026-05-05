@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { CreateValidacionUseCase } from '../../../application/use-cases/create-validacion.use-case';
 import { ActualizarValidacionUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarValidacionUseCase } from '../../../application/use-cases/eliminar.use-case';

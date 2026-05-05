@@ -5,11 +5,12 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PrestamoModule } from './modules/prestamo/prestamo.module';
 import { ValidacionModule } from './modules/validacion/validacion.module';
+import { CentroModule } from './modules/centro/centro.module';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname,'..','public')
+      rootPath: join(__dirname, '..', 'public'),
     }),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
@@ -24,6 +25,7 @@ import { ValidacionModule } from './modules/validacion/validacion.module';
     }),
     PrestamoModule,
     ValidacionModule,
+    CentroModule,
   ],
   controllers: [],
   providers: [],

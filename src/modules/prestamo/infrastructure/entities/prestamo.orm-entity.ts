@@ -16,6 +16,10 @@ export class PrestamoOrmEntity {
   @Column({ type: 'timestamp' })
   fecha_limite!: Date;
 
-  @Column({ type: 'enum', enum: EstadoPrestamo, default: EstadoPrestamo.ACTIVO })
+  @Column({
+    type: 'enum',
+    enum: EstadoPrestamo,
+    default: EstadoPrestamo.ACTIVO,
+  })
   estado!: EstadoPrestamo;
 }
