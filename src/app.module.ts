@@ -3,6 +3,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PrestamoModule } from './modules/prestamo/prestamo.module';
 
 
 @Module({
@@ -21,7 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities:true,
       synchronize: true,
     }),
-    
+    PrestamoModule,
 
   ],
   controllers: [],
