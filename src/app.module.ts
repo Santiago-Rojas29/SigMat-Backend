@@ -12,6 +12,7 @@ import { DevolucionUnidadModule } from './modules/devolucion_unidad/devolucion_u
 import { TrasladoModule } from './modules/traslado/traslado.module';
 import { TrasladoUnidadModule } from './modules/traslado_unidad/traslado_unidad.module';
 import { TrasladoLoteModule } from './modules/traslado_lote/traslado_lote.module';
+import { KardexModule } from './modules/kardex/kardex.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { TrasladoLoteModule } from './modules/traslado_lote/traslado_lote.module
     TrasladoModule,
     TrasladoUnidadModule,
     TrasladoLoteModule,
+    KardexModule,
   ],
   controllers: [],
   providers: [],
