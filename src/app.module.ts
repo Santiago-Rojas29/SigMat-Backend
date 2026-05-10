@@ -11,6 +11,7 @@ import { DevolucionModule } from './modules/devolucion/devolucion.module';
 import { DevolucionUnidadModule } from './modules/devolucion_unidad/devolucion_unidad.module';
 import { TrasladoModule } from './modules/traslado/traslado.module';
 import { TrasladoUnidadModule } from './modules/traslado_unidad/traslado_unidad.module';
+import { TrasladoLoteModule } from './modules/traslado_lote/traslado_lote.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { TrasladoUnidadModule } from './modules/traslado_unidad/traslado_unidad.
     DevolucionUnidadModule,
     TrasladoModule,
     TrasladoUnidadModule,
+    TrasladoLoteModule,
   ],
   controllers: [],
   providers: [],
