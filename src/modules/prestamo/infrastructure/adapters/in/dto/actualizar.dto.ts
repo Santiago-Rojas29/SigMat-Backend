@@ -1,4 +1,5 @@
-import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { EstadoPrestamo } from '../../../../domain/entities/prestamo.entity';
 
 export class UpdatePrestamoDto {
   @IsOptional()
@@ -12,7 +13,6 @@ export class UpdatePrestamoDto {
   fecha_limite?: string;
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  estado?: string;
+  @IsEnum(EstadoPrestamo)
+  estado?: EstadoPrestamo;
 }

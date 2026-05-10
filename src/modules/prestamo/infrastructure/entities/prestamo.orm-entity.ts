@@ -1,9 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
-export enum EstadoPrestamo {
-  ACTIVO = 'activo',
-  FINALIZADO = 'finalizado',
-}
+import { EstadoPrestamo } from '../../domain/entities/prestamo.entity';
 
 @Entity('prestamo')
 export class PrestamoOrmEntity {

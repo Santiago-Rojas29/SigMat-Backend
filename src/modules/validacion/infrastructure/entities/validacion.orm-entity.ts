@@ -1,9 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
-export enum DecisionValidacion {
-  APROBADO = 'aprobado',
-  RECHAZADO = 'rechazado',
-}
+import { DecisionValidacion } from '../../domain/entities/validacion.entity';
 
 @Entity('validacion')
 export class ValidacionOrmEntity {

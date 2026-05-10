@@ -1,4 +1,5 @@
-import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { DecisionValidacion } from '../../../../domain/entities/validacion.entity';
 
 export class CreateValidacionDto {
   @IsString()
@@ -13,9 +14,8 @@ export class CreateValidacionDto {
   @IsNotEmpty()
   fecha_validacion!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  decision!: string;
+  @IsEnum(DecisionValidacion)
+  decision!: DecisionValidacion;
 
   @IsString()
   @IsNotEmpty()

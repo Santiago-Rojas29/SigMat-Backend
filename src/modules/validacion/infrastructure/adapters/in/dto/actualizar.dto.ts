@@ -1,4 +1,5 @@
-import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { DecisionValidacion } from '../../../../domain/entities/validacion.entity';
 
 export class UpdateValidacionDto {
   @IsOptional()
@@ -17,9 +18,8 @@ export class UpdateValidacionDto {
   fecha_validacion?: string;
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  decision?: string;
+  @IsEnum(DecisionValidacion)
+  decision?: DecisionValidacion;
 
   @IsOptional()
   @IsString()

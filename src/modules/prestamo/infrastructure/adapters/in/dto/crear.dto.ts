@@ -1,4 +1,5 @@
-import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { EstadoPrestamo } from '../../../../domain/entities/prestamo.entity';
 
 export class CreatePrestamoDto {
   @IsString()
@@ -9,7 +10,6 @@ export class CreatePrestamoDto {
   @IsNotEmpty()
   fecha_limite!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  estado!: string;
+  @IsEnum(EstadoPrestamo)
+  estado!: EstadoPrestamo;
 }

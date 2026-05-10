@@ -1,4 +1,7 @@
-const decisionesValidas = ['aprobado', 'rechazado'];
+export enum DecisionValidacion {
+  APROBADO = 'aprobado',
+  RECHAZADO = 'rechazado',
+}
 
 export class Validacion {
   constructor(
@@ -6,7 +9,7 @@ export class Validacion {
     public id_solicitud: string,
     public id_validador: string,
     public fecha_validacion: Date,
-    public decision: string,
+    public decision: DecisionValidacion,
     public observaciones: string,
   ) {}
 
@@ -14,6 +17,6 @@ export class Validacion {
     if (!this.id_solicitud) throw new Error('La solicitud es obligatoria');
     if (!this.id_validador) throw new Error('El validador es obligatorio');
     if (!this.fecha_validacion) throw new Error('La fecha de validacion es obligatoria');
-    if (!decisionesValidas.includes(this.decision)) throw new Error('Decision invalida');
+    if (!Object.values(DecisionValidacion).includes(this.decision)) throw new Error('Decision invalida');
   }
 }
