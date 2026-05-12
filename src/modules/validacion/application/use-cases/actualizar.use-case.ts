@@ -4,10 +4,10 @@ import type { ValidacionRepository } from '../../domain/ports/validacion.reposit
 
 @Injectable()
 export class ActualizarValidacionUseCase {
-  constructor(
-    @Inject('ValidacionRepository')
-    private readonly repo: ValidacionRepository,
-  ) {}
+    constructor(
+        @Inject('ValidacionRepository')
+        private readonly repo: ValidacionRepository,
+    ) {}
 
   async execute(
     id: string,

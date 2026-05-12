@@ -1,19 +1,11 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Param,
-  Patch,
-  Delete,
-} from '@nestjs/common';
-import { CreateValidacionUseCase } from '../../../application/use-cases/create-validacion.use-case';
+import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { CreateValidacionUseCase } from '../../../application/use-cases/crear.use-case';
 import { ActualizarValidacionUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarValidacionUseCase } from '../../../application/use-cases/eliminar.use-case';
 import { ObtenerValidacionPorIdUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosValidacionUseCase } from '../../../application/use-cases/obtener-todos.use-case';
-import { CreateValidacionDto } from './dto/create-validacion.dto';
-import { UpdateValidacionDto } from './dto/update-validacion.dto';
+import { CreateValidacionDto } from './dto/crear.dto';
+import { UpdateValidacionDto } from './dto/actualizar.dto';
 
 @Controller('validacion')
 export class ValidacionController {

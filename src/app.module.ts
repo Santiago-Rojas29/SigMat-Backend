@@ -6,6 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PrestamoModule } from './modules/prestamo/prestamo.module';
 import { ValidacionModule } from './modules/validacion/validacion.module';
 import { CentroModule } from './modules/centro/centro.module';
+import { EntregaUnidadModule } from './modules/entrega_unidad/entrega_unidad.module';
+import { EntregaLoteModule } from './modules/entrega_lote/entrega_lote.module';
+import { DevolucionModule } from './modules/devolucion/devolucion.module';
+import { DevolucionUnidadModule } from './modules/devolucion_unidad/devolucion_unidad.module';
+import { TrasladoModule } from './modules/traslado/traslado.module';
+import { TrasladoUnidadModule } from './modules/traslado_unidad/traslado_unidad.module';
+import { TrasladoLoteModule } from './modules/traslado_lote/traslado_lote.module';
+import { KardexModule } from './modules/kardex/kardex.module';
+import { IncidenciaModule } from './modules/incidencia/incidencia.module';
 
 @Module({
   imports: [
@@ -26,6 +35,15 @@ import { CentroModule } from './modules/centro/centro.module';
     PrestamoModule,
     ValidacionModule,
     CentroModule,
+    EntregaUnidadModule,
+    EntregaLoteModule,
+    DevolucionModule,
+    DevolucionUnidadModule,
+    TrasladoModule,
+    TrasladoUnidadModule,
+    TrasladoLoteModule,
+    KardexModule,
+    IncidenciaModule,
   ],
   controllers: [],
   providers: [],

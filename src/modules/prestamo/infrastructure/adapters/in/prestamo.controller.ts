@@ -1,19 +1,11 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Param,
-  Patch,
-  Delete,
-} from '@nestjs/common';
-import { CreatePrestamoUseCase } from '../../../application/use-cases/create-prestamo.use-case';
-import { ActualizarPrestamoUseCase } from '../../../application/use-cases/actualizar-prestamo.use-case';
-import { EliminarPrestamoUseCase } from '../../../application/use-cases/eliminar-prestamo.use-case';
+import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { CreatePrestamoUseCase } from '../../../application/use-cases/crear.use-case';
+import { ActualizarPrestamoUseCase } from '../../../application/use-cases/actualizar.use-case';
+import { EliminarPrestamoUseCase } from '../../../application/use-cases/eliminar.use-case';
 import { ObtenerPorIdUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todos.use-case';
-import { CreatePrestamoDto } from './dto/create-prestamo.dto';
-import { UpdatePrestamoDto } from './dto/update-prestamo.dto';
+import { CreatePrestamoDto } from './dto/crear.dto';
+import { UpdatePrestamoDto } from './dto/actualizar.dto';
 
 @Controller('prestamo')
 export class PrestamoController {
