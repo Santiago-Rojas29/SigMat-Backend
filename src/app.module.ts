@@ -15,6 +15,19 @@ import { TrasladoUnidadModule } from './modules/traslado_unidad/traslado_unidad.
 import { TrasladoLoteModule } from './modules/traslado_lote/traslado_lote.module';
 import { KardexModule } from './modules/kardex/kardex.module';
 import { IncidenciaModule } from './modules/incidencia/incidencia.module';
+import { SedeModule } from './modules/sede/sede.module'; 
+import { AreaModule } from './modules/area/area.module'; 
+import { ProgramaModule } from './modules/programa/programa.module'; 
+import { FichaModule } from './modules/ficha/ficha.module'; 
+import { FichaUsuarioModule } from './modules/ficha_usuario/ficha_usuario.module'; 
+import { UbicacionModule } from './modules/ubicacion/ubicacion.module'; 
+import { TipoUbicacionModule } from './modules/tipo_ubicacion/tipo_ubicacion.module'; 
+import { UnidadModule } from './modules/unidad/unidad.module'; 
+import { LoteModule } from './modules/lote/lote.module'; 
+import { SolicitudModule } from './modules/solicitud/solicitud.module'; 
+import { SolicitudUnidadModule } from './modules/solicitud_unidad/solicitud_unidad.module'; 
+import { SolicitudLoteModule } from './modules/solicitud_lote/solicitud_lote.module'; 
+import { EntregaModule } from './modules/entrega/entrega.module';
 
 @Module({
   imports: [
@@ -44,6 +57,19 @@ import { IncidenciaModule } from './modules/incidencia/incidencia.module';
     TrasladoLoteModule,
     KardexModule,
     IncidenciaModule,
+    SedeModule, 
+    AreaModule, 
+    ProgramaModule, 
+    FichaModule, 
+    FichaUsuarioModule, 
+    UbicacionModule, 
+    TipoUbicacionModule, 
+    UnidadModule, 
+    LoteModule, 
+    SolicitudModule, 
+    SolicitudUnidadModule, 
+    SolicitudLoteModule, 
+    EntregaModule,
   ],
   controllers: [],
   providers: [],
