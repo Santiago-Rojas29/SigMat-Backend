@@ -28,6 +28,11 @@ import { SolicitudModule } from './modules/solicitud/solicitud.module';
 import { SolicitudUnidadModule } from './modules/solicitud_unidad/solicitud_unidad.module'; 
 import { SolicitudLoteModule } from './modules/solicitud_lote/solicitud_lote.module'; 
 import { EntregaModule } from './modules/entrega/entrega.module';
+import { RolModule } from './modules/rol/rol.module';
+import { RolPermisosModule } from './modules/rol_permisos/rol_permisos.module';
+import { UsuarioModule } from './modules/usuario/usuario.module';
+import { MaterialModule } from './modules/material/material.module';
+import { PermisosModule } from './modules/permisos/permisos.module';
 
 @Module({
   imports: [
@@ -70,6 +75,11 @@ import { EntregaModule } from './modules/entrega/entrega.module';
     SolicitudUnidadModule, 
     SolicitudLoteModule, 
     EntregaModule,
+    RolModule,
+    RolPermisosModule,
+    UsuarioModule,
+    MaterialModule,
+    PermisosModule
   ],
   controllers: [],
   providers: [],
