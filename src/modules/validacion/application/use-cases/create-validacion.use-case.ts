@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Validacion } from '../../domain/entities/validacion.entity';
+import { DecisionValidacion, Validacion } from '../../domain/entities/validacion.entity';
 import type { ValidacionRepository } from '../../domain/ports/validacion.repository';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class CreateValidacionUseCase {
     id_solicitud: string;
     id_validador: string;
     fecha_validacion: string;
-    decision: string;
+    decision: DecisionValidacion;
     observaciones: string;
   }): Promise<Validacion> {
     const validacion = new Validacion(
