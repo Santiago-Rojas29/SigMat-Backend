@@ -8,7 +8,7 @@ export class EliminarSolicitudLoteUseCase {
     private readonly repo: SolicitudLoteRepository,
   ) {}
 
-  async execute(id_solicitud: number, id_lote: number): Promise<void> {
+  async execute(id_solicitud: string, id_lote: string): Promise<void> {
     await this.repo.eliminar(id_solicitud, id_lote);
   }
 }

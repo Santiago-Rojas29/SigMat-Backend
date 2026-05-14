@@ -10,13 +10,13 @@ export class CreateEntregaUseCase {
   ) {}
 
   async execute(data: {
-    id_prestamo: number;
-    id_encargado: number;
+    id_prestamo: string;
+    id_encargado: string;
     fecha_entrega: string;
     observaciones: string;
   }): Promise<Entrega> {
     const entity = new Entrega(
-      0,
+      "",
       data.id_prestamo,
       data.id_encargado,
       new Date(data.fecha_entrega),

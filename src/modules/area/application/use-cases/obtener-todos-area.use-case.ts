@@ -7,7 +7,7 @@ export class ObtenerTodosAreaUseCase {
   constructor(
     @Inject('AreaRepository')
     private readonly repo: AreaRepository,
-  ) {}
+  ) { }
 
   async execute(): Promise<Area[]> {
     return this.repo.obtenerTodos();

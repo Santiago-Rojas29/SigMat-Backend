@@ -2,7 +2,7 @@ const nombresValidos = ['bodega', 'laboratorio', 'aula'];
 
 export class TipoUbicacion {
   constructor(
-    public readonly id_tipo_ubicacion: number,
+    public readonly id_tipo_ubicacion: string,
     public nombre: string,
     public descripcion: string,
   ) {}

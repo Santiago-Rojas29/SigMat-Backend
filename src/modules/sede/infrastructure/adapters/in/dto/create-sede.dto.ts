@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateSedeDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_centro!: number;
+  id_centro!: string;
 
   @IsString()
   @IsNotEmpty()

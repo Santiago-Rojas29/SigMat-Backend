@@ -1,16 +1,15 @@
 import {
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class UpdateFichaDto {
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_programa?: number;
+  id_programa?: string;
 
   @IsOptional()
   @IsString()

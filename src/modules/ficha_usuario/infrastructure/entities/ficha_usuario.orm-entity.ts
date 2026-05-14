@@ -8,10 +8,10 @@ export enum RolEnFicha {
 @Entity('ficha_usuario')
 export class FichaUsuarioOrmEntity {
   @PrimaryColumn()
-  id_ficha!: number;
+  id_ficha!: string;
 
   @PrimaryColumn()
-  id_usuario!: number;
+  id_usuario!: string;
 
   @Column({
     type: 'enum',

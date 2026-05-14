@@ -15,10 +15,10 @@ export enum EstadoFicha {
 @Entity('ficha')
 export class FichaOrmEntity {
   @PrimaryGeneratedColumn()
-  id_ficha!: number;
+  id_ficha!: string;
 
   @Column()
-  id_programa!: number;
+  id_programa!: string;
 
   @Column({ length: 50 })
   codigo_ficha!: string;

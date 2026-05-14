@@ -9,7 +9,7 @@ export enum NombreTipoUbicacion {
 @Entity('tipo_ubicacion')
 export class TipoUbicacionOrmEntity {
   @PrimaryGeneratedColumn()
-  id_tipo_ubicacion!: number;
+  id_tipo_ubicacion!: string;
 
   @Column({
     type: 'enum',

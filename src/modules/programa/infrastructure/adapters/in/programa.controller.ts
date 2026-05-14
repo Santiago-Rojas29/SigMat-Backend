@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateProgramaUseCase } from '../../../application/use-cases/create-programa.use-case';
 import { ActualizarProgramaUseCase } from '../../../application/use-cases/actualizar-programa.use-case';
@@ -24,7 +23,7 @@ export class ProgramaController {
     private readonly eliminarUseCase: EliminarProgramaUseCase,
     private readonly obtenerPorIdUseCase: ObtenerPorIdProgramaUseCase,
     private readonly obtenerTodosUseCase: ObtenerTodosProgramaUseCase,
-  ) {}
+  ) { }
 
   @Post()
   crear(@Body() body: CreateProgramaDto) {
@@ -37,20 +36,20 @@ export class ProgramaController {
   }
 
   @Get(':id')
-  obtenerPorId(@Param('id', ParseIntPipe) id: number) {
+  obtenerPorId(@Param('id') id: string) {
     return this.obtenerPorIdUseCase.execute(id);
   }
 
   @Patch(':id')
   actualizar(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() body: UpdateProgramaDto,
   ) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
+  eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }
 }

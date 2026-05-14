@@ -1,20 +1,19 @@
 import {
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class UpdateUbicacionDto {
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_area?: number;
+  id_area?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_tipo_ubicacion?: number;
+  id_tipo_ubicacion?: string;
 
   @IsOptional()
   @IsString()

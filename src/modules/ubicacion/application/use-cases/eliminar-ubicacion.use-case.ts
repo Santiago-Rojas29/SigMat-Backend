@@ -6,9 +6,9 @@ export class EliminarUbicacionUseCase {
   constructor(
     @Inject('UbicacionRepository')
     private readonly repo: UbicacionRepository,
-  ) {}
+  ) { }
 
-  async execute(id: number): Promise<void> {
+  async execute(id: string): Promise<void> {
     await this.repo.eliminar(id);
   }
 }

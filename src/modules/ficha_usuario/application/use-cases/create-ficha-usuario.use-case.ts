@@ -7,11 +7,11 @@ export class CreateFichaUsuarioUseCase {
   constructor(
     @Inject('FichaUsuarioRepository')
     private readonly repo: FichaUsuarioRepository,
-  ) {}
+  ) { }
 
   async execute(data: {
-    id_ficha: number;
-    id_usuario: number;
+    id_ficha: string;
+    id_usuario: string;
     rol_en_ficha: string;
   }): Promise<FichaUsuario> {
     const entity = new FichaUsuario(

@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateSolicitudLoteUseCase } from '../../../application/use-cases/create-solicitud-lote.use-case';
 import { ActualizarSolicitudLoteUseCase } from '../../../application/use-cases/actualizar-solicitud-lote.use-case';
@@ -38,16 +37,16 @@ export class SolicitudLoteController {
 
   @Get(':id_solicitud/:id_lote')
   obtenerPorId(
-    @Param('id_solicitud', ParseIntPipe) id_solicitud: number,
-    @Param('id_lote', ParseIntPipe) id_lote: number,
+    @Param('id_solicitud') id_solicitud: string,
+    @Param('id_lote') id_lote: string,
   ) {
     return this.obtenerPorIdUseCase.execute(id_solicitud, id_lote);
   }
 
   @Patch(':id_solicitud/:id_lote')
   actualizar(
-    @Param('id_solicitud', ParseIntPipe) id_solicitud: number,
-    @Param('id_lote', ParseIntPipe) id_lote: number,
+    @Param('id_solicitud') id_solicitud: string,
+    @Param('id_lote') id_lote: string,
     @Body() body: UpdateSolicitudLoteDto,
   ) {
     return this.actualizarUseCase.execute(id_solicitud, id_lote, body);
@@ -55,8 +54,8 @@ export class SolicitudLoteController {
 
   @Delete(':id_solicitud/:id_lote')
   eliminar(
-    @Param('id_solicitud', ParseIntPipe) id_solicitud: number,
-    @Param('id_lote', ParseIntPipe) id_lote: number,
+    @Param('id_solicitud') id_solicitud: string,
+    @Param('id_lote') id_lote: string,
   ) {
     return this.eliminarUseCase.execute(id_solicitud, id_lote);
   }

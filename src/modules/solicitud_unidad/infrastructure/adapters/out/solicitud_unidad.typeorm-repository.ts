@@ -35,19 +35,19 @@ export class SolicitudUnidadTypeOrmRepository implements SolicitudUnidadReposito
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id_solicitud: number, id_unidad: number): Promise<SolicitudUnidad | null> {
+  async obtenerPorId(id_solicitud: string, id_unidad: string): Promise<SolicitudUnidad | null> {
     const orm = await this.repo.findOneBy({ id_solicitud, id_unidad });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id_solicitud: number, id_unidad: number, data: Partial<SolicitudUnidad>): Promise<SolicitudUnidad> {
+  async actualizar(id_solicitud: string, id_unidad: string, data: Partial<SolicitudUnidad>): Promise<SolicitudUnidad> {
     await this.repo.update({ id_solicitud, id_unidad }, data as any);
     const orm = await this.repo.findOneBy({ id_solicitud, id_unidad });
     if (!orm) throw new Error(`SolicitudUnidad con id_solicitud ${id_solicitud} e id_unidad ${id_unidad} no encontrado`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id_solicitud: number, id_unidad: number): Promise<void> {
+  async eliminar(id_solicitud: string, id_unidad: string): Promise<void> {
     await this.repo.delete({ id_solicitud, id_unidad });
   }
 }

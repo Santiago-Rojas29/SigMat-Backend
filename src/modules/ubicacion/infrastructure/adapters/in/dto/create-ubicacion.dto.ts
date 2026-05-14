@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateUbicacionDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_area!: number;
+  id_area!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_tipo_ubicacion!: number;
+  id_tipo_ubicacion!: string;
 
   @IsString()
   @IsNotEmpty()

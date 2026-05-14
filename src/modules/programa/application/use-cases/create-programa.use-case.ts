@@ -7,17 +7,17 @@ export class CreateProgramaUseCase {
   constructor(
     @Inject('ProgramaRepository')
     private readonly repo: ProgramaRepository,
-  ) {}
+  ) { }
 
   async execute(data: {
-    id_area: number;
+    id_area: string;
     nombre: string;
     codigo_programa: string;
     nivel_formacion: string;
     estado: string;
   }): Promise<Programa> {
     const entity = new Programa(
-      0,
+      "0",
       data.id_area,
       data.nombre,
       data.codigo_programa,

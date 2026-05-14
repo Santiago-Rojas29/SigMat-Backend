@@ -1,19 +1,19 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateSolicitudLoteDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_solicitud!: number;
+  id_solicitud!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_lote!: number;
+  id_lote!: string;
 
   @IsNumber()
   @IsNotEmpty()
   cantidad_solicitada!: number;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_usuario!: number;
+  id_usuario!: string;
 }

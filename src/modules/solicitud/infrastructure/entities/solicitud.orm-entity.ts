@@ -14,10 +14,10 @@ export enum EstadoSolicitud {
 @Entity('solicitud')
 export class SolicitudOrmEntity {
   @PrimaryGeneratedColumn()
-  id_solicitud!: number;
+  id_solicitud!: string;
 
   @Column()
-  id_solicitante!: number;
+  id_solicitante!: string;
 
   @Column({ type: 'timestamp' })
   fecha_solicitud!: Date;

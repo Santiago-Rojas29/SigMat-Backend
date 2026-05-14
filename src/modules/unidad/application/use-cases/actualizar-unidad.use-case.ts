@@ -10,11 +10,11 @@ export class ActualizarUnidadUseCase {
   ) {}
 
   async execute(
-    id: number,
+    id: string,
     data: {
-      id_material?: number;
-      id_responsable?: number;
-      id_ubicacion?: number;
+      id_material?: string;
+      id_responsable?: string;
+      id_ubicacion?: string;
       codigo_unidad?: string;
       estado?: string;
     },

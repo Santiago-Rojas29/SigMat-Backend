@@ -14,10 +14,10 @@ export enum EstadoPrograma {
 @Entity('programa')
 export class ProgramaOrmEntity {
   @PrimaryGeneratedColumn()
-  id_programa!: number;
+  id_programa!: string;
 
   @Column()
-  id_area!: number;
+  id_area!: string;
 
   @Column({ length: 150 })
   nombre!: string;

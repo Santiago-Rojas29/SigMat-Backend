@@ -1,15 +1,15 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateSolicitudUnidadDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_solicitud!: number;
+  id_solicitud!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_unidad!: number;
+  id_unidad!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_usuario!: number;
+  id_usuario!: string;
 }

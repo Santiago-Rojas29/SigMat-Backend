@@ -10,7 +10,7 @@ export class FichaUsuarioTypeOrmRepository implements FichaUsuarioRepository {
   constructor(
     @InjectRepository(FichaUsuarioOrmEntity)
     private readonly repo: Repository<FichaUsuarioOrmEntity>,
-  ) {}
+  ) { }
 
   private toEntity(orm: FichaUsuarioOrmEntity): FichaUsuario {
     return new FichaUsuario(
@@ -35,19 +35,19 @@ export class FichaUsuarioTypeOrmRepository implements FichaUsuarioRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id_ficha: number, id_usuario: number): Promise<FichaUsuario | null> {
+  async obtenerPorId(id_ficha: string, id_usuario: string): Promise<FichaUsuario | null> {
     const orm = await this.repo.findOneBy({ id_ficha, id_usuario });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id_ficha: number, id_usuario: number, data: Partial<FichaUsuario>): Promise<FichaUsuario> {
+  async actualizar(id_ficha: string, id_usuario: string, data: Partial<FichaUsuario>): Promise<FichaUsuario> {
     await this.repo.update({ id_ficha, id_usuario }, data as any);
     const orm = await this.repo.findOneBy({ id_ficha, id_usuario });
     if (!orm) throw new Error(`FichaUsuario con id_ficha ${id_ficha} e id_usuario ${id_usuario} no encontrado`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id_ficha: number, id_usuario: number): Promise<void> {
+  async eliminar(id_ficha: string, id_usuario: string): Promise<void> {
     await this.repo.delete({ id_ficha, id_usuario });
   }
 }

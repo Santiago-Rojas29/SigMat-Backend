@@ -1,8 +1,8 @@
 export class Entrega {
   constructor(
-    public readonly id_entrega: number,
-    public id_prestamo: number,
-    public id_encargado: number,
+    public readonly id_entrega: string,
+    public id_prestamo: string,
+    public id_encargado: string,
     public fecha_entrega: Date,
     public observaciones: string,
   ) {}

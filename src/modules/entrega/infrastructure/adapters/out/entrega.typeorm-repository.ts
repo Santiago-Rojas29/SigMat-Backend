@@ -38,19 +38,19 @@ export class EntregaTypeOrmRepository implements EntregaRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id: number): Promise<Entrega | null> {
+  async obtenerPorId(id: string): Promise<Entrega | null> {
     const orm = await this.repo.findOneBy({ id_entrega: id });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: number, data: Partial<Entrega>): Promise<Entrega> {
+  async actualizar(id: string, data: Partial<Entrega>): Promise<Entrega> {
     await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id_entrega: id });
     if (!orm) throw new Error(`Entrega con id ${id} no encontrada`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id: string): Promise<void> {
     await this.repo.delete(id);
   }
 }

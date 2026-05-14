@@ -10,9 +10,9 @@ export class CreateSolicitudUnidadUseCase {
   ) {}
 
   async execute(data: {
-    id_solicitud: number;
-    id_unidad: number;
-    id_usuario: number;
+    id_solicitud: string;
+    id_unidad: string;
+    id_usuario: string;
   }): Promise<SolicitudUnidad> {
     const entity = new SolicitudUnidad(
       data.id_solicitud,

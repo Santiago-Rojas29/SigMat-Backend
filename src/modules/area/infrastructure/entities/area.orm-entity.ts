@@ -8,13 +8,13 @@ export enum EstadoArea {
 @Entity('area')
 export class AreaOrmEntity {
   @PrimaryGeneratedColumn()
-  id_area!: number;
+  id_area!: string;
 
   @Column()
-  id_sede!: number;
+  id_sede!: string;
 
   @Column()
-  id_usuario!: number;
+  id_usuario!: string;
 
   @Column({ length: 100 })
   nombre!: string;

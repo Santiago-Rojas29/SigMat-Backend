@@ -14,7 +14,7 @@ export class CreateTipoUbicacionUseCase {
     descripcion: string;
   }): Promise<TipoUbicacion> {
     const entity = new TipoUbicacion(
-      0,
+      "",
       data.nombre,
       data.descripcion,
     );

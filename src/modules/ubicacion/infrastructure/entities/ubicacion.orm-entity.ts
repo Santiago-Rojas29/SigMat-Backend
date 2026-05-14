@@ -8,13 +8,13 @@ export enum EstadoUbicacion {
 @Entity('ubicacion')
 export class UbicacionOrmEntity {
   @PrimaryGeneratedColumn()
-  id_ubicacion!: number;
+  id_ubicacion!: string;
 
   @Column()
-  id_area!: number;
+  id_area!: string;
 
   @Column()
-  id_tipo_ubicacion!: number;
+  id_tipo_ubicacion!: string;
 
   @Column({ length: 100 })
   nombre!: string;

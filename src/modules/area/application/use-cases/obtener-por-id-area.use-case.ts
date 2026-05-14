@@ -7,9 +7,9 @@ export class ObtenerPorIdAreaUseCase {
   constructor(
     @Inject('AreaRepository')
     private readonly repo: AreaRepository,
-  ) {}
+  ) { }
 
-  async execute(id: number): Promise<Area | null> {
+  async execute(id: string): Promise<Area | null> {
     return this.repo.obtenerPorId(id);
   }
 }

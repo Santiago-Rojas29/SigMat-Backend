@@ -3,11 +3,11 @@ import { Entity, Column, PrimaryColumn } from 'typeorm';
 @Entity('solicitud_unidad')
 export class SolicitudUnidadOrmEntity {
   @PrimaryColumn()
-  id_solicitud!: number;
+  id_solicitud!: string;
 
   @PrimaryColumn()
-  id_unidad!: number;
+  id_unidad!: string;
 
   @Column()
-  id_usuario!: number;
+  id_usuario!: string;
 }

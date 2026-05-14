@@ -6,9 +6,9 @@ import {
 } from 'class-validator';
 
 export class CreateSolicitudDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_solicitante!: number;
+  id_solicitante!: string;
 
   @IsDateString()
   @IsNotEmpty()

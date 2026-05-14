@@ -1,8 +1,8 @@
 export class SolicitudUnidad {
   constructor(
-    public readonly id_solicitud: number,
-    public readonly id_unidad: number,
-    public id_usuario: number,
+    public readonly id_solicitud: string,
+    public readonly id_unidad: string,
+    public id_usuario: string,
   ) {}
 
   validar(): void {

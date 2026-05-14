@@ -7,13 +7,13 @@ export class ActualizarAreaUseCase {
   constructor(
     @Inject('AreaRepository')
     private readonly repo: AreaRepository,
-  ) {}
+  ) { }
 
   async execute(
-    id: number,
+    id: string,
     data: {
-      id_sede?: number;
-      id_usuario?: number;
+      id_sede?: string;
+      id_usuario?: string;
       nombre?: string;
       descripcion?: string;
       estado?: string;

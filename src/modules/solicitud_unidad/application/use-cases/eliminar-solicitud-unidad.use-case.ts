@@ -8,7 +8,7 @@ export class EliminarSolicitudUnidadUseCase {
     private readonly repo: SolicitudUnidadRepository,
   ) {}
 
-  async execute(id_solicitud: number, id_unidad: number): Promise<void> {
+  async execute(id_solicitud: string, id_unidad: string): Promise<void> {
     await this.repo.eliminar(id_solicitud, id_unidad);
   }
 }

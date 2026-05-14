@@ -10,10 +10,10 @@ export class ActualizarSolicitudUnidadUseCase {
   ) {}
 
   async execute(
-    id_solicitud: number,
-    id_unidad: number,
+    id_solicitud: string,
+    id_unidad: string,
     data: {
-      id_usuario?: number;
+      id_usuario: string;
     },
   ): Promise<SolicitudUnidad> {
     const mapped: Partial<SolicitudUnidad> = { ...data };

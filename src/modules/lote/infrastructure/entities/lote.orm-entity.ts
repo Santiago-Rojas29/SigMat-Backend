@@ -11,16 +11,16 @@ export enum UnidadMedida {
 @Entity('lote')
 export class LoteOrmEntity {
   @PrimaryGeneratedColumn()
-  id_lote!: number;
+  id_lote!: string;
 
   @Column()
-  id_material!: number;
+  id_material!: string;
 
   @Column()
-  id_responsable!: number;
+  id_responsable!: string;
 
   @Column()
-  id_ubicacion!: number;
+  id_ubicacion!: string;
 
   @Column({ length: 50 })
   codigo_lote!: string;

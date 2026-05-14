@@ -10,9 +10,9 @@ export class ActualizarSedeUseCase {
   ) {}
 
   async execute(
-    id: number,
+    id: string,
     data: {
-      id_centro?: number;
+      id_centro?: string;
       nombre?: string;
       direccion?: string;
       telefono?: string;

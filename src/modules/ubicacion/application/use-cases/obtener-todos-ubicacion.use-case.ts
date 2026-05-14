@@ -7,7 +7,7 @@ export class ObtenerTodosUbicacionUseCase {
   constructor(
     @Inject('UbicacionRepository')
     private readonly repo: UbicacionRepository,
-  ) {}
+  ) { }
 
   async execute(): Promise<Ubicacion[]> {
     return this.repo.obtenerTodos();

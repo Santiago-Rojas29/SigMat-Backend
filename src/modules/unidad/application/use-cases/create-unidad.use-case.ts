@@ -10,14 +10,14 @@ export class CreateUnidadUseCase {
   ) {}
 
   async execute(data: {
-    id_material: number;
-    id_responsable: number;
-    id_ubicacion: number;
+    id_material: string;
+    id_responsable: string;
+    id_ubicacion: string;
     codigo_unidad: string;
     estado: string;
   }): Promise<Unidad> {
     const entity = new Unidad(
-      0,
+      "",
       data.id_material,
       data.id_responsable,
       data.id_ubicacion,

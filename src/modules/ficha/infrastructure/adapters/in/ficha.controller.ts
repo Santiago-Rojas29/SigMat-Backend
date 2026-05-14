@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateFichaUseCase } from '../../../application/use-cases/create-ficha.use-case';
 import { ActualizarFichaUseCase } from '../../../application/use-cases/actualizar-ficha.use-case';
@@ -24,7 +23,7 @@ export class FichaController {
     private readonly eliminarUseCase: EliminarFichaUseCase,
     private readonly obtenerPorIdUseCase: ObtenerPorIdFichaUseCase,
     private readonly obtenerTodosUseCase: ObtenerTodosFichaUseCase,
-  ) {}
+  ) { }
 
   @Post()
   crear(@Body() body: CreateFichaDto) {
@@ -37,20 +36,20 @@ export class FichaController {
   }
 
   @Get(':id')
-  obtenerPorId(@Param('id', ParseIntPipe) id: number) {
+  obtenerPorId(@Param('id') id: string) {
     return this.obtenerPorIdUseCase.execute(id);
   }
 
   @Patch(':id')
   actualizar(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() body: UpdateFichaDto,
   ) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
+  eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }
 }

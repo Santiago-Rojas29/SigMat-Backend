@@ -1,14 +1,13 @@
 import {
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsString,
 } from 'class-validator';
 
 export class CreateFichaDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_programa!: number;
+  id_programa!: string;
 
   @IsString()
   @IsNotEmpty()

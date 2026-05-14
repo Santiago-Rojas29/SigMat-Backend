@@ -1,20 +1,19 @@
 import {
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class UpdateAreaDto {
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_sede?: number;
+  id_sede?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_usuario?: number;
+  id_usuario?: string;
 
   @IsOptional()
   @IsString()

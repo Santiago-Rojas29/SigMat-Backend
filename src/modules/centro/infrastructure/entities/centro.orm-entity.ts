@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { SedeOrmEntity } from '../../../sede/infrastructure/entities/sede.orm-entity';
 
 @Entity('centro')
 export class CentroOrmEntity {
@@ -19,4 +20,7 @@ export class CentroOrmEntity {
 
   @Column()
   estado: string = '';
+
+  @OneToMany(() => SedeOrmEntity, (sede) => sede.centro)
+  sedes!: SedeOrmEntity[];
 }

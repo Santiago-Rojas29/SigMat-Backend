@@ -3,13 +3,13 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 @Entity('entrega')
 export class EntregaOrmEntity {
   @PrimaryGeneratedColumn()
-  id_entrega!: number;
+  id_entrega!: string;
 
   @Column()
-  id_prestamo!: number;
+  id_prestamo!: string;
 
   @Column()
-  id_encargado!: number;
+  id_encargado!: string;
 
   @Column({ type: 'timestamp' })
   fecha_entrega!: Date;

@@ -2,13 +2,13 @@ const estadosValidos = ['activo', 'inactivo'];
 
 export class Area {
   constructor(
-    public readonly id_area: number,
-    public id_sede: number,
-    public id_usuario: number,
+    public readonly id_area: string,
+    public id_sede: string,
+    public id_usuario: string,
     public nombre: string,
     public descripcion: string,
     public estado: string,
-  ) {}
+  ) { }
 
   validar(): void {
     if (!this.nombre) throw new Error('El nombre es obligatorio');
