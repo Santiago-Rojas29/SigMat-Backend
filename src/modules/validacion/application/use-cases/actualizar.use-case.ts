@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Validacion } from '../../domain/entities/validacion.entity';
+import { DecisionValidacion, Validacion } from '../../domain/entities/validacion.entity';
 import type { ValidacionRepository } from '../../domain/ports/validacion.repository';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class ActualizarValidacionUseCase {
         private readonly repo: ValidacionRepository,
     ) {}
 
-    async execute(id: string, data: { id_solicitud?: string; id_validador?: string; fecha_validacion?: string; decision?: string; observaciones?: string }): Promise<Validacion> {
+    async execute(id: string, data: { id_solicitud?: string; id_validador?: string; fecha_validacion?: string; decision?: DecisionValidacion; observaciones?: string }): Promise<Validacion> {
         const mapped: Partial<Validacion> = {
         ...(data.id_solicitud && { id_solicitud: data.id_solicitud }),
         ...(data.id_validador && { id_validador: data.id_validador }),

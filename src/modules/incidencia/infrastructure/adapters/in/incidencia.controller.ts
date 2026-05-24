@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearIncidenciaUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosIncidenciaUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdIncidenciaUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
@@ -7,6 +8,7 @@ import { EliminarIncidenciaUseCase } from '../../../application/use-cases/elimin
 import { CrearIncidenciaDto } from './dto/crear.dto';
 import { ActualizarIncidenciaDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('incidencia')
 export class IncidenciaController {
   constructor(

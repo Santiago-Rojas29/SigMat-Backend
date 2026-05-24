@@ -14,6 +14,12 @@ import { TrasladoUnidadModule } from './modules/traslado_unidad/traslado_unidad.
 import { TrasladoLoteModule } from './modules/traslado_lote/traslado_lote.module';
 import { KardexModule } from './modules/kardex/kardex.module';
 import { IncidenciaModule } from './modules/incidencia/incidencia.module';
+import { RolModule } from './modules/rol/rol.module';
+import { RolPermisosModule } from './modules/rol_permisos/rol_permisos.module';
+import { PermisosModule } from './modules/permisos/permisos.module';
+import { UsuarioModule } from './modules/usuario/usuario.module';
+import { MaterialModule } from './modules/material/material.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -42,6 +48,12 @@ import { IncidenciaModule } from './modules/incidencia/incidencia.module';
     TrasladoLoteModule,
     KardexModule,
     IncidenciaModule,
+    RolModule,
+    RolPermisosModule,
+    PermisosModule,
+    UsuarioModule,
+    MaterialModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

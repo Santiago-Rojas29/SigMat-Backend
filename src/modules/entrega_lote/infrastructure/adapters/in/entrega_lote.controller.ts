@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearEntregaLoteUseCase } from '../../../application/use-cases/crear.use-case';
 import { ActualizarEntregaLoteUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarEntregaLoteUseCase } from '../../../application/use-cases/eliminar.use-case';
@@ -7,6 +8,7 @@ import { ObtenerEntregaLotePorIdsUseCase } from '../../../application/use-cases/
 import { CrearEntregaLoteDto } from './dto/crear.dto';
 import { ActualizarEntregaLoteDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('entrega-lote')
 export class EntregaLoteController {
   constructor(

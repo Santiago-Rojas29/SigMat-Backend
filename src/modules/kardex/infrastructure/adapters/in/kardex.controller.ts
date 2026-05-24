@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearKardexUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosKardexUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdKardexUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
@@ -7,6 +8,7 @@ import { EliminarKardexUseCase } from '../../../application/use-cases/eliminar.u
 import { CrearKardexDto } from './dto/crear.dto';
 import { ActualizarKardexDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('kardex')
 export class KardexController {
   constructor(

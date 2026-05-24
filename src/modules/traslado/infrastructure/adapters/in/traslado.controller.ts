@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearTrasladoUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosTrasladoUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdTrasladoUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
@@ -7,6 +8,7 @@ import { EliminarTrasladoUseCase } from '../../../application/use-cases/eliminar
 import { CrearTrasladoDto } from './dto/crear.dto';
 import { ActualizarTrasladoDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('traslado')
 export class TrasladoController {
   constructor(

@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreatePrestamoUseCase } from '../../../application/use-cases/crear.use-case';
 import { ActualizarPrestamoUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarPrestamoUseCase } from '../../../application/use-cases/eliminar.use-case';
@@ -7,6 +8,7 @@ import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todo
 import { CreatePrestamoDto } from './dto/crear.dto';
 import { UpdatePrestamoDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('prestamo')
 export class PrestamoController {
   constructor(

@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearTrasladoLoteUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosTrasladoLoteUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdsTrasladoLoteUseCase } from '../../../application/use-cases/obtener-por-ids.use-case';
 import { CrearTrasladoLoteDto } from './dto/crear.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('traslado-lote')
 export class TrasladoLoteController {
   constructor(

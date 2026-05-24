@@ -7,7 +7,7 @@ import { CrearDevolucionUseCase } from './application/use-cases/crear.use-case';
 import { ActualizarDevolucionUseCase } from './application/use-cases/actualizar.use-case';
 import { EliminarDevolucionUseCase } from './application/use-cases/eliminar.use-case';
 import { ObtenerTodosDevolucionUseCase } from './application/use-cases/obtener-todos.use-case';
-import { ObtenerPorIdDevoluvionUseCase } from './application/use-cases/obtener-por-id.use-case';
+import { ObtenerPorIdDevolucionUseCase } from './application/use-cases/obtener-por-id.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([DevolucionOrmEntity])],
@@ -17,7 +17,7 @@ import { ObtenerPorIdDevoluvionUseCase } from './application/use-cases/obtener-p
     ActualizarDevolucionUseCase,
     EliminarDevolucionUseCase,
     ObtenerTodosDevolucionUseCase,
-    ObtenerPorIdDevoluvionUseCase,
+    ObtenerPorIdDevolucionUseCase,
     { provide: 'DevolucionRepository', useClass: DevolucionTypeOrmRepository },
   ],
 })

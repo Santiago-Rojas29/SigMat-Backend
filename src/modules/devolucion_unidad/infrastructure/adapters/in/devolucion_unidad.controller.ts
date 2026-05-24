@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearDevolucionUnidadUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosDevolucionUnidadUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdsDevolucionUnidadUseCase } from '../../../application/use-cases/obtener-por-ids.use-case';
 import { CrearDevolucionUnidadDto } from './dto/crear.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('devolucion-unidad')
 export class DevolucionUnidadController {
   constructor(
