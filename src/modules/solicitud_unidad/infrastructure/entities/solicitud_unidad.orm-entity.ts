@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('solicitud_unidad')
 export class SolicitudUnidadOrmEntity {
@@ -10,4 +11,8 @@ export class SolicitudUnidadOrmEntity {
 
   @Column()
   id_usuario!: string;
+
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.solicitudUnidad)
+  @JoinColumn({ name: 'id_usuario' })
+  usuarioUnidad!: UsuarioOrmEntity;
 }

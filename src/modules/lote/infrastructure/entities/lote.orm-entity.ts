@@ -1,4 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { TrasladoLoteOrmEntity } from 'src/modules/traslado_lote/infrastructure/entities/traslado_lote.orm-entity';
+import { UbicacionOrmEntity } from 'src/modules/ubicacion/infrastructure/entities/ubicacion.orm-entity';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum UnidadMedida {
   KG = 'kg',
@@ -19,8 +22,16 @@ export class LoteOrmEntity {
   @Column()
   id_responsable!: string;
 
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.lote)
+  @JoinColumn({ name: 'id_responsable'})
+  id_usuario!: UsuarioOrmEntity
+
   @Column()
   id_ubicacion!: string;
+
+  @ManyToOne(() => UbicacionOrmEntity, (ubicacion) => ubicacion.lote)
+  @JoinColumn({ name: 'id_ubicacion' })
+  ubicacion!: UbicacionOrmEntity;
 
   @Column({ length: 50 })
   codigo_lote!: string;
@@ -39,4 +50,6 @@ export class LoteOrmEntity {
 
   @Column({ type: 'date' })
   fecha_entrada!: Date;
+  @OneToMany(() => TrasladoLoteOrmEntity, (loteTraslado) => loteTraslado.id_lote)
+  loteTraslado!: TrasladoLoteOrmEntity[];
 }

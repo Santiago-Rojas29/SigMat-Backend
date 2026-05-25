@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { UbicacionOrmEntity } from 'src/modules/ubicacion/infrastructure/entities/ubicacion.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 export enum NombreTipoUbicacion {
   BODEGA = 'bodega',
@@ -19,4 +20,6 @@ export class TipoUbicacionOrmEntity {
 
   @Column({ type: 'text' })
   descripcion!: string;
+  @OneToMany(() => UbicacionOrmEntity, (ubicacion) => ubicacion.id_tipo_ubicacion)
+  ubicacion!: UbicacionOrmEntity[];
 }
