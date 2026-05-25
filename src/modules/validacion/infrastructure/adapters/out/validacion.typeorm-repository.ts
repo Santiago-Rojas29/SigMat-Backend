@@ -13,7 +13,14 @@ export class ValidacionTypeOrmRepository implements ValidacionRepository {
   ) {}
 
   private toEntity(orm: ValidacionOrmEntity): Validacion {
-    return new Validacion(orm.id, orm.id_solicitud, orm.id_validador, orm.fecha_validacion, orm.decision, orm.observaciones);
+    return new Validacion(
+      orm.id,
+      orm.id_solicitud,
+      orm.id_validador,
+      orm.fecha_validacion,
+      orm.decision,
+      orm.observaciones,
+    );
   }
 
   async crear(validacion: Validacion): Promise<Validacion> {
@@ -30,7 +37,7 @@ export class ValidacionTypeOrmRepository implements ValidacionRepository {
 
   async obtenerTodos(): Promise<Validacion[]> {
     const data = await this.repo.find();
-    return data.map(orm => this.toEntity(orm));
+    return data.map((orm) => this.toEntity(orm));
   }
 
   async obtenerPorId(id: string): Promise<Validacion | null> {

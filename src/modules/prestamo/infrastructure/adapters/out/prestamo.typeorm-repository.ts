@@ -13,7 +13,12 @@ export class PrestamoTypeOrmRepository implements PrestamoRepository {
   ) {}
 
   private toEntity(orm: PrestamoOrmEntity): Prestamo {
-    return new Prestamo(orm.id, orm.id_validacion, orm.fecha_limite, orm.estado);
+    return new Prestamo(
+      orm.id,
+      orm.id_validacion,
+      orm.fecha_limite,
+      orm.estado,
+    );
   }
 
   async crear(prestamo: Prestamo): Promise<Prestamo> {
@@ -28,7 +33,7 @@ export class PrestamoTypeOrmRepository implements PrestamoRepository {
 
   async obtenerTodos(): Promise<Prestamo[]> {
     const data = await this.repo.find();
-    return data.map(orm => this.toEntity(orm));
+    return data.map((orm) => this.toEntity(orm));
   }
 
   async obtenerPorId(id: string): Promise<Prestamo | null> {
