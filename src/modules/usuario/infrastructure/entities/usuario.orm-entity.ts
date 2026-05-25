@@ -1,5 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { TipoDocumento, EstadoUsuario } from '../../domain/entities/usuario.entity';
+import { IncidenciaOrmEntity } from 'src/modules/incidencia/infrastructure/entities/incidencia.orm-entity';
+import { AreaOrmEntity } from 'src/modules/area/infrastructure/entities/area.orm-entity';
+import { TrasladoOrmEntity } from 'src/modules/traslado/infrastructure/entities/traslado.orm-entity';
+import { UnidadOrmEntity } from 'src/modules/unidad/infrastructure/entities/unidad.orm-entity';
+import { LoteOrmEntity } from 'src/modules/lote/infrastructure/entities/lote.orm-entity';
+import { SolicitudUnidadOrmEntity } from 'src/modules/solicitud_unidad/infrastructure/entities/solicitud_unidad.orm-entity';
+import { RolOrmEntity } from 'src/modules/rol/infrastructure/entities/rol.orm-entity';
 
 @Entity('usuario')
 export class UsuarioOrmEntity {
@@ -8,6 +15,10 @@ export class UsuarioOrmEntity {
 
   @Column('text')
   id_rol!: string;
+
+  @ManyToOne(() => RolOrmEntity, (rol) => rol.usuario)
+  @JoinColumn({ name: 'id_rol' })
+  rol!: RolOrmEntity;
 
   @Column({ type: 'enum', enum: TipoDocumento })
   tipo_documento!: TipoDocumento;
@@ -29,4 +40,16 @@ export class UsuarioOrmEntity {
 
   @Column({ type: 'enum', enum: EstadoUsuario })
   estado!: EstadoUsuario;
+  @OneToMany(() => IncidenciaOrmEntity, (encidencia) => encidencia.id_usuario)
+  incidencia!: IncidenciaOrmEntity[];
+  @OneToMany(() => AreaOrmEntity, (area) => area.id_usuario)
+  area!: AreaOrmEntity[];
+  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.id_responsable)
+  traslado!: TrasladoOrmEntity[];
+  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.id_responsable)
+  unidad!: UnidadOrmEntity[];
+  @OneToMany(() => LoteOrmEntity, (lote) => lote.id_responsable)
+  lote!: LoteOrmEntity[];
+  @OneToMany(() => SolicitudUnidadOrmEntity, (solicitudUnidad) => solicitudUnidad.id_usuario)
+  solicitudUnidad!: SolicitudUnidadOrmEntity[];
 }

@@ -1,6 +1,7 @@
 import { ProgramaOrmEntity } from 'src/modules/programa/infrastructure/entities/programa.orm-entity';
 import { SedeOrmEntity } from 'src/modules/sede/infrastructure/entities/sede.orm-entity';
 import { UbicacionOrmEntity } from 'src/modules/ubicacion/infrastructure/entities/ubicacion.orm-entity';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 export enum EstadoArea {
@@ -22,6 +23,9 @@ export class AreaOrmEntity {
 
   @Column()
   id_usuario!: string;
+
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.area)
+  @JoinColumn({ name: 'id_usuario'})
 
   @Column({ length: 100 })
   nombre!: string;

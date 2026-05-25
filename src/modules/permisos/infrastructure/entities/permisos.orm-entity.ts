@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ModuloPermiso } from '../../domain/entities/permisos.entity';
+import { RolPermisosOrmEntity } from 'src/modules/rol_permisos/infrastructure/entities/rol_permisos.orm-entity';
 
 @Entity('permisos')
 export class PermisosOrmEntity {
@@ -14,4 +15,6 @@ export class PermisosOrmEntity {
 
   @Column({ type: 'enum', enum: ModuloPermiso })
   modulo!: ModuloPermiso;
+  @OneToMany(() => RolPermisosOrmEntity, (rolPermiso) => rolPermiso.id_permiso)
+  rolPermiso!: RolPermisosOrmEntity[];
 }
