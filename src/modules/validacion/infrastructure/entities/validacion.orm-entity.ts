@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { DecisionValidacion } from '../../domain/entities/validacion.entity';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
 
 @Entity('validacion')
 export class ValidacionOrmEntity {
@@ -11,6 +12,10 @@ export class ValidacionOrmEntity {
 
   @Column('text')
   id_validador!: string;
+
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.validacion)
+  @JoinColumn({ name: 'id_validador' })
+  usuario!: UsuarioOrmEntity;
 
   @Column({ type: 'timestamp' })
   fecha_validacion!: Date;

@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('solicitud_lote')
 export class SolicitudLoteOrmEntity {
@@ -13,4 +14,8 @@ export class SolicitudLoteOrmEntity {
 
   @Column()
   id_usuario!: string;
+
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.solicitudLote)
+  @JoinColumn({ name: 'id_usuario' })
+  usuario!: UsuarioOrmEntity;
 }

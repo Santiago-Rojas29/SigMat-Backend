@@ -14,6 +14,7 @@ export class SolicitudTypeOrmRepository implements SolicitudRepository {
 
   private toEntity(orm: SolicitudOrmEntity): Solicitud {
     return new Solicitud(
+      orm.id_ficha,
       orm.id_solicitud,
       orm.id_solicitante,
       orm.fecha_solicitud,
@@ -25,6 +26,7 @@ export class SolicitudTypeOrmRepository implements SolicitudRepository {
 
   async crear(solicitud: Solicitud): Promise<Solicitud> {
     const orm = this.repo.create({
+      id_ficha: solicitud.id_ficha,
       id_solicitante: solicitud.id_solicitante,
       fecha_solicitud: solicitud.fecha_solicitud,
       tipo_prestamo: solicitud.tipo_prestamo as any,

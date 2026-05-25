@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('entrega')
 export class EntregaOrmEntity {
@@ -10,6 +11,10 @@ export class EntregaOrmEntity {
 
   @Column()
   id_encargado!: string;
+
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.entrega)
+  @JoinColumn({ name: 'id_encargado'})
+  usuario!: UsuarioOrmEntity;
 
   @Column({ type: 'timestamp' })
   fecha_entrega!: Date;

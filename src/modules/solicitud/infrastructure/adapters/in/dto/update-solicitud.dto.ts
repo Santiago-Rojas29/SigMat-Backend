@@ -13,6 +13,11 @@ export class UpdateSolicitudDto {
   id_solicitante: string;
 
   @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  id_ficha: string;
+
+  @IsOptional()
   @IsDateString()
   @IsNotEmpty()
   fecha_solicitud?: string;

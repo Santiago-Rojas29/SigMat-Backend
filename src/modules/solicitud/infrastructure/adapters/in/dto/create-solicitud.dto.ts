@@ -10,6 +10,10 @@ export class CreateSolicitudDto {
   @IsNotEmpty()
   id_solicitante!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  id_ficha!: string;
+
   @IsDateString()
   @IsNotEmpty()
   fecha_solicitud!: string;

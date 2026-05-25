@@ -10,6 +10,7 @@ export class CreateSolicitudUseCase {
   ) {}
 
   async execute(data: {
+    id_ficha: string;
     id_solicitante: string;
     fecha_solicitud: string;
     tipo_prestamo: string;
@@ -17,6 +18,7 @@ export class CreateSolicitudUseCase {
     observaciones: string;
   }): Promise<Solicitud> {
     const entity = new Solicitud("",
+      data.id_ficha,
       data.id_solicitante,
       new Date(data.fecha_solicitud),
       data.tipo_prestamo,

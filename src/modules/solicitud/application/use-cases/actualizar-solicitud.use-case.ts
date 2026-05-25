@@ -12,6 +12,7 @@ export class ActualizarSolicitudUseCase {
   async execute(
     id: string,
     data: {
+      id_ficha: string;
       id_solicitante: string;
       fecha_solicitud?: string;
       tipo_prestamo?: string;
@@ -20,6 +21,7 @@ export class ActualizarSolicitudUseCase {
     },
   ): Promise<Solicitud> {
     const mapped: Partial<Solicitud> = {
+      ...(data.id_ficha !== undefined && { id_ficha: data.id_ficha }),
       ...(data.id_solicitante !== undefined && { id_solicitante: data.id_solicitante }),
       ...(data.fecha_solicitud !== undefined && { fecha_solicitud: new Date(data.fecha_solicitud) }),
       ...(data.tipo_prestamo !== undefined && { tipo_prestamo: data.tipo_prestamo }),

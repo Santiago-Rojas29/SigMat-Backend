@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { FichaOrmEntity } from 'src/modules/ficha/infrastructure/entities/ficha.orm-entity';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum TipoPrestamo {
   INTERNO = 'interno',
@@ -17,7 +19,14 @@ export class SolicitudOrmEntity {
   id_solicitud!: string;
 
   @Column()
+  id_ficha!: string;
+
+  @Column()
   id_solicitante!: string;
+
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.solicitud)
+  @JoinColumn({ name: 'id_solicitante' })
+  usuario!: UsuarioOrmEntity;
 
   @Column({ type: 'timestamp' })
   fecha_solicitud!: Date;

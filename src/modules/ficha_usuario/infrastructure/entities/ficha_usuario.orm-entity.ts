@@ -1,4 +1,5 @@
 import { FichaOrmEntity } from 'src/modules/ficha/infrastructure/entities/ficha.orm-entity';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
 import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 export enum RolEnFicha {
@@ -17,6 +18,10 @@ export class FichaUsuarioOrmEntity {
 
   @PrimaryColumn()
   id_usuario!: string;
+
+  @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.fichaUsuario)
+  @JoinColumn({ name: 'id_usuario' })
+  usuario!: UsuarioOrmEntity;
 
   @Column({
     type: 'enum',
