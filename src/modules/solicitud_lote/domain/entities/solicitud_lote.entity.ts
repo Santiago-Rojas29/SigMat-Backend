@@ -1,9 +1,9 @@
 export class SolicitudLote {
   constructor(
-    public readonly id_solicitud: number,
-    public readonly id_lote: number,
+    public readonly id_solicitud: string,
+    public readonly id_lote: string,
     public cantidad_solicitada: number,
-    public id_usuario: number,
+    public id_usuario: string,
   ) {}
 
   validar(): void {

@@ -7,13 +7,13 @@ export class ActualizarUbicacionUseCase {
   constructor(
     @Inject('UbicacionRepository')
     private readonly repo: UbicacionRepository,
-  ) {}
+  ) { }
 
   async execute(
-    id: number,
+    id: string,
     data: {
-      id_area?: number;
-      id_tipo_ubicacion?: number;
+      id_area?: string;
+      id_tipo_ubicacion?: string;
       nombre?: string;
       descripcion?: string;
       estado?: string;

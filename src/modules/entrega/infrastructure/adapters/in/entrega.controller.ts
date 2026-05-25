@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateEntregaUseCase } from '../../../application/use-cases/create-entrega.use-case';
 import { ActualizarEntregaUseCase } from '../../../application/use-cases/actualizar-entrega.use-case';
@@ -37,20 +36,20 @@ export class EntregaController {
   }
 
   @Get(':id')
-  obtenerPorId(@Param('id', ParseIntPipe) id: number) {
+  obtenerPorId(@Param('id') id: string) {
     return this.obtenerPorIdUseCase.execute(id);
   }
 
   @Patch(':id')
   actualizar(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() body: UpdateEntregaDto,
   ) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
+  eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }
 }

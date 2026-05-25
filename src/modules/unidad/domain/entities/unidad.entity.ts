@@ -2,10 +2,10 @@ const estadosValidos = ['disponible', 'prestado', 'danado', 'en mantenimiento', 
 
 export class Unidad {
   constructor(
-    public readonly id_unidad: number,
-    public id_material: number,
-    public id_responsable: number,
-    public id_ubicacion: number,
+    public readonly id_unidad: string,
+    public id_material: string,
+    public id_responsable: string,
+    public id_ubicacion: string,
     public codigo_unidad: string,
     public estado: string,
   ) {}

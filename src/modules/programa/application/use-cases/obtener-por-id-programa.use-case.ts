@@ -7,9 +7,9 @@ export class ObtenerPorIdProgramaUseCase {
   constructor(
     @Inject('ProgramaRepository')
     private readonly repo: ProgramaRepository,
-  ) {}
+  ) { }
 
-  async execute(id: number): Promise<Programa | null> {
+  async execute(id: string): Promise<Programa | null> {
     return this.repo.obtenerPorId(id);
   }
 }

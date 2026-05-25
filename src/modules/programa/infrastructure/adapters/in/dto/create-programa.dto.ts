@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateProgramaDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_area!: number;
+  id_area!: string;
 
   @IsString()
   @IsNotEmpty()

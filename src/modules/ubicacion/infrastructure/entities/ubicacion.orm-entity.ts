@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { AreaOrmEntity } from 'src/modules/area/infrastructure/entities/area.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 export enum EstadoUbicacion {
   ACTIVO = 'activo',
@@ -8,13 +9,17 @@ export enum EstadoUbicacion {
 @Entity('ubicacion')
 export class UbicacionOrmEntity {
   @PrimaryGeneratedColumn()
-  id_ubicacion!: number;
+  id_ubicacion!: string;
 
   @Column()
-  id_area!: number;
+  id_area!: string;
+
+  @ManyToOne(() => AreaOrmEntity, (area) => area.ubicacion)
+  @JoinColumn({ name: 'id_area' })
+  area!: AreaOrmEntity;
 
   @Column()
-  id_tipo_ubicacion!: number;
+  id_tipo_ubicacion!: string;
 
   @Column({ length: 100 })
   nombre!: string;

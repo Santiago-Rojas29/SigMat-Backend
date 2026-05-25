@@ -10,17 +10,16 @@ export class CreateLoteUseCase {
   ) {}
 
   async execute(data: {
-    id_material: number;
-    id_responsable: number;
-    id_ubicacion: number;
+    id_material: string;
+    id_responsable: string;
+    id_ubicacion: string;
     codigo_lote: string;
     cantidad_inicial: number;
     cantidad_disponible: number;
     unidad_medida: string;
     fecha_entrada: string;
   }): Promise<Lote> {
-    const entity = new Lote(
-      0,
+    const entity = new Lote("",
       data.id_material,
       data.id_responsable,
       data.id_ubicacion,

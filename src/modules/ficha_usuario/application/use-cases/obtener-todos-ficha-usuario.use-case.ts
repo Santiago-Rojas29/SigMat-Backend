@@ -7,7 +7,7 @@ export class ObtenerTodosFichaUsuarioUseCase {
   constructor(
     @Inject('FichaUsuarioRepository')
     private readonly repo: FichaUsuarioRepository,
-  ) {}
+  ) { }
 
   async execute(): Promise<FichaUsuario[]> {
     return this.repo.obtenerTodos();

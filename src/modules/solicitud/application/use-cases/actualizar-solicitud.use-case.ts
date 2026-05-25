@@ -10,9 +10,9 @@ export class ActualizarSolicitudUseCase {
   ) {}
 
   async execute(
-    id: number,
+    id: string,
     data: {
-      id_solicitante?: number;
+      id_solicitante: string;
       fecha_solicitud?: string;
       tipo_prestamo?: string;
       estado?: string;

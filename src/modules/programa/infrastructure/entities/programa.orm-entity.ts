@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { AreaOrmEntity } from 'src/modules/area/infrastructure/entities/area.orm-entity';
+import { FichaOrmEntity } from 'src/modules/ficha/infrastructure/entities/ficha.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum NivelFormacion {
   TECNICO = 'tecnico',
@@ -14,10 +16,14 @@ export enum EstadoPrograma {
 @Entity('programa')
 export class ProgramaOrmEntity {
   @PrimaryGeneratedColumn()
-  id_programa!: number;
+  id_programa!: string;
 
   @Column()
-  id_area!: number;
+  id_area!: string;
+
+  @ManyToOne(() => AreaOrmEntity, (area) => area.programa)
+  @JoinColumn({ name: 'id_area' })
+  area!: AreaOrmEntity;
 
   @Column({ length: 150 })
   nombre!: string;
@@ -37,4 +43,6 @@ export class ProgramaOrmEntity {
     default: EstadoPrograma.ACTIVO,
   })
   estado!: EstadoPrograma;
+  @OneToMany(() => FichaOrmEntity, (ficha) => ficha.id_programa)
+  ficha!: FichaOrmEntity[];
 }

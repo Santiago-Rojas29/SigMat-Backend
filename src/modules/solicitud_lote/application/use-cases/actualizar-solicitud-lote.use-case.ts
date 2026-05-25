@@ -10,11 +10,11 @@ export class ActualizarSolicitudLoteUseCase {
   ) {}
 
   async execute(
-    id_solicitud: number,
-    id_lote: number,
+    id_solicitud: string,
+    id_lote: string,
     data: {
       cantidad_solicitada?: number;
-      id_usuario?: number;
+      id_usuario: string;
     },
   ): Promise<SolicitudLote> {
     const mapped: Partial<SolicitudLote> = {

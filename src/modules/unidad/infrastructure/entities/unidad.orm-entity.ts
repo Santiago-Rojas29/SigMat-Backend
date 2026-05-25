@@ -11,16 +11,16 @@ export enum EstadoUnidad {
 @Entity('unidad')
 export class UnidadOrmEntity {
   @PrimaryGeneratedColumn()
-  id_unidad!: number;
+  id_unidad!: string;
 
   @Column()
-  id_material!: number;
+  id_material!: string;
 
   @Column()
-  id_responsable!: number;
+  id_responsable!: string;
 
   @Column()
-  id_ubicacion!: number;
+  id_ubicacion!: string;
 
   @Column({ length: 50 })
   codigo_unidad!: string;

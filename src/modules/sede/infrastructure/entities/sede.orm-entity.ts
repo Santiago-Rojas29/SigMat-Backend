@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { CentroOrmEntity } from '../../../centro/infrastructure/entities/centro.orm-entity';
+import { AreaOrmEntity } from 'src/modules/area/infrastructure/entities/area.orm-entity';
 
 export enum EstadoSede {
   ACTIVO = 'activo',
@@ -7,11 +9,15 @@ export enum EstadoSede {
 
 @Entity('sede')
 export class SedeOrmEntity {
-  @PrimaryGeneratedColumn()
-  id_sede!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id_sede!: string;
 
-  @Column()
-  id_centro!: number;
+  @Column('uuid')
+  id_centro!: string;
+
+  @ManyToOne(() => CentroOrmEntity, (centro) => centro.sedes)
+  @JoinColumn({ name: 'id_centro' })
+  centro!: CentroOrmEntity;
 
   @Column({ length: 100 })
   nombre!: string;
@@ -28,4 +34,6 @@ export class SedeOrmEntity {
     default: EstadoSede.ACTIVO,
   })
   estado!: EstadoSede;
+  @OneToMany(() => AreaOrmEntity, (area) => area.sede)
+  area!: AreaOrmEntity[];
 }

@@ -10,7 +10,7 @@ export class ActualizarTipoUbicacionUseCase {
   ) {}
 
   async execute(
-    id: number,
+    id: string,
     data: {
       nombre?: string;
       descripcion?: string;

@@ -1,18 +1,17 @@
 import {
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsString,
 } from 'class-validator';
 
 export class CreateEntregaDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_prestamo!: number;
+  id_prestamo!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_encargado!: number;
+  id_encargado!: string;
 
   @IsDateString()
   @IsNotEmpty()

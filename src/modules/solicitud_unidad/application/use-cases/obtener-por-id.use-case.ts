@@ -9,7 +9,7 @@ export class ObtenerPorIdUseCase {
     private readonly repo: SolicitudUnidadRepository,
   ) {}
 
-  async execute(id_solicitud: number, id_unidad: number): Promise<SolicitudUnidad | null> {
+  async execute(id_solicitud: string, id_unidad: string): Promise<SolicitudUnidad | null> {
     return this.repo.obtenerPorId(id_solicitud, id_unidad);
   }
 }

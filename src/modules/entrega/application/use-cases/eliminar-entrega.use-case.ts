@@ -8,7 +8,7 @@ export class EliminarEntregaUseCase {
     private readonly repo: EntregaRepository,
   ) {}
 
-  async execute(id: number): Promise<void> {
+  async execute(id: string): Promise<void> {
     await this.repo.eliminar(id);
   }
 }

@@ -37,19 +37,19 @@ export class SolicitudLoteTypeOrmRepository implements SolicitudLoteRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id_solicitud: number, id_lote: number): Promise<SolicitudLote | null> {
+  async obtenerPorId(id_solicitud: string, id_lote: string): Promise<SolicitudLote | null> {
     const orm = await this.repo.findOneBy({ id_solicitud, id_lote });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id_solicitud: number, id_lote: number, data: Partial<SolicitudLote>): Promise<SolicitudLote> {
+  async actualizar(id_solicitud: string, id_lote: string, data: Partial<SolicitudLote>): Promise<SolicitudLote> {
     await this.repo.update({ id_solicitud, id_lote }, data as any);
     const orm = await this.repo.findOneBy({ id_solicitud, id_lote });
     if (!orm) throw new Error(`SolicitudLote con id_solicitud ${id_solicitud} e id_lote ${id_lote} no encontrado`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id_solicitud: number, id_lote: number): Promise<void> {
+  async eliminar(id_solicitud: string, id_lote: string): Promise<void> {
     await this.repo.delete({ id_solicitud, id_lote });
   }
 }

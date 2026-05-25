@@ -10,10 +10,10 @@ export class CreateSolicitudLoteUseCase {
   ) {}
 
   async execute(data: {
-    id_solicitud: number;
-    id_lote: number;
+    id_solicitud: string;
+    id_lote: string;
     cantidad_solicitada: number;
-    id_usuario: number;
+    id_usuario: string;
   }): Promise<SolicitudLote> {
     const entity = new SolicitudLote(
       data.id_solicitud,

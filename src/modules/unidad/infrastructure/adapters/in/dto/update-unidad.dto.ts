@@ -7,19 +7,19 @@ import {
 
 export class UpdateUnidadDto {
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_material?: number;
+  id_material?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_responsable?: number;
+  id_responsable?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_ubicacion?: number;
+  id_ubicacion?: string;
 
   @IsOptional()
   @IsString()

@@ -34,19 +34,19 @@ export class TipoUbicacionTypeOrmRepository implements TipoUbicacionRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id: number): Promise<TipoUbicacion | null> {
+  async obtenerPorId(id: string): Promise<TipoUbicacion | null> {
     const orm = await this.repo.findOneBy({ id_tipo_ubicacion: id });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: number, data: Partial<TipoUbicacion>): Promise<TipoUbicacion> {
+  async actualizar(id: string, data: Partial<TipoUbicacion>): Promise<TipoUbicacion> {
     await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id_tipo_ubicacion: id });
     if (!orm) throw new Error(`TipoUbicacion con id ${id} no encontrada`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id: string): Promise<void> {
     await this.repo.delete(id);
   }
 }

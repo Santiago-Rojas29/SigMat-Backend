@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { FichaUsuarioOrmEntity } from 'src/modules/ficha_usuario/infrastructure/entities/ficha_usuario.orm-entity';
+import { ProgramaOrmEntity } from 'src/modules/programa/infrastructure/entities/programa.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum Jornada {
   MANANA = 'manana',
@@ -15,10 +17,14 @@ export enum EstadoFicha {
 @Entity('ficha')
 export class FichaOrmEntity {
   @PrimaryGeneratedColumn()
-  id_ficha!: number;
+  id_ficha!: string;
 
   @Column()
-  id_programa!: number;
+  id_programa!: string;
+
+  @ManyToOne(() => ProgramaOrmEntity, (programa) => programa.ficha)
+  @JoinColumn({ name: 'id_programa' })
+  programa!: ProgramaOrmEntity;
 
   @Column({ length: 50 })
   codigo_ficha!: string;
@@ -41,4 +47,6 @@ export class FichaOrmEntity {
     default: EstadoFicha.EN_FORMACION,
   })
   estado!: EstadoFicha;
+  @OneToMany(() => FichaUsuarioOrmEntity, (fichaUsuario) => fichaUsuario.id_ficha)
+  fichaUsuario!: FichaUsuarioOrmEntity[];
 }

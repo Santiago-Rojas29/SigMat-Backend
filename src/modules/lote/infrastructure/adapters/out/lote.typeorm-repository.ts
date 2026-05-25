@@ -46,19 +46,19 @@ export class LoteTypeOrmRepository implements LoteRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id: number): Promise<Lote | null> {
+  async obtenerPorId(id: string): Promise<Lote | null> {
     const orm = await this.repo.findOneBy({ id_lote: id });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: number, data: Partial<Lote>): Promise<Lote> {
+  async actualizar(id: string, data: Partial<Lote>): Promise<Lote> {
     await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id_lote: id });
     if (!orm) throw new Error(`Lote con id ${id} no encontrado`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id: string): Promise<void> {
     await this.repo.delete(id);
   }
 }

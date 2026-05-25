@@ -8,9 +8,9 @@ import {
 
 export class UpdateSolicitudDto {
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_solicitante?: number;
+  id_solicitante: string;
 
   @IsOptional()
   @IsDateString()

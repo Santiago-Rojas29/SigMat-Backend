@@ -3,13 +3,13 @@ const nivelesFormacion = ['tecnico', 'tecnologo', 'complementaria'];
 
 export class Programa {
   constructor(
-    public readonly id_programa: number,
-    public id_area: number,
+    public readonly id_programa: string,
+    public id_area: string,
     public nombre: string,
     public codigo_programa: string,
     public nivel_formacion: string,
     public estado: string,
-  ) {}
+  ) { }
 
   validar(): void {
     if (!this.nombre) throw new Error('El nombre es obligatorio');

@@ -7,17 +7,17 @@ export class CreateUbicacionUseCase {
   constructor(
     @Inject('UbicacionRepository')
     private readonly repo: UbicacionRepository,
-  ) {}
+  ) { }
 
   async execute(data: {
-    id_area: number;
-    id_tipo_ubicacion: number;
+    id_area: string;
+    id_tipo_ubicacion: string;
     nombre: string;
     descripcion: string;
     estado: string;
   }): Promise<Ubicacion> {
     const entity = new Ubicacion(
-      0,
+      "",
       data.id_area,
       data.id_tipo_ubicacion,
       data.nombre,

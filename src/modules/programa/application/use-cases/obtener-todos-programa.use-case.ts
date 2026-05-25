@@ -7,7 +7,7 @@ export class ObtenerTodosProgramaUseCase {
   constructor(
     @Inject('ProgramaRepository')
     private readonly repo: ProgramaRepository,
-  ) {}
+  ) { }
 
   async execute(): Promise<Programa[]> {
     return this.repo.obtenerTodos();

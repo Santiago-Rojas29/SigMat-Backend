@@ -40,19 +40,19 @@ export class SedeTypeOrmRepository implements SedeRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id: number): Promise<Sede | null> {
+  async obtenerPorId(id: string): Promise<Sede | null> {
     const orm = await this.repo.findOneBy({ id_sede: id });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: number, data: Partial<Sede>): Promise<Sede> {
+  async actualizar(id: string, data: Partial<Sede>): Promise<Sede> {
     await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id_sede: id });
     if (!orm) throw new Error(`Sede con id ${id} no encontrada`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id: string): Promise<void> {
     await this.repo.delete(id);
   }
 }

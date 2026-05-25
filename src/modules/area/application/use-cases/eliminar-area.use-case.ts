@@ -6,9 +6,9 @@ export class EliminarAreaUseCase {
   constructor(
     @Inject('AreaRepository')
     private readonly repo: AreaRepository,
-  ) {}
+  ) { }
 
-  async execute(id: number): Promise<void> {
+  async execute(id: string): Promise<void> {
     await this.repo.eliminar(id);
   }
 }

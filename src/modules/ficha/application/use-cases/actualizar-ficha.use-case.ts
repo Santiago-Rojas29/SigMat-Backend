@@ -7,12 +7,12 @@ export class ActualizarFichaUseCase {
   constructor(
     @Inject('FichaRepository')
     private readonly repo: FichaRepository,
-  ) {}
+  ) { }
 
   async execute(
-    id: number,
+    id: string,
     data: {
-      id_programa?: number;
+      id_programa?: string;
       codigo_ficha?: string;
       fecha_inicio?: string;
       fecha_fin?: string;

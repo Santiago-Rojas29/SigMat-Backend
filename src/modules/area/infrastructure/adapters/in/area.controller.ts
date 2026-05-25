@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateAreaUseCase } from '../../../application/use-cases/create-area.use-case';
 import { ActualizarAreaUseCase } from '../../../application/use-cases/actualizar-area.use-case';
@@ -24,7 +23,7 @@ export class AreaController {
     private readonly eliminarUseCase: EliminarAreaUseCase,
     private readonly obtenerPorIdUseCase: ObtenerPorIdAreaUseCase,
     private readonly obtenerTodosUseCase: ObtenerTodosAreaUseCase,
-  ) {}
+  ) { }
 
   @Post()
   crear(@Body() body: CreateAreaDto) {
@@ -37,20 +36,20 @@ export class AreaController {
   }
 
   @Get(':id')
-  obtenerPorId(@Param('id', ParseIntPipe) id: number) {
+  obtenerPorId(@Param('id') id: string) {
     return this.obtenerPorIdUseCase.execute(id);
   }
 
   @Patch(':id')
   actualizar(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() body: UpdateAreaDto,
   ) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
+  eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }
 }

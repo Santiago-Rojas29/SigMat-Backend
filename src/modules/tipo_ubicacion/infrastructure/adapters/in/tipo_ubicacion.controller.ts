@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateTipoUbicacionUseCase } from '../../../application/use-cases/create-tipo-ubicacion.use-case';
 import { ActualizarTipoUbicacionUseCase } from '../../../application/use-cases/actualizar-tipo-ubicacion.use-case';
@@ -37,20 +36,20 @@ export class TipoUbicacionController {
   }
 
   @Get(':id')
-  obtenerPorId(@Param('id', ParseIntPipe) id: number) {
+  obtenerPorId(@Param('id') id: string) {
     return this.obtenerPorIdUseCase.execute(id);
   }
 
   @Patch(':id')
   actualizar(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() body: UpdateTipoUbicacionDto,
   ) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
+  eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }
 }

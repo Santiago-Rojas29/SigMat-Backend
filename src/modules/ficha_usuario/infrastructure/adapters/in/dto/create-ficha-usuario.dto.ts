@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateFichaUsuarioDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_ficha!: number;
+  id_ficha!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_usuario!: number;
+  id_usuario!: string;
 
   @IsString()
   @IsNotEmpty()

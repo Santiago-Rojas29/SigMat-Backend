@@ -7,9 +7,9 @@ export class ObtenerPorIdFichaUsuarioUseCase {
   constructor(
     @Inject('FichaUsuarioRepository')
     private readonly repo: FichaUsuarioRepository,
-  ) {}
+  ) { }
 
-  async execute(id_ficha: number, id_usuario: number): Promise<FichaUsuario | null> {
+  async execute(id_ficha: string, id_usuario: string): Promise<FichaUsuario | null> {
     return this.repo.obtenerPorId(id_ficha, id_usuario);
   }
 }

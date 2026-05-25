@@ -10,10 +10,10 @@ export class ActualizarEntregaUseCase {
   ) {}
 
   async execute(
-    id: number,
+    id: string,
     data: {
-      id_prestamo?: number;
-      id_encargado?: number;
+      id_prestamo?: string;
+      id_encargado?: string;
       fecha_entrega?: string;
       observaciones?: string;
     },

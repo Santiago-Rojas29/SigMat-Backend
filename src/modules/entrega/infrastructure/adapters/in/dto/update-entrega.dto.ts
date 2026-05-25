@@ -1,21 +1,20 @@
 import {
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class UpdateEntregaDto {
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_prestamo?: number;
+  id_prestamo?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_encargado?: number;
+  id_encargado?: string;
 
   @IsOptional()
   @IsDateString()

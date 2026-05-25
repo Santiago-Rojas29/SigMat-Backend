@@ -1,15 +1,14 @@
 import {
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class UpdateProgramaDto {
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_area?: number;
+  id_area?: string;
 
   @IsOptional()
   @IsString()

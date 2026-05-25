@@ -2,10 +2,10 @@ const unidadesMedida = ['kg', 'l', 'm', 'unidad', 'paquete'];
 
 export class Lote {
   constructor(
-    public readonly id_lote: number,
-    public id_material: number,
-    public id_responsable: number,
-    public id_ubicacion: number,
+    public readonly id_lote: string,
+    public id_material: string,
+    public id_responsable: string,
+    public id_ubicacion: string,
     public codigo_lote: string,
     public cantidad_inicial: number,
     public cantidad_disponible: number,

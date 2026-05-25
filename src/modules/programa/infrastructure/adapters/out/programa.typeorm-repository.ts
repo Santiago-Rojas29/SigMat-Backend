@@ -10,7 +10,7 @@ export class ProgramaTypeOrmRepository implements ProgramaRepository {
   constructor(
     @InjectRepository(ProgramaOrmEntity)
     private readonly repo: Repository<ProgramaOrmEntity>,
-  ) {}
+  ) { }
 
   private toEntity(orm: ProgramaOrmEntity): Programa {
     return new Programa(
@@ -40,19 +40,19 @@ export class ProgramaTypeOrmRepository implements ProgramaRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id: number): Promise<Programa | null> {
+  async obtenerPorId(id: string): Promise<Programa | null> {
     const orm = await this.repo.findOneBy({ id_programa: id });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: number, data: Partial<Programa>): Promise<Programa> {
+  async actualizar(id: string, data: Partial<Programa>): Promise<Programa> {
     await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id_programa: id });
     if (!orm) throw new Error(`Programa con id ${id} no encontrado`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id: string): Promise<void> {
     await this.repo.delete(id);
   }
 }

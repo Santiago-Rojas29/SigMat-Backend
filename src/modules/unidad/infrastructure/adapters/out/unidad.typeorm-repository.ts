@@ -40,19 +40,19 @@ export class UnidadTypeOrmRepository implements UnidadRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id: number): Promise<Unidad | null> {
+  async obtenerPorId(id: string): Promise<Unidad | null> {
     const orm = await this.repo.findOneBy({ id_unidad: id });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: number, data: Partial<Unidad>): Promise<Unidad> {
+  async actualizar(id: string, data: Partial<Unidad>): Promise<Unidad> {
     await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id_unidad: id });
     if (!orm) throw new Error(`Unidad con id ${id} no encontrada`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id: string): Promise<void> {
     await this.repo.delete(id);
   }
 }

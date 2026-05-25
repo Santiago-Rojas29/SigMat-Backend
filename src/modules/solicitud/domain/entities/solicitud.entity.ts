@@ -3,8 +3,8 @@ const estadosValidos = ['pendiente', 'aprobado', 'rechazado'];
 
 export class Solicitud {
   constructor(
-    public readonly id_solicitud: number,
-    public id_solicitante: number,
+    public readonly id_solicitud: string,
+    public id_solicitante: string,
     public fecha_solicitud: Date,
     public tipo_prestamo: string,
     public estado: string,

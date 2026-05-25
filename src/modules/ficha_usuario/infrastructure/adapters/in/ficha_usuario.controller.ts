@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateFichaUsuarioUseCase } from '../../../application/use-cases/create-ficha-usuario.use-case';
 import { ActualizarFichaUsuarioUseCase } from '../../../application/use-cases/actualizar-ficha-usuario.use-case';
@@ -24,7 +23,7 @@ export class FichaUsuarioController {
     private readonly eliminarUseCase: EliminarFichaUsuarioUseCase,
     private readonly obtenerPorIdUseCase: ObtenerPorIdFichaUsuarioUseCase,
     private readonly obtenerTodosUseCase: ObtenerTodosFichaUsuarioUseCase,
-  ) {}
+  ) { }
 
   @Post()
   crear(@Body() body: CreateFichaUsuarioDto) {
@@ -38,16 +37,16 @@ export class FichaUsuarioController {
 
   @Get(':id_ficha/:id_usuario')
   obtenerPorId(
-    @Param('id_ficha', ParseIntPipe) id_ficha: number,
-    @Param('id_usuario', ParseIntPipe) id_usuario: number,
+    @Param('id_ficha') id_ficha: string,
+    @Param('id_usuario') id_usuario: string,
   ) {
     return this.obtenerPorIdUseCase.execute(id_ficha, id_usuario);
   }
 
   @Patch(':id_ficha/:id_usuario')
   actualizar(
-    @Param('id_ficha', ParseIntPipe) id_ficha: number,
-    @Param('id_usuario', ParseIntPipe) id_usuario: number,
+    @Param('id_ficha') id_ficha: string,
+    @Param('id_usuario') id_usuario: string,
     @Body() body: UpdateFichaUsuarioDto,
   ) {
     return this.actualizarUseCase.execute(id_ficha, id_usuario, body);
@@ -55,8 +54,8 @@ export class FichaUsuarioController {
 
   @Delete(':id_ficha/:id_usuario')
   eliminar(
-    @Param('id_ficha', ParseIntPipe) id_ficha: number,
-    @Param('id_usuario', ParseIntPipe) id_usuario: number,
+    @Param('id_ficha') id_ficha: string,
+    @Param('id_usuario') id_usuario: string,
   ) {
     return this.eliminarUseCase.execute(id_ficha, id_usuario);
   }

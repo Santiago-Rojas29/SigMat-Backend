@@ -7,7 +7,7 @@ export class ObtenerTodosFichaUseCase {
   constructor(
     @Inject('FichaRepository')
     private readonly repo: FichaRepository,
-  ) {}
+  ) { }
 
   async execute(): Promise<Ficha[]> {
     return this.repo.obtenerTodos();

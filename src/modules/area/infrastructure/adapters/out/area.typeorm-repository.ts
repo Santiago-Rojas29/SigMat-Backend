@@ -10,7 +10,7 @@ export class AreaTypeOrmRepository implements AreaRepository {
   constructor(
     @InjectRepository(AreaOrmEntity)
     private readonly repo: Repository<AreaOrmEntity>,
-  ) {}
+  ) { }
 
   private toEntity(orm: AreaOrmEntity): Area {
     return new Area(
@@ -40,19 +40,19 @@ export class AreaTypeOrmRepository implements AreaRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorId(id: number): Promise<Area | null> {
+  async obtenerPorId(id: string): Promise<Area | null> {
     const orm = await this.repo.findOneBy({ id_area: id });
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: number, data: Partial<Area>): Promise<Area> {
+  async actualizar(id: string, data: Partial<Area>): Promise<Area> {
     await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id_area: id });
     if (!orm) throw new Error(`Area con id ${id} no encontrada`);
     return this.toEntity(orm);
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id: string): Promise<void> {
     await this.repo.delete(id);
   }
 }

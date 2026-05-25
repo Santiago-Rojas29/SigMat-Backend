@@ -1,17 +1,17 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateUnidadDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_material!: number;
+  id_material!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_responsable!: number;
+  id_responsable!: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_ubicacion!: number;
+  id_ubicacion!: string;
 
   @IsString()
   @IsNotEmpty()

@@ -3,14 +3,14 @@ const estadosValidos = ['en formacion', 'terminada', 'cancelada'];
 
 export class Ficha {
   constructor(
-    public readonly id_ficha: number,
-    public id_programa: number,
+    public readonly id_ficha: string,
+    public id_programa: string,
     public codigo_ficha: string,
     public fecha_inicio: Date,
     public fecha_fin: Date,
     public jornada: string,
     public estado: string,
-  ) {}
+  ) { }
 
   validar(): void {
     if (!this.codigo_ficha) throw new Error('El codigo de ficha es obligatorio');

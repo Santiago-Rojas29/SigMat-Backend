@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateSolicitudUnidadUseCase } from '../../../application/use-cases/create-solicitud-unidad.use-case';
 import { ActualizarSolicitudUnidadUseCase } from '../../../application/use-cases/actualizar-solicitud-unidad.use-case';
@@ -38,16 +37,16 @@ export class SolicitudUnidadController {
 
   @Get(':id_solicitud/:id_unidad')
   obtenerPorId(
-    @Param('id_solicitud', ParseIntPipe) id_solicitud: number,
-    @Param('id_unidad', ParseIntPipe) id_unidad: number,
+    @Param('id_solicitud') id_solicitud: string,
+    @Param('id_unidad') id_unidad: string,
   ) {
     return this.obtenerPorIdUseCase.execute(id_solicitud, id_unidad);
   }
 
   @Patch(':id_solicitud/:id_unidad')
   actualizar(
-    @Param('id_solicitud', ParseIntPipe) id_solicitud: number,
-    @Param('id_unidad', ParseIntPipe) id_unidad: number,
+    @Param('id_solicitud') id_solicitud: string,
+    @Param('id_unidad') id_unidad: string,
     @Body() body: UpdateSolicitudUnidadDto,
   ) {
     return this.actualizarUseCase.execute(id_solicitud, id_unidad, body);
@@ -55,8 +54,8 @@ export class SolicitudUnidadController {
 
   @Delete(':id_solicitud/:id_unidad')
   eliminar(
-    @Param('id_solicitud', ParseIntPipe) id_solicitud: number,
-    @Param('id_unidad', ParseIntPipe) id_unidad: number,
+    @Param('id_solicitud') id_solicitud: string,
+    @Param('id_unidad') id_unidad: string,
   ) {
     return this.eliminarUseCase.execute(id_solicitud, id_unidad);
   }

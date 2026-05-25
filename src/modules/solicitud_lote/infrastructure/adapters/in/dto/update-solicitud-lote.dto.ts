@@ -2,6 +2,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
 } from 'class-validator';
 
 export class UpdateSolicitudLoteDto {
@@ -11,7 +12,7 @@ export class UpdateSolicitudLoteDto {
   cantidad_solicitada?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  id_usuario?: number;
+  id_usuario: string;
 }
