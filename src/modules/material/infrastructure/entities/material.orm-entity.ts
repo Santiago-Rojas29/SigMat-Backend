@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { CategoriaMaterial } from '../../domain/entities/material.entity';
+import { UnidadOrmEntity } from 'src/modules/unidad/infrastructure/entities/unidad.orm-entity';
+import { LoteOrmEntity } from 'src/modules/lote/infrastructure/entities/lote.orm-entity';
 
 @Entity('material')
 export class MaterialOrmEntity {
@@ -29,4 +31,10 @@ export class MaterialOrmEntity {
 
   @Column({ type: 'varchar', length: 20 })
   codigo_unspsc!: string;
+
+  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.material)
+  unidades!: UnidadOrmEntity[];
+
+  @OneToMany(() => LoteOrmEntity, (lote) => lote.material)
+  lotes!: LoteOrmEntity[];
 }

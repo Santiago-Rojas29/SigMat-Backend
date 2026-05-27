@@ -12,6 +12,7 @@ import { SolicitudLoteOrmEntity } from 'src/modules/solicitud_lote/infrastructur
 import { SolicitudOrmEntity } from 'src/modules/solicitud/infrastructure/entities/solicitud.orm-entity';
 import { ValidacionOrmEntity } from 'src/modules/validacion/infrastructure/entities/validacion.orm-entity';
 import { EntregaOrmEntity } from 'src/modules/entrega/infrastructure/entities/entrega.orm-entity';
+import { PrestamoOrmEntity } from 'src/modules/prestamo/infrastructure/entities/prestamo.orm-entity';
 
 @Entity('usuario')
 export class UsuarioOrmEntity {
@@ -45,27 +46,40 @@ export class UsuarioOrmEntity {
 
   @Column({ type: 'enum', enum: EstadoUsuario })
   estado!: EstadoUsuario;
-  @OneToMany(() => IncidenciaOrmEntity, (encidencia) => encidencia.id_usuario)
+
+  @OneToMany(() => IncidenciaOrmEntity, (incidencia) => incidencia.usuario)
   incidencia!: IncidenciaOrmEntity[];
-  @OneToMany(() => AreaOrmEntity, (area) => area.id_usuario)
+
+  @OneToMany(() => AreaOrmEntity, (area) => area.usuario)
   area!: AreaOrmEntity[];
-  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.id_responsable)
+
+  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.usuario)
   traslado!: TrasladoOrmEntity[];
-  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.id_responsable)
+
+  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.usuario)
   unidad!: UnidadOrmEntity[];
-  @OneToMany(() => LoteOrmEntity, (lote) => lote.id_responsable)
+
+  @OneToMany(() => LoteOrmEntity, (lote) => lote.usuario)
   lote!: LoteOrmEntity[];
-  @OneToMany(() => SolicitudUnidadOrmEntity, (solicitudUnidad) => solicitudUnidad.id_usuario)
+
+  @OneToMany(() => SolicitudUnidadOrmEntity, (solicitudUnidad) => solicitudUnidad.usuarioUnidad)
   solicitudUnidad!: SolicitudUnidadOrmEntity[];
-  @OneToMany(() => FichaUsuarioOrmEntity, (fichaUsuario) => fichaUsuario.id_usuario)
+
+  @OneToMany(() => FichaUsuarioOrmEntity, (fichaUsuario) => fichaUsuario.usuario)
   fichaUsuario!: FichaUsuarioOrmEntity[];
-  @OneToMany(() => SolicitudLoteOrmEntity, (solicitudLote) => solicitudLote.id_usuario)
+
+  @OneToMany(() => SolicitudLoteOrmEntity, (solicitudLote) => solicitudLote.usuario)
   solicitudLote!: SolicitudLoteOrmEntity[];
-  @OneToMany(() => SolicitudOrmEntity, (solicitud) => solicitud.id_solicitante)
+
+  @OneToMany(() => SolicitudOrmEntity, (solicitud) => solicitud.usuario)
   solicitud!: SolicitudOrmEntity[];
-  @OneToMany(() => ValidacionOrmEntity, (validacion) => validacion.id_validador)
+
+  @OneToMany(() => ValidacionOrmEntity, (validacion) => validacion.usuario)
   validacion!: ValidacionOrmEntity[];
-  @OneToMany(() => EntregaOrmEntity, (entrega) => entrega.id_encargado)
+
+  @OneToMany(() => EntregaOrmEntity, (entrega) => entrega.usuario)
   entrega!: EntregaOrmEntity[];
-  
+
+  @OneToMany(() => PrestamoOrmEntity, (prestamo) => prestamo.usuario)
+  prestamo!: PrestamoOrmEntity[];
 }

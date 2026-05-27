@@ -10,12 +10,12 @@ export class UpdateSolicitudDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  id_solicitante: string;
+  id_solicitante?: string;
 
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  id_ficha: string;
+  id_ficha?: string;
 
   @IsOptional()
   @IsDateString()

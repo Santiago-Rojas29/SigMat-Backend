@@ -12,8 +12,8 @@ export class RolOrmEntity {
 
   @Column('text')
   descripcion!: string;
-  @OneToMany(() => UsuarioOrmEntity, (usuario) => usuario.id_rol)
+  @OneToMany(() => UsuarioOrmEntity, (usuario) => usuario.rol)
   usuario!: UsuarioOrmEntity[];
-  @OneToMany(() => RolPermisosOrmEntity, (rolPermiso) => rolPermiso.id_rol)
+  @OneToMany(() => RolPermisosOrmEntity, (rolPermiso) => rolPermiso.rol)
   rolPermiso!: RolPermisosOrmEntity[];
 }

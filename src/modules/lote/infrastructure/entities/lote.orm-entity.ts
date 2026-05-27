@@ -1,6 +1,10 @@
 import { TrasladoLoteOrmEntity } from 'src/modules/traslado_lote/infrastructure/entities/traslado_lote.orm-entity';
 import { UbicacionOrmEntity } from 'src/modules/ubicacion/infrastructure/entities/ubicacion.orm-entity';
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { MaterialOrmEntity } from 'src/modules/material/infrastructure/entities/material.orm-entity';
+import { EntregaLoteOrmEntity } from 'src/modules/entrega_lote/infrastructure/entities/entrega_lote.orm-entity';
+import { SolicitudLoteOrmEntity } from 'src/modules/solicitud_lote/infrastructure/entities/solicitud_lote.orm-entity';
+import { KardexOrmEntity } from 'src/modules/kardex/infrastructure/entities/kardex.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum UnidadMedida {
@@ -19,12 +23,16 @@ export class LoteOrmEntity {
   @Column()
   id_material!: string;
 
+  @ManyToOne(() => MaterialOrmEntity, (material) => material.lotes)
+  @JoinColumn({ name: 'id_material' })
+  material!: MaterialOrmEntity;
+
   @Column()
   id_responsable!: string;
 
   @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.lote)
   @JoinColumn({ name: 'id_responsable'})
-  id_usuario!: UsuarioOrmEntity
+  usuario!: UsuarioOrmEntity;
 
   @Column()
   id_ubicacion!: string;
@@ -50,6 +58,16 @@ export class LoteOrmEntity {
 
   @Column({ type: 'date' })
   fecha_entrada!: Date;
-  @OneToMany(() => TrasladoLoteOrmEntity, (loteTraslado) => loteTraslado.id_lote)
+
+  @OneToMany(() => TrasladoLoteOrmEntity, (loteTraslado) => loteTraslado.lote)
   loteTraslado!: TrasladoLoteOrmEntity[];
+
+  @OneToMany(() => EntregaLoteOrmEntity, (entregaLote) => entregaLote.lote)
+  entregaLote!: EntregaLoteOrmEntity[];
+
+  @OneToMany(() => SolicitudLoteOrmEntity, (solicitudLote) => solicitudLote.lote)
+  solicitudLote!: SolicitudLoteOrmEntity[];
+
+  @OneToMany(() => KardexOrmEntity, (kardex) => kardex.lote)
+  kardex!: KardexOrmEntity[];
 }

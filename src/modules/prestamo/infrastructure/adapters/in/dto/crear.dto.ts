@@ -4,6 +4,10 @@ import { EstadoPrestamo } from '../../../../domain/entities/prestamo.entity';
 export class CreatePrestamoDto {
   @IsString()
   @IsNotEmpty()
+  id_usuario!: string;
+
+  @IsString()
+  @IsNotEmpty()
   id_validacion!: string;
 
   @IsDateString()

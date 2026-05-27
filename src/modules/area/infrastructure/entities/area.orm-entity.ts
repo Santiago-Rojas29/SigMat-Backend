@@ -26,6 +26,7 @@ export class AreaOrmEntity {
 
   @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.area)
   @JoinColumn({ name: 'id_usuario'})
+  usuario!: UsuarioOrmEntity;
 
   @Column({ length: 100 })
   nombre!: string;
@@ -39,8 +40,8 @@ export class AreaOrmEntity {
     default: EstadoArea.ACTIVO,
   })
   estado!: EstadoArea;
-  @OneToMany(() => ProgramaOrmEntity, (programa) => programa.id_area)
+  @OneToMany(() => ProgramaOrmEntity, (programa) => programa.area)
   programa!: ProgramaOrmEntity[];
-  @OneToMany(() => UbicacionOrmEntity, (ubicacion) => ubicacion.id_area)
+  @OneToMany(() => UbicacionOrmEntity, (ubicacion) => ubicacion.area)
   ubicacion!: UbicacionOrmEntity[];
 }

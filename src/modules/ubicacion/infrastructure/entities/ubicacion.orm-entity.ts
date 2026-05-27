@@ -41,12 +41,12 @@ export class UbicacionOrmEntity {
     default: EstadoUbicacion.ACTIVO,
   })
   estado!: EstadoUbicacion;
-  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.id_ubicacion_destino)
+  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.ubicacionDestino)
   trasladoDestino!: TrasladoOrmEntity[];
-  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.id_ubicacion_origen)
+  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.ubicacionOrigen)
   trasladoOrigen!: TrasladoOrmEntity[];
-  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.id_ubicacion)
+  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.ubicacion)
   unidad!: UnidadOrmEntity[];
-  @OneToMany(() => LoteOrmEntity, (lote) => lote.id_ubicacion)
+  @OneToMany(() => LoteOrmEntity, (lote) => lote.ubicacion)
   lote!: LoteOrmEntity[];
 }

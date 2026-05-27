@@ -20,6 +20,6 @@ export class TipoUbicacionOrmEntity {
 
   @Column({ type: 'text' })
   descripcion!: string;
-  @OneToMany(() => UbicacionOrmEntity, (ubicacion) => ubicacion.id_tipo_ubicacion)
+  @OneToMany(() => UbicacionOrmEntity, (ubicacion) => ubicacion.tipoUbicacion)
   ubicacion!: UbicacionOrmEntity[];
 }

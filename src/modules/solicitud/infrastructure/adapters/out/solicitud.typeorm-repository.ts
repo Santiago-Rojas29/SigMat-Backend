@@ -14,8 +14,8 @@ export class SolicitudTypeOrmRepository implements SolicitudRepository {
 
   private toEntity(orm: SolicitudOrmEntity): Solicitud {
     return new Solicitud(
-      orm.id_ficha,
       orm.id_solicitud,
+      orm.id_ficha,
       orm.id_solicitante,
       orm.fecha_solicitud,
       orm.tipo_prestamo,

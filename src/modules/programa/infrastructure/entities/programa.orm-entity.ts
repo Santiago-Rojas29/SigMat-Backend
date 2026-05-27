@@ -43,6 +43,6 @@ export class ProgramaOrmEntity {
     default: EstadoPrograma.ACTIVO,
   })
   estado!: EstadoPrograma;
-  @OneToMany(() => FichaOrmEntity, (ficha) => ficha.id_programa)
+  @OneToMany(() => FichaOrmEntity, (ficha) => ficha.programa)
   ficha!: FichaOrmEntity[];
 }

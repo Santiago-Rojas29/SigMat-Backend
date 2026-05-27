@@ -1,5 +1,7 @@
 import { FichaOrmEntity } from 'src/modules/ficha/infrastructure/entities/ficha.orm-entity';
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { SolicitudUnidadOrmEntity } from 'src/modules/solicitud_unidad/infrastructure/entities/solicitud_unidad.orm-entity';
+import { SolicitudLoteOrmEntity } from 'src/modules/solicitud_lote/infrastructure/entities/solicitud_lote.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum TipoPrestamo {
@@ -20,6 +22,10 @@ export class SolicitudOrmEntity {
 
   @Column()
   id_ficha!: string;
+
+  @ManyToOne(() => FichaOrmEntity, (ficha) => ficha.solicitud)
+  @JoinColumn({ name: 'id_ficha' })
+  ficha!: FichaOrmEntity;
 
   @Column()
   id_solicitante!: string;
@@ -46,4 +52,10 @@ export class SolicitudOrmEntity {
 
   @Column({ type: 'text' })
   observaciones!: string;
+
+  @OneToMany(() => SolicitudUnidadOrmEntity, (solicitudUnidad) => solicitudUnidad.solicitud)
+  solicitudUnidad!: SolicitudUnidadOrmEntity[];
+
+  @OneToMany(() => SolicitudLoteOrmEntity, (solicitudLote) => solicitudLote.solicitud)
+  solicitudLote!: SolicitudLoteOrmEntity[];
 }

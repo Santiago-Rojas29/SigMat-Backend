@@ -12,8 +12,8 @@ export class ActualizarSolicitudUseCase {
   async execute(
     id: string,
     data: {
-      id_ficha: string;
-      id_solicitante: string;
+      id_ficha?: string;
+      id_solicitante?: string;
       fecha_solicitud?: string;
       tipo_prestamo?: string;
       estado?: string;

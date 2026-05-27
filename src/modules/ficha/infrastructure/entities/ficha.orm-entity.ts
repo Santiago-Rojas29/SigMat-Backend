@@ -1,5 +1,6 @@
 import { FichaUsuarioOrmEntity } from 'src/modules/ficha_usuario/infrastructure/entities/ficha_usuario.orm-entity';
 import { ProgramaOrmEntity } from 'src/modules/programa/infrastructure/entities/programa.orm-entity';
+import { SolicitudOrmEntity } from 'src/modules/solicitud/infrastructure/entities/solicitud.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum Jornada {
@@ -47,6 +48,8 @@ export class FichaOrmEntity {
     default: EstadoFicha.EN_FORMACION,
   })
   estado!: EstadoFicha;
-  @OneToMany(() => FichaUsuarioOrmEntity, (fichaUsuario) => fichaUsuario.id_ficha)
+  @OneToMany(() => FichaUsuarioOrmEntity, (fichaUsuario) => fichaUsuario.ficha)
   fichaUsuario!: FichaUsuarioOrmEntity[];
+  @OneToMany(() => SolicitudOrmEntity, (solicitud) => solicitud.ficha)
+  solicitud!: SolicitudOrmEntity[];
 }

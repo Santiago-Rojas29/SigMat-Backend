@@ -2,6 +2,7 @@ import { TrasladoLoteOrmEntity } from 'src/modules/traslado_lote/infrastructure/
 import { TrasladoUnidadOrmEntity } from 'src/modules/traslado_unidad/infrastructure/entities/traslado_unidad.orm-entity';
 import { UbicacionOrmEntity } from 'src/modules/ubicacion/infrastructure/entities/ubicacion.orm-entity';
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { KardexOrmEntity } from 'src/modules/kardex/infrastructure/entities/kardex.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 @Entity('traslado')
@@ -14,7 +15,7 @@ export class TrasladoOrmEntity {
 
   @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.traslado)
   @JoinColumn({name: 'id_responsable' })
-  id_usuario!: UsuarioOrmEntity;
+  usuario!: UsuarioOrmEntity;
 
   @Column('text')
   id_ubicacion_origen!: string;
@@ -26,7 +27,7 @@ export class TrasladoOrmEntity {
   @Column('text')
   id_ubicacion_destino!: string;
 
-  @ManyToOne(() => UbicacionOrmEntity, (ubicacion) => ubicacion.trasladoDestino)
+  @ManyToOne(() => UbicacionOrmEntity, (ubicacion) => ubicacion.trasladoOrigen)
   @JoinColumn({ name: 'id_ubicacion_origen' })
   ubicacionOrigen!: UbicacionOrmEntity;
 
@@ -38,8 +39,13 @@ export class TrasladoOrmEntity {
 
   @Column('text')
   observaciones!: string;
-  @OneToMany(() => TrasladoUnidadOrmEntity, (trasladoUnidad) => trasladoUnidad.id_traslado)
+
+  @OneToMany(() => TrasladoUnidadOrmEntity, (trasladoUnidad) => trasladoUnidad.traslado)
   trasladoUnidad!: TrasladoUnidadOrmEntity[];
-  @OneToMany(() => TrasladoLoteOrmEntity, (trasladoLote) => trasladoLote.id_lote)
+
+  @OneToMany(() => TrasladoLoteOrmEntity, (trasladoLote) => trasladoLote.traslado)
   trasladoLote!: TrasladoLoteOrmEntity[];
+
+  @OneToMany(() => KardexOrmEntity, (kardex) => kardex.traslado)
+  kardex!: KardexOrmEntity[];
 }

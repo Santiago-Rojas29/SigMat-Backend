@@ -1,6 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { TipoIncidencia, EstadoIncidencia } from '../../domain/entities/incidencia.entity';
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { UnidadOrmEntity } from 'src/modules/unidad/infrastructure/entities/unidad.orm-entity';
+import { KardexOrmEntity } from 'src/modules/kardex/infrastructure/entities/kardex.orm-entity';
 
 @Entity('incidencia')
 export class IncidenciaOrmEntity {
@@ -9,6 +11,10 @@ export class IncidenciaOrmEntity {
 
   @Column('text')
   id_unidad!: string;
+
+  @ManyToOne(() => UnidadOrmEntity, (unidad) => unidad.incidencia)
+  @JoinColumn({ name: 'id_unidad' })
+  unidad!: UnidadOrmEntity;
 
   @Column('text')
   id_usuario!: string;
@@ -28,4 +34,7 @@ export class IncidenciaOrmEntity {
 
   @Column({ type: 'enum', enum: EstadoIncidencia })
   estado!: EstadoIncidencia;
+
+  @OneToMany(() => KardexOrmEntity, (kardex) => kardex.incidencia)
+  kardex!: KardexOrmEntity[];
 }

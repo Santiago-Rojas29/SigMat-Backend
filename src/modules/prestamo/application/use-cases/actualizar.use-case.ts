@@ -11,9 +11,10 @@ export class ActualizarPrestamoUseCase {
 
    async execute(
      id: string,
-     data: { id_validacion?: string; fecha_limite?: string; estado?: EstadoPrestamo },
+     data: { id_usuario?: string; id_validacion?: string; fecha_limite?: string; estado?: EstadoPrestamo },
    ): Promise<Prestamo> {
      const mapped: Partial<Prestamo> = {
+       ...(data.id_usuario && { id_usuario: data.id_usuario }),
        ...(data.id_validacion && { id_validacion: data.id_validacion }),
        ...(data.fecha_limite && { fecha_limite: new Date(data.fecha_limite) }),
        ...(data.estado && { estado: data.estado }),

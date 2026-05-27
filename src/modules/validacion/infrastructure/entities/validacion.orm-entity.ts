@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { DecisionValidacion } from '../../domain/entities/validacion.entity';
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { PrestamoOrmEntity } from 'src/modules/prestamo/infrastructure/entities/prestamo.orm-entity';
 
 @Entity('validacion')
 export class ValidacionOrmEntity {
@@ -29,4 +30,7 @@ export class ValidacionOrmEntity {
 
   @Column('text')
   observaciones!: string;
+
+  @OneToOne(() => PrestamoOrmEntity, (prestamo) => prestamo.validacion)
+  prestamo!: PrestamoOrmEntity;
 }

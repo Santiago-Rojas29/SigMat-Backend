@@ -15,6 +15,6 @@ export class PermisosOrmEntity {
 
   @Column({ type: 'enum', enum: ModuloPermiso })
   modulo!: ModuloPermiso;
-  @OneToMany(() => RolPermisosOrmEntity, (rolPermiso) => rolPermiso.id_permiso)
+  @OneToMany(() => RolPermisosOrmEntity, (rolPermiso) => rolPermiso.permiso)
   rolPermiso!: RolPermisosOrmEntity[];
 }

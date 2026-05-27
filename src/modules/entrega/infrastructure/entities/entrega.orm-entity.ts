@@ -1,5 +1,10 @@
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { PrestamoOrmEntity } from 'src/modules/prestamo/infrastructure/entities/prestamo.orm-entity';
+import { DevolucionOrmEntity } from 'src/modules/devolucion/infrastructure/entities/devolucion.orm-entity';
+import { EntregaUnidadOrmEntity } from 'src/modules/entrega_unidad/infrastructure/entities/entrega_unidad.orm-entity';
+import { EntregaLoteOrmEntity } from 'src/modules/entrega_lote/infrastructure/entities/entrega_lote.orm-entity';
+import { KardexOrmEntity } from 'src/modules/kardex/infrastructure/entities/kardex.orm-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 
 @Entity('entrega')
 export class EntregaOrmEntity {
@@ -8,6 +13,10 @@ export class EntregaOrmEntity {
 
   @Column()
   id_prestamo!: string;
+
+  @OneToOne(() => PrestamoOrmEntity, (prestamo) => prestamo.entrega)
+  @JoinColumn({ name: 'id_prestamo' })
+  prestamo!: PrestamoOrmEntity;
 
   @Column()
   id_encargado!: string;
@@ -21,4 +30,16 @@ export class EntregaOrmEntity {
 
   @Column({ type: 'text' })
   observaciones!: string;
+
+  @OneToOne(() => DevolucionOrmEntity, (devolucion) => devolucion.entrega)
+  devolucion!: DevolucionOrmEntity;
+
+  @OneToMany(() => EntregaUnidadOrmEntity, (entregaUnidad) => entregaUnidad.entrega)
+  entregaUnidad!: EntregaUnidadOrmEntity[];
+
+  @OneToMany(() => EntregaLoteOrmEntity, (entregaLote) => entregaLote.entrega)
+  entregaLote!: EntregaLoteOrmEntity[];
+
+  @OneToMany(() => KardexOrmEntity, (kardex) => kardex.entrega)
+  kardex!: KardexOrmEntity[];
 }

@@ -5,6 +5,11 @@ export class UpdatePrestamoDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
+  id_usuario?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
   id_validacion?: string;
 
   @IsOptional()
