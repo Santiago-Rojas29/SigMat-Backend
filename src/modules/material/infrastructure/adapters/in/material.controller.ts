@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearMaterialUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosMaterialUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdMaterialUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
@@ -7,6 +8,7 @@ import { EliminarMaterialUseCase } from '../../../application/use-cases/eliminar
 import { CrearMaterialDto } from './dto/crear.dto';
 import { ActualizarMaterialDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('material')
 export class MaterialController {
   constructor(

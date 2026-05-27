@@ -1,4 +1,7 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CrearUsuarioUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosUsuarioUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdUsuarioUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
@@ -7,6 +10,8 @@ import { EliminarUsuarioUseCase } from '../../../application/use-cases/eliminar.
 import { CrearUsuarioDto } from './dto/crear.dto';
 import { ActualizarUsuarioDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('usuarios')
 @Controller('usuario')
 export class UsuarioController {
   constructor(

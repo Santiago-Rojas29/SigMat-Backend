@@ -1,18 +1,20 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CrearDevolucionUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosDevolucionUseCase } from '../../../application/use-cases/obtener-todos.use-case';
-import { ObtenerPorIdDevoluvionUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
+import { ObtenerPorIdDevolucionUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { ActualizarDevolucionUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarDevolucionUseCase } from '../../../application/use-cases/eliminar.use-case';
 import { CrearDevolucionDto } from './dto/crear.dto';
 import { ActualizarDevolucionDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('devolucion')
 export class DevolucionController {
   constructor(
     private readonly crearUseCase: CrearDevolucionUseCase,
     private readonly obtenerTodosUseCase: ObtenerTodosDevolucionUseCase,
-    private readonly obtenerPorIdUseCase: ObtenerPorIdDevoluvionUseCase,
+    private readonly obtenerPorIdUseCase: ObtenerPorIdDevolucionUseCase,
     private readonly actualizarUseCase: ActualizarDevolucionUseCase,
     private readonly eliminarUseCase: EliminarDevolucionUseCase,
   ) {}

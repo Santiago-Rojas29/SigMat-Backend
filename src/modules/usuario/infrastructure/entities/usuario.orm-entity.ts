@@ -47,22 +47,25 @@ export class UsuarioOrmEntity {
   @Column({ type: 'enum', enum: EstadoUsuario })
   estado!: EstadoUsuario;
 
-  @OneToMany(() => IncidenciaOrmEntity, (incidencia) => incidencia.usuario)
+  @Column({ type: 'varchar', length: 255, select: false })
+  contrasena!: string;
+
+  @OneToMany(() => IncidenciaOrmEntity, (incidencia) => incidencia.id_usuario)
   incidencia!: IncidenciaOrmEntity[];
 
-  @OneToMany(() => AreaOrmEntity, (area) => area.usuario)
+  @OneToMany(() => AreaOrmEntity, (area) => area.id_usuario)
   area!: AreaOrmEntity[];
 
-  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.usuario)
+  @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.id_responsable)
   traslado!: TrasladoOrmEntity[];
 
-  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.usuario)
+  @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.id_responsable)
   unidad!: UnidadOrmEntity[];
 
-  @OneToMany(() => LoteOrmEntity, (lote) => lote.usuario)
+  @OneToMany(() => LoteOrmEntity, (lote) => lote.id_responsable)
   lote!: LoteOrmEntity[];
 
-  @OneToMany(() => SolicitudUnidadOrmEntity, (solicitudUnidad) => solicitudUnidad.usuarioUnidad)
+  @OneToMany(() => SolicitudUnidadOrmEntity, (solicitudUnidad) => solicitudUnidad.id_usuario)
   solicitudUnidad!: SolicitudUnidadOrmEntity[];
 
   @OneToMany(() => FichaUsuarioOrmEntity, (fichaUsuario) => fichaUsuario.usuario)

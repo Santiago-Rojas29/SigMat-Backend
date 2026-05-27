@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { Usuario, TipoDocumento, EstadoUsuario } from '../../domain/entities/usuario.entity';
 import type { UsuarioRepository } from '../../domain/ports/usuario.repository';
 
@@ -18,7 +19,9 @@ export class CrearUsuarioUseCase {
     correo: string;
     telefono: string;
     estado: EstadoUsuario;
+    contrasena: string;
   }): Promise<Usuario> {
+    const hashContrasena = await bcrypt.hash(data.contrasena, 10);
     const entity = new Usuario(
       '',
       data.id_rol,
@@ -29,6 +32,7 @@ export class CrearUsuarioUseCase {
       data.correo,
       data.telefono,
       data.estado,
+      hashContrasena,
     );
     entity.validar();
     return this.repo.crear(entity);

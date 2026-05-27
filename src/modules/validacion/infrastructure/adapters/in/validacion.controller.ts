@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateValidacionUseCase } from '../../../application/use-cases/crear.use-case';
 import { ActualizarValidacionUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarValidacionUseCase } from '../../../application/use-cases/eliminar.use-case';
@@ -7,6 +8,7 @@ import { ObtenerTodosValidacionUseCase } from '../../../application/use-cases/ob
 import { CreateValidacionDto } from './dto/crear.dto';
 import { UpdateValidacionDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('validacion')
 export class ValidacionController {
   constructor(

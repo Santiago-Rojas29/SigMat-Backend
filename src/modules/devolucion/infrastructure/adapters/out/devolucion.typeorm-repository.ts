@@ -32,7 +32,7 @@ export class DevolucionTypeOrmRepository implements DevolucionRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
-  async obtenerPorID(id: string): Promise<Devolucion | null> {
+  async obtenerPorId(id: string): Promise<Devolucion | null> {
     const orm = await this.repo.findOneBy({ id });
     if (!orm) return null;
     return this.toEntity(orm);

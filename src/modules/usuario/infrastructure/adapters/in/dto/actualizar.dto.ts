@@ -44,4 +44,10 @@ export class ActualizarUsuarioDto {
   @IsOptional()
   @IsEnum(EstadoUsuario)
   estado?: EstadoUsuario;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  contrasena?: string;
 }

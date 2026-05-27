@@ -36,6 +36,7 @@ export class UsuarioTypeOrmRepository implements UsuarioRepository {
       correo: entity.correo,
       telefono: entity.telefono,
       estado: entity.estado,
+      contrasena: entity.contrasena,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);

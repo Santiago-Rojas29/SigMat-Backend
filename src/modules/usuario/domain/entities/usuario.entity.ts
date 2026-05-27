@@ -21,6 +21,7 @@ export class Usuario {
     public correo: string,
     public telefono: string,
     public estado: EstadoUsuario,
+    public contrasena: string = '',
   ) {}
 
   validar(): void {
@@ -34,5 +35,6 @@ export class Usuario {
     if (!this.telefono) throw new Error('El telefono es obligatorio');
     if (!Object.values(EstadoUsuario).includes(this.estado))
       throw new Error('El estado no es valido');
+    if (!this.contrasena) throw new Error('La contraseña es obligatoria');
   }
 }
