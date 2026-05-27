@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { Usuario, TipoDocumento, EstadoUsuario } from '../../domain/entities/usuario.entity';
 import type { UsuarioRepository } from '../../domain/ports/usuario.repository';
 
@@ -20,6 +21,7 @@ export class ActualizarUsuarioUseCase {
       correo?: string;
       telefono?: string;
       estado?: EstadoUsuario;
+      contrasena?: string;
     },
   ): Promise<Usuario> {
     const mapped: Partial<Usuario> = {
@@ -31,6 +33,7 @@ export class ActualizarUsuarioUseCase {
       ...(data.correo && { correo: data.correo }),
       ...(data.telefono && { telefono: data.telefono }),
       ...(data.estado && { estado: data.estado }),
+      ...(data.contrasena && { contrasena: await bcrypt.hash(data.contrasena, 10) }),
     };
     return this.repo.actualizar(id, mapped);
   }

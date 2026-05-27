@@ -1,5 +1,7 @@
 import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CrearRolUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosRolUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdRolUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
@@ -20,6 +22,8 @@ export class RolController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('usuarios')
   crear(@Body() body: CrearRolDto) {
     return this.crearUseCase.execute(body);
   }
@@ -35,11 +39,15 @@ export class RolController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('usuarios')
   actualizar(@Param('id') id: string, @Body() body: ActualizarRolDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('usuarios')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

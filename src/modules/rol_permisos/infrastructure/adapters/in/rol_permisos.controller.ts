@@ -1,5 +1,7 @@
 import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CrearRolPermisosUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosRolPermisosUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdsRolPermisosUseCase } from '../../../application/use-cases/obtener-por-ids.use-case';
@@ -15,6 +17,8 @@ export class RolPermisosController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('usuarios')
   crear(@Body() body: CrearRolPermisosDto) {
     return this.crearUseCase.execute(body);
   }
