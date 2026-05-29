@@ -1,10 +1,12 @@
 import {
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { EstadoLote } from '../../../../domain/entities/lote.entity';
 
 export class UpdateLoteDto {
   @IsOptional()
@@ -46,4 +48,16 @@ export class UpdateLoteDto {
   @IsDateString()
   @IsNotEmpty()
   fecha_entrada?: string;
+
+  @IsOptional()
+  @IsDateString()
+  fecha_ingreso?: string;
+
+  @IsOptional()
+  @IsDateString()
+  fecha_vencimiento?: string;
+
+  @IsOptional()
+  @IsEnum(EstadoLote)
+  estado?: EstadoLote;
 }

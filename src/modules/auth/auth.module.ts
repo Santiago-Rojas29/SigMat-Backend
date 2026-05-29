@@ -10,6 +10,9 @@ import { AuthTypeOrmRepository } from './infrastructure/adapters/out/auth.typeor
 import { JwtStrategy } from './infrastructure/adapters/out/jwt.strategy';
 import { LoginUseCase } from './application/use-cases/login.use-case';
 import { ObtenerMisPermisosUseCase } from './application/use-cases/obtener-mis-permisos.use-case';
+import { SolicitarResetUseCase } from './application/use-cases/solicitar-reset.use-case';
+import { ResetearContrasenaUseCase } from './application/use-cases/resetear-contrasena.use-case';
+import { MailService } from './infrastructure/services/mail.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Module({
@@ -27,6 +30,9 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
   providers: [
     LoginUseCase,
     ObtenerMisPermisosUseCase,
+    SolicitarResetUseCase,
+    ResetearContrasenaUseCase,
+    MailService,
     JwtStrategy,
     JwtAuthGuard,
     { provide: 'AuthRepository', useClass: AuthTypeOrmRepository },

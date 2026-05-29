@@ -23,6 +23,9 @@ export class LoteTypeOrmRepository implements LoteRepository {
       orm.cantidad_disponible,
       orm.unidad_medida,
       orm.fecha_entrada,
+      orm.fecha_ingreso,
+      orm.fecha_vencimiento,
+      orm.estado
     );
   }
 
@@ -36,6 +39,9 @@ export class LoteTypeOrmRepository implements LoteRepository {
       cantidad_disponible: lote.cantidad_disponible,
       unidad_medida: lote.unidad_medida as any,
       fecha_entrada: lote.fecha_entrada,
+      fecha_ingreso: lote.fecha_ingreso,
+      fecha_vencimiento: lote.fecha_vencimiento,
+      estado: lote.estado,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);

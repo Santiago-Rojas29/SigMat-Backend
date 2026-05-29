@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Lote } from '../../domain/entities/lote.entity';
+import { EstadoLote, Lote } from '../../domain/entities/lote.entity';
 import type { LoteRepository } from '../../domain/ports/lote.repository';
 
 @Injectable()
@@ -20,6 +20,9 @@ export class ActualizarLoteUseCase {
       cantidad_disponible?: number;
       unidad_medida?: string;
       fecha_entrada?: string;
+      fecha_ingreso?: string;
+      fecha_vencimiento?: string;
+      estado?: EstadoLote;
     },
   ): Promise<Lote> {
     const mapped: Partial<Lote> = {
@@ -31,6 +34,9 @@ export class ActualizarLoteUseCase {
       ...(data.cantidad_disponible !== undefined && { cantidad_disponible: data.cantidad_disponible }),
       ...(data.unidad_medida !== undefined && { unidad_medida: data.unidad_medida }),
       ...(data.fecha_entrada !== undefined && { fecha_entrada: new Date(data.fecha_entrada) }),
+      ...(data.fecha_ingreso !== undefined && { fecha_ingreso: new Date(data.fecha_ingreso) }),
+      ...(data.fecha_vencimiento !== undefined && { fecha_vencimiento: new Date(data.fecha_vencimiento) }),
+      ...(data.estado !== undefined && { estado: data.estado }),
     };
     return this.repo.actualizar(id, mapped);
   }

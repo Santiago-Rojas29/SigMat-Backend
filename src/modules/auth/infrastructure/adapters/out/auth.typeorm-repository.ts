@@ -38,4 +38,33 @@ export class AuthTypeOrmRepository implements AuthRepository {
 
     return rows.map((r) => r.modulo);
   }
+
+  async guardarTokenReset(correo: string, token: string, expires: Date): Promise<void> {
+    await this.usuarioRepo.update(
+      { correo },
+      { reset_token: token, reset_token_expires: expires },
+    );
+  }
+
+  async encontrarPorTokenReset(token: string): Promise<{ id: string; correo: string } | null> {
+    const orm = await this.usuarioRepo
+      .createQueryBuilder('usuario')
+      .select(['usuario.id', 'usuario.correo', 'usuario.reset_token_expires'])
+      .addSelect('usuario.reset_token')
+      .where('usuario.reset_token = :token', { token })
+      .getOne();
+
+    if (!orm) return null;
+    if (!orm.reset_token_expires || orm.reset_token_expires < new Date()) return null;
+
+    return { id: orm.id, correo: orm.correo };
+  }
+
+  async actualizarContrasena(id: string, hashContrasena: string): Promise<void> {
+    await this.usuarioRepo.update({ id }, { contrasena: hashContrasena });
+  }
+
+  async limpiarTokenReset(id: string): Promise<void> {
+    await this.usuarioRepo.update({ id }, { reset_token: null, reset_token_expires: null });
+  }
 }

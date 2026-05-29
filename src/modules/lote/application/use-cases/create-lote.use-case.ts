@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { LoteRepository } from '../../domain/ports/lote.repository';
-import { Lote } from '../../domain/entities/lote.entity';
+import { EstadoLote, Lote } from '../../domain/entities/lote.entity';
 
 @Injectable()
 export class CreateLoteUseCase {
@@ -18,8 +18,12 @@ export class CreateLoteUseCase {
     cantidad_disponible: number;
     unidad_medida: string;
     fecha_entrada: string;
+    fecha_ingreso?: string;
+    fecha_vencimiento?: string;
+    estado?: EstadoLote;
   }): Promise<Lote> {
-    const entity = new Lote("",
+    const entity = new Lote(
+      '',
       data.id_material,
       data.id_responsable,
       data.id_ubicacion,
@@ -28,6 +32,9 @@ export class CreateLoteUseCase {
       data.cantidad_disponible,
       data.unidad_medida,
       new Date(data.fecha_entrada),
+      data.fecha_ingreso ? new Date(data.fecha_ingreso) : null,
+      data.fecha_vencimiento ? new Date(data.fecha_vencimiento) : null,
+      data.estado ?? null,
     );
     return this.repo.crear(entity);
   }

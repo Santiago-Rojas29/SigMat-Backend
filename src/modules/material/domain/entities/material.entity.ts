@@ -1,6 +1,7 @@
 export enum CategoriaMaterial {
   CONSUMIBLE = 'consumible',
   NO_CONSUMIBLE = 'no consumible',
+  PERECEDERO = 'perecedero',
 }
 
 export class Material {

@@ -50,6 +50,12 @@ export class UsuarioOrmEntity {
   @Column({ type: 'varchar', length: 255, select: false })
   contrasena!: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, select: false })
+  reset_token!: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  reset_token_expires!: Date | null;
+
   @OneToMany(() => IncidenciaOrmEntity, (incidencia) => incidencia.id_usuario)
   incidencia!: IncidenciaOrmEntity[];
 

@@ -6,6 +6,7 @@ import { EntregaLoteOrmEntity } from 'src/modules/entrega_lote/infrastructure/en
 import { SolicitudLoteOrmEntity } from 'src/modules/solicitud_lote/infrastructure/entities/solicitud_lote.orm-entity';
 import { KardexOrmEntity } from 'src/modules/kardex/infrastructure/entities/kardex.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { EstadoLote } from '../../domain/entities/lote.entity';
 
 export enum UnidadMedida {
   KG = 'kg',
@@ -58,6 +59,15 @@ export class LoteOrmEntity {
 
   @Column({ type: 'date' })
   fecha_entrada!: Date;
+
+  @Column({ type: 'date', nullable: true })
+  fecha_ingreso!: Date | null;
+
+  @Column({ type: 'date', nullable: true })
+  fecha_vencimiento!: Date | null;
+
+  @Column({ type: 'enum', enum: EstadoLote, nullable: true })
+  estado!: EstadoLote | null;
 
   @OneToMany(() => TrasladoLoteOrmEntity, (loteTraslado) => loteTraslado.lote)
   loteTraslado!: TrasladoLoteOrmEntity[];
