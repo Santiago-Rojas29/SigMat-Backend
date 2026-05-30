@@ -4,7 +4,7 @@ export class UpdateCentroDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name?: string;
+  nombre?: string;
 
   @IsOptional()
   @IsString()

@@ -3,10 +3,6 @@ import { IsString, IsNotEmpty } from 'class-validator';
 export class CreateCentroDto {
   @IsString()
   @IsNotEmpty()
-  id!: string;
-
-  @IsString()
-  @IsNotEmpty()
   nombre!: string;
 
   @IsString()

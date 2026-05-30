@@ -15,7 +15,7 @@ export class CentroTypeOrmRepository implements CentroRepository {
   private toEntity(orm: CentroOrmEntity): Centro {
     return new Centro(
       orm.id,
-      orm.name,
+      orm.nombre,
       orm.ciudad,
       orm.direccion,
       orm.telefono,
@@ -25,11 +25,11 @@ export class CentroTypeOrmRepository implements CentroRepository {
 
   async crear(entity: Centro): Promise<Centro> {
     const orm = this.repo.create({
-      name: entity.name,
+      nombre: entity.nombre,
       ciudad: entity.ciudad,
       direccion: entity.direccion,
       telefono: entity.telefono,
-      estado: entity.estado,
+      estado: entity.estado as any,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);
@@ -46,7 +46,7 @@ export class CentroTypeOrmRepository implements CentroRepository {
   }
 
   async actualizar(id: string, data: Partial<Centro>): Promise<Centro> {
-    await this.repo.update(id, data);
+    await this.repo.update(id, data as any);
     const orm = await this.repo.findOneBy({ id });
     if (!orm) throw new Error(`Centro con id ${id} no encontrado`);
     return this.toEntity(orm);

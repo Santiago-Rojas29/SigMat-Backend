@@ -10,7 +10,6 @@ export class CreateCentroUseCase {
   ) {}
 
   async execute(data: {
-    id: string;
     nombre: string;
     ciudad: string;
     direccion: string;
@@ -18,7 +17,7 @@ export class CreateCentroUseCase {
     estado: string;
   }): Promise<Centro> {
     const entity = new Centro(
-      data.id,
+      '',
       data.nombre,
       data.ciudad,
       data.direccion,
