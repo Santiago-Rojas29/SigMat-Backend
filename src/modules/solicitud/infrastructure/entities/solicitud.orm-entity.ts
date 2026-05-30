@@ -13,11 +13,13 @@ export enum EstadoSolicitud {
   PENDIENTE = 'pendiente',
   APROBADO = 'aprobado',
   RECHAZADO = 'rechazado',
+  ACTIVO = 'activo',
+  FINALIZADO = 'finalizado',
 }
 
 @Entity('solicitud')
 export class SolicitudOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_solicitud!: string;
 
   @Column()
