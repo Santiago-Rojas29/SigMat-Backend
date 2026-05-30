@@ -134,6 +134,91 @@ async function seed() {
     console.log(`\n   ✅ ${devEmail} actualizado a rol Administrador`);
   }
 
+  // ── 6. Centro ─────────────────────────────────────────────────────────────
+  console.log('\n🏛️  Creando centro SENA...');
+
+  let centroId: string;
+  const centroExisting = await q(`SELECT id FROM centro WHERE name = $1`, ['SENA Regional']);
+  if (centroExisting.length === 0) {
+    const [centro] = await q(
+      `INSERT INTO centro (id, name, ciudad, direccion, telefono, estado)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, $5) RETURNING id`,
+      ['SENA Regional', 'Medellín', 'Calle 51 # 57-30', '6044444444', 'activo'],
+    );
+    centroId = centro.id;
+    console.log(`   ✅ Centro 'SENA Regional' creado`);
+  } else {
+    centroId = centroExisting[0].id;
+    console.log(`   ℹ️  Centro ya existe`);
+  }
+
+  // ── 7. Sede ───────────────────────────────────────────────────────────────
+  console.log('\n📍 Creando sede...');
+
+  let sedeId: string;
+  const sedeExisting = await q(`SELECT id_sede FROM sede WHERE nombre = $1`, ['Sede Principal']);
+  if (sedeExisting.length === 0) {
+    const [sede] = await q(
+      `INSERT INTO sede (id_sede, id_centro, nombre, direccion, telefono, estado)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, $5) RETURNING id_sede`,
+      [centroId, 'Sede Principal', 'Carrera 32 # 48-15', '6044444445', 'activo'],
+    );
+    sedeId = sede.id_sede;
+    console.log(`   ✅ Sede 'Sede Principal' creada`);
+  } else {
+    sedeId = sedeExisting[0].id_sede;
+    console.log(`   ℹ️  Sede ya existe`);
+  }
+
+  // ── 8. Área ───────────────────────────────────────────────────────────────
+  console.log('\n📁 Creando área...');
+
+  const [adminUser] = await q(`SELECT id FROM usuario WHERE correo = 'admin@sigmat.sena.edu.co'`);
+  const areaExisting = await q(`SELECT id_area FROM area WHERE nombre = $1`, ['Almacén Principal']);
+  if (areaExisting.length === 0 && adminUser) {
+    await q(
+      `INSERT INTO area (id_sede, id_usuario, nombre, descripcion, estado)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [sedeId, adminUser.id, 'Almacén Principal', 'Área principal de almacenamiento del SENA', 'activo'],
+    );
+    console.log(`   ✅ Área 'Almacén Principal' creada`);
+  } else {
+    console.log(`   ℹ️  Área ya existe`);
+  }
+
+  // ── 9. Tipos de ubicación ─────────────────────────────────────────────────
+  console.log('\n📦 Creando tipos de ubicación...');
+
+  // Eliminar residuos de la migración enum → varchar
+  const nullTipos = await q(`SELECT id_tipo_ubicacion FROM tipo_ubicacion WHERE nombre IS NULL OR nombre = ''`);
+  if (nullTipos.length > 0) {
+    const ids = nullTipos.map((t: any) => t.id_tipo_ubicacion);
+    // Primero eliminar ubicaciones que referencian esos tipos huérfanos
+    await q(`DELETE FROM ubicacion WHERE id_tipo_ubicacion = ANY($1::int[])`, [ids]);
+    // Luego eliminar los tipos nulos
+    await q(`DELETE FROM tipo_ubicacion WHERE nombre IS NULL OR nombre = ''`);
+    console.log(`   🧹 Eliminados ${nullTipos.length} tipos sin nombre y sus ubicaciones`);
+  }
+
+  const tiposData = [
+    { nombre: 'bodega',      descripcion: 'Espacio de almacenamiento de materiales y equipos' },
+    { nombre: 'laboratorio', descripcion: 'Espacio equipado para prácticas y experimentos' },
+    { nombre: 'aula',        descripcion: 'Espacio de aprendizaje y formación' },
+  ];
+
+  for (const t of tiposData) {
+    const existing = await q(`SELECT id_tipo_ubicacion FROM tipo_ubicacion WHERE nombre = $1`, [t.nombre]);
+    if (existing.length === 0) {
+      await q(
+        `INSERT INTO tipo_ubicacion (nombre, descripcion) VALUES ($1, $2)`,
+        [t.nombre, t.descripcion],
+      );
+      console.log(`   ✅ Tipo '${t.nombre}' creado`);
+    } else {
+      console.log(`   ℹ️  Tipo '${t.nombre}' ya existe`);
+    }
+  }
+
   console.log('\n🎉 Seed completado exitosamente.\n');
   await dataSource.destroy();
 }

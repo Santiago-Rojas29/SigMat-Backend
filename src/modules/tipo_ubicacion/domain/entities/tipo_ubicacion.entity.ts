@@ -1,5 +1,3 @@
-const nombresValidos = ['bodega', 'laboratorio', 'aula'];
-
 export class TipoUbicacion {
   constructor(
     public readonly id_tipo_ubicacion: string,
@@ -8,7 +6,7 @@ export class TipoUbicacion {
   ) {}
 
   validar(): void {
-    if (!nombresValidos.includes(this.nombre))
-      throw new Error('Nombre de tipo de ubicacion invalido');
+    if (!this.nombre) throw new Error('El nombre es obligatorio');
+    if (!this.descripcion) throw new Error('La descripción es obligatoria');
   }
 }
