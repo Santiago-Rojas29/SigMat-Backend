@@ -3,4 +3,6 @@ export interface CredencialesUsuario {
     correo: string;
     contrasena: string;
     id_rol: string;
+    nombres: string;
+    apellidos: string;
 }

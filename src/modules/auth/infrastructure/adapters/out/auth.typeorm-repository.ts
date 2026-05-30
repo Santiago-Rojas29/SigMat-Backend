@@ -19,13 +19,20 @@ export class AuthTypeOrmRepository implements AuthRepository {
   async encontrarPorCorreo(correo: string): Promise<CredencialesUsuario | null> {
     const orm = await this.usuarioRepo
       .createQueryBuilder('usuario')
-      .select(['usuario.id', 'usuario.correo', 'usuario.id_rol'])
+      .select(['usuario.id', 'usuario.correo', 'usuario.id_rol', 'usuario.nombres', 'usuario.apellidos'])
       .addSelect('usuario.contrasena')
       .where('usuario.correo = :correo', { correo })
       .getOne();
 
     if (!orm) return null;
-    return { id: orm.id, correo: orm.correo, contrasena: orm.contrasena, id_rol: orm.id_rol };
+    return {
+      id: orm.id,
+      correo: orm.correo,
+      contrasena: orm.contrasena,
+      id_rol: orm.id_rol,
+      nombres: orm.nombres,
+      apellidos: orm.apellidos,
+    };
   }
 
   async obtenerModulosPorRol(id_rol: string): Promise<string[]> {

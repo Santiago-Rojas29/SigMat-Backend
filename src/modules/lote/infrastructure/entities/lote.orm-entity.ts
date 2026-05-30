@@ -18,7 +18,7 @@ export enum UnidadMedida {
 
 @Entity('lote')
 export class LoteOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_lote!: string;
 
   @Column()

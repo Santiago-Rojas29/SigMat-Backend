@@ -18,7 +18,13 @@ export class LoginUseCase {
     const esValida = await bcrypt.compare(contrasena, usuario.contrasena);
     if (!esValida) throw new UnauthorizedException('Credenciales inválidas');
 
-    const payload = { sub: usuario.id, correo: usuario.correo, id_rol: usuario.id_rol };
+    const payload = {
+      sub: usuario.id,
+      correo: usuario.correo,
+      id_rol: usuario.id_rol,
+      nombres: usuario.nombres,
+      apellidos: usuario.apellidos,
+    };
     return { access_token: this.jwtService.sign(payload) };
   }
 }

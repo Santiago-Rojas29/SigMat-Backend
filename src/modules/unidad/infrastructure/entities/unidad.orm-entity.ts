@@ -19,7 +19,7 @@ export enum EstadoUnidad {
 
 @Entity('unidad')
 export class UnidadOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_unidad!: string;
 
   @Column()
