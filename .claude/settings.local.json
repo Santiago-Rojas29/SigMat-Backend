@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Remove-Item \"c:\\\\Users\\\\Felipe\\\\Documents\\\\Instructor-Diego\\\\ProyectoFormativo\\\\backend\\\\src\\\\modules\\\\devolucion_unidad\\\\application\\\\use-cases\\\\actualizar.use-case.ts\")",
+      "Bash(Remove-Item \"c:\\\\Users\\\\Felipe\\\\Documents\\\\Instructor-Diego\\\\ProyectoFormativo\\\\backend\\\\src\\\\modules\\\\devolucion_unidad\\\\application\\\\use-cases\\\\eliminar.use-case.ts\")",
+<<<<<<< HEAD
+      "Bash(Remove-Item \"c:\\\\Users\\\\Felipe\\\\Documents\\\\Instructor-Diego\\\\ProyectoFormativo\\\\backend\\\\src\\\\modules\\\\devolucion_unidad\\\\infrastructure\\\\adapters\\\\in\\\\dto\\\\actualizar.dto.ts\")",
+      "Bash(npm install *)",
+      "Bash(cd \"c:\\\\Users\\\\Felipe\\\\Documents\\\\Instructor-Diego\\\\ProyectoFormativo\\\\frontend\" && npm install && npm install bootstrap react-router-dom axios)",
+      "Read(//c/Users/Felipe/Documents/Instructor-Diego/ProyectoFormativo/frontend/**)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)"
+=======
+      "Bash(Remove-Item \"c:\\\\Users\\\\Felipe\\\\Documents\\\\Instructor-Diego\\\\ProyectoFormativo\\\\backend\\\\src\\\\modules\\\\devolucion_unidad\\\\infrastructure\\\\adapters\\\\in\\\\dto\\\\actualizar.dto.ts\")"
+>>>>>>> 85b9315713d7064a66087ee460f8dd07e3395799
+    ]
+  }
+}

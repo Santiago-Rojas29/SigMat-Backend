@@ -1,6 +1,20 @@
+export enum EstadoPrestamo {
+  ACTIVO = 'activo',
+  FINALIZADO = 'finalizado',
+}
+
 export class Prestamo {
   constructor(
     public readonly id: string,
-    public name: string,
+    public id_validacion: string,
+    public fecha_limite: Date,
+    public estado: EstadoPrestamo,
   ) {}
+
+  validar(): void {
+    if (!this.id_validacion) throw new Error('La validacion es obligatoria');
+    if (!this.fecha_limite) throw new Error('La fecha limite es obligatoria');
+    if (this.fecha_limite < new Date()) throw new Error('La fecha limite no puede ser pasada');
+    if (!Object.values(EstadoPrestamo).includes(this.estado)) throw new Error('Estado invalido');
+  }
 }
