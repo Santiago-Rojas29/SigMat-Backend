@@ -18,7 +18,7 @@ export class RolPermisosController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermission('usuarios')
+  @RequirePermission('administracion')
   crear(@Body() body: CrearRolPermisosDto) {
     return this.crearUseCase.execute(body);
   }

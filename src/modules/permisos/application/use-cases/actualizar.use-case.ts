@@ -11,12 +11,13 @@ export class ActualizarPermisosUseCase {
 
   async execute(
     id: string,
-    data: { nombre?: string; descripcion?: string; modulo?: ModuloPermiso },
+    data: { nombre?: string; descripcion?: string; modulo?: ModuloPermiso; submodulos?: string[] },
   ): Promise<Permisos> {
     const mapped: Partial<Permisos> = {
       ...(data.nombre && { nombre: data.nombre }),
       ...(data.descripcion && { descripcion: data.descripcion }),
       ...(data.modulo && { modulo: data.modulo }),
+      ...('submodulos' in data && { submodulos: data.submodulos ?? [] }),
     };
     return this.repo.actualizar(id, mapped);
   }

@@ -23,19 +23,23 @@ export class MaterialTypeOrmRepository implements MaterialRepository {
       orm.modelo,
       orm.descripcion,
       orm.codigo_unspsc,
+      orm.unidad_medida ?? undefined,
+      orm.fecha_vencimiento ?? undefined,
     );
   }
 
   async crear(entity: Material): Promise<Material> {
     const orm = this.repo.create({
-      id_ficha: entity.id_ficha,
-      nombre: entity.nombre,
-      categoria: entity.categoria,
-      tipo: entity.tipo,
-      marca: entity.marca,
-      modelo: entity.modelo,
-      descripcion: entity.descripcion,
-      codigo_unspsc: entity.codigo_unspsc,
+      id_ficha:          entity.id_ficha,
+      nombre:            entity.nombre,
+      categoria:         entity.categoria,
+      tipo:              entity.tipo,
+      marca:             entity.marca,
+      modelo:            entity.modelo,
+      descripcion:       entity.descripcion,
+      codigo_unspsc:     entity.codigo_unspsc,
+      unidad_medida:     entity.unidad_medida ?? null,
+      fecha_vencimiento: entity.fecha_vencimiento ?? null,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);

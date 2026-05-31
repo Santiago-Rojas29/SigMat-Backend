@@ -18,6 +18,8 @@ export class CrearMaterialUseCase {
     modelo: string;
     descripcion: string;
     codigo_unspsc: string;
+    unidad_medida?: string;
+    fecha_vencimiento?: string;
   }): Promise<Material> {
     const entity = new Material(
       '',
@@ -29,6 +31,8 @@ export class CrearMaterialUseCase {
       data.modelo,
       data.descripcion,
       data.codigo_unspsc,
+      data.unidad_medida,
+      data.fecha_vencimiento ? new Date(data.fecha_vencimiento) : undefined,
     );
     entity.validar();
     return this.repo.crear(entity);

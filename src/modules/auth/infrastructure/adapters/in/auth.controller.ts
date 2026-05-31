@@ -29,7 +29,7 @@ export class AuthController {
   @Get('permisos')
   @UseGuards(JwtAuthGuard)
   misPermisos(@Request() req: JwtRequest): Promise<{ modulos: string[] }> {
-    return this.misPermisosUseCase.execute(req.user.id_rol);
+    return this.misPermisosUseCase.execute(req.user.id);
   }
 
   @Post('solicitar-reset')

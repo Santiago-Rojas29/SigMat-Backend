@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ModuloPermiso } from '../../../../domain/entities/permisos.entity';
 
 export class ActualizarPermisosDto {
@@ -16,4 +16,9 @@ export class ActualizarPermisosDto {
   @IsOptional()
   @IsEnum(ModuloPermiso)
   modulo?: ModuloPermiso;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  submodulos?: string[];
 }

@@ -13,7 +13,7 @@ export class PermisosTypeOrmRepository implements PermisosRepository {
   ) {}
 
   private toEntity(orm: PermisosOrmEntity): Permisos {
-    return new Permisos(orm.id, orm.nombre, orm.descripcion, orm.modulo);
+    return new Permisos(orm.id, orm.nombre, orm.descripcion, orm.modulo, orm.submodulos ?? []);
   }
 
   async crear(entity: Permisos): Promise<Permisos> {
@@ -21,6 +21,7 @@ export class PermisosTypeOrmRepository implements PermisosRepository {
       nombre: entity.nombre,
       descripcion: entity.descripcion,
       modulo: entity.modulo,
+      submodulos: entity.submodulos ?? [],
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);

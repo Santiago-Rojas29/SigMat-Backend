@@ -1,9 +1,9 @@
 export enum ModuloPermiso {
-  MATERIALES = 'materiales',
-  PRESTAMOS = 'prestamos',
+  ESTRUCTURA = 'estructura',
+  ADMINISTRACION = 'administracion',
   INVENTARIO = 'inventario',
-  USUARIOS = 'usuarios',
-  UBICACIONES = 'ubicaciones',
+  MOVIMIENTOS = 'movimientos',
+  CONTROL = 'control',
 }
 
 export class Permisos {
@@ -12,6 +12,7 @@ export class Permisos {
     public nombre: string,
     public descripcion: string,
     public modulo: ModuloPermiso,
+    public submodulos?: string[],
   ) {}
 
   validar(): void {

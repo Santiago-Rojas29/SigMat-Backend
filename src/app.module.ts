@@ -35,6 +35,7 @@ import { PermisosModule } from './modules/permisos/permisos.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { MaterialModule } from './modules/material/material.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsuarioPermisosModule } from './modules/usuario_permisos/usuario_permisos.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { AuthModule } from './modules/auth/auth.module';
     UsuarioModule,
     MaterialModule,
     AuthModule,
+    UsuarioPermisosModule,
   ],
   controllers: [],
   providers: [],

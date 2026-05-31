@@ -32,6 +32,12 @@ export class MaterialOrmEntity {
   @Column({ type: 'varchar', length: 20 })
   codigo_unspsc!: string;
 
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  unidad_medida!: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  fecha_vencimiento!: Date | null;
+
   @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.material)
   unidades!: UnidadOrmEntity[];
 
