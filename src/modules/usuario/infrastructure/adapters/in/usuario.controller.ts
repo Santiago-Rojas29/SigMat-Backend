@@ -11,7 +11,6 @@ import { CrearUsuarioDto } from './dto/crear.dto';
 import { ActualizarUsuarioDto } from './dto/actualizar.dto';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
-@RequirePermission('usuarios')
 @Controller('usuario')
 export class UsuarioController {
   constructor(
@@ -22,6 +21,7 @@ export class UsuarioController {
     private readonly eliminarUseCase: EliminarUsuarioUseCase,
   ) {}
 
+  @RequirePermission('usuarios')
   @Post()
   crear(@Body() body: CrearUsuarioDto) {
     return this.crearUseCase.execute(body);
@@ -37,11 +37,13 @@ export class UsuarioController {
     return this.obtenerPorIdUseCase.execute(id);
   }
 
+  @RequirePermission('usuarios')
   @Patch(':id')
   actualizar(@Param('id') id: string, @Body() body: ActualizarUsuarioDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
+  @RequirePermission('usuarios')
   @Delete(':id')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);

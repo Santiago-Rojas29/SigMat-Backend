@@ -15,6 +15,10 @@ export class PermisosOrmEntity {
 
   @Column({ type: 'enum', enum: ModuloPermiso })
   modulo!: ModuloPermiso;
+
+  @Column({ type: 'text', array: true, default: '{}' })
+  submodulos!: string[];
+
   @OneToMany(() => RolPermisosOrmEntity, (rolPermiso) => rolPermiso.permiso)
   rolPermiso!: RolPermisosOrmEntity[];
 }

@@ -159,10 +159,10 @@ async function seed() {
   console.log('\n🏛️  Creando centro SENA...');
 
   let centroId: string;
-  const centroExisting = await q(`SELECT id FROM centro WHERE name = $1`, ['SENA Regional']);
+  const centroExisting = await q(`SELECT id FROM centro WHERE nombre = $1`, ['SENA Regional']);
   if (centroExisting.length === 0) {
     const [centro] = await q(
-      `INSERT INTO centro (id, name, ciudad, direccion, telefono, estado)
+      `INSERT INTO centro (id, nombre, ciudad, direccion, telefono, estado)
        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5) RETURNING id`,
       ['SENA Regional', 'Medellín', 'Calle 51 # 57-30', '6044444444', 'activo'],
     );

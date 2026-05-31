@@ -9,8 +9,8 @@ export class CrearPermisosUseCase {
     private readonly repo: PermisosRepository,
   ) {}
 
-  async execute(data: { nombre: string; descripcion: string; modulo: ModuloPermiso }): Promise<Permisos> {
-    const entity = new Permisos('', data.nombre, data.descripcion, data.modulo);
+  async execute(data: { nombre: string; descripcion: string; modulo: ModuloPermiso; submodulos?: string[] }): Promise<Permisos> {
+    const entity = new Permisos('', data.nombre, data.descripcion, data.modulo, data.submodulos);
     entity.validar();
     return this.repo.crear(entity);
   }
