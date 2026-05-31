@@ -17,10 +17,10 @@ export enum EstadoFicha {
 
 @Entity('ficha')
 export class FichaOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_ficha!: string;
 
-  @Column()
+  @Column('uuid')
   id_programa!: string;
 
   @ManyToOne(() => ProgramaOrmEntity, (programa) => programa.ficha)

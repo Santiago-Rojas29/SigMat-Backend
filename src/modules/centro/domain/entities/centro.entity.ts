@@ -1,7 +1,7 @@
 export class Centro {
   constructor(
     public readonly id: string,
-    public name: string,
+    public nombre: string,
     public ciudad: string,
     public direccion: string,
     public telefono: string,
@@ -9,7 +9,7 @@ export class Centro {
   ) {}
 
   validar(): void {
-    if (!this.name) throw new Error('El nombre es obligatorio');
+    if (!this.nombre) throw new Error('El nombre es obligatorio');
     if (!this.ciudad) throw new Error('La ciudad es obligatoria');
     if (!this.direccion) throw new Error('La direccion es obligatoria');
     if (!this.telefono) throw new Error('El telefono es obligatorio');

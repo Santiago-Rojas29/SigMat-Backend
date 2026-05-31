@@ -20,7 +20,7 @@ export class ActualizarCentroUseCase {
     },
   ): Promise<Centro> {
     const mapped: Partial<Centro> = {
-      ...(data.nombre && { name: data.nombre }),
+      ...(data.nombre && { nombre: data.nombre }),
       ...(data.ciudad && { ciudad: data.ciudad }),
       ...(data.direccion && { direccion: data.direccion }),
       ...(data.telefono && { telefono: data.telefono }),

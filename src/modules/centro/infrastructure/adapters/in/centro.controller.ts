@@ -4,7 +4,7 @@ import {
   Body,
   Get,
   Delete,
-  Put,
+  Patch,
   Param,
 } from '@nestjs/common';
 import { CreateCentroUseCase } from '../../../application/use-cases/create-centro.use-case';
@@ -30,7 +30,7 @@ export class CentroController {
     return this.createUseCase.execute(body);
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(@Param('id') id: string, @Body() body: UpdateCentroDto) {
     return this.updateUseCase.execute(id, body);
   }

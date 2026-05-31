@@ -126,7 +126,28 @@ async function seed() {
     console.log(`   ℹ️  Usuario admin ya existe (${adminEmail})`);
   }
 
-  // ── 5. Actualizar usuario de desarrollo al rol Administrador ──────────────
+  // ── 5. Usuario administrador personalizado solicitado ──────────────────────
+  console.log('\n👤 Creando/Actualizando usuario administrador personalizado...');
+  const customEmail = 'lm20052908@gmail.com';
+  const customExists = await q(`SELECT id FROM usuario WHERE correo = $1`, [customEmail]);
+  const customHash = await bcrypt.hash('Lucius29*', 10);
+
+  if (customExists.length === 0) {
+    await q(
+      `INSERT INTO usuario (id, id_rol, tipo_documento, numero_documento, nombres, apellidos, correo, telefono, estado, contrasena)
+       VALUES (gen_random_uuid(), $1, 'cc', '00000002', 'Luis', 'Administrador', $2, '3000000000', 'activo', $3)`,
+      [adminRol.id, customEmail, customHash],
+    );
+    console.log(`   ✅ Usuario personalizado creado (${customEmail})`);
+  } else {
+    await q(
+      `UPDATE usuario SET id_rol = $1, contrasena = $2, estado = 'activo' WHERE correo = $3`,
+      [adminRol.id, customHash, customEmail]
+    );
+    console.log(`   ✅ Usuario personalizado actualizado (${customEmail})`);
+  }
+
+  // ── 6. Actualizar usuario de desarrollo al rol Administrador ──────────────
   const devEmail = '00sgor@gmail.com';
   const devExists = await q(`SELECT id FROM usuario WHERE correo = $1`, [devEmail]);
   if (devExists.length > 0 && adminRol) {

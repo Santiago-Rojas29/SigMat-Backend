@@ -19,7 +19,13 @@ export class ActualizarSedeUseCase {
       estado?: string;
     },
   ): Promise<Sede> {
-    const mapped: Partial<Sede> = { ...data };
+    const mapped: Partial<Sede> = {
+      ...(data.id_centro !== undefined && { id_centro: data.id_centro }),
+      ...(data.nombre !== undefined && { nombre: data.nombre }),
+      ...(data.direccion !== undefined && { direccion: data.direccion }),
+      ...(data.telefono !== undefined && { telefono: data.telefono }),
+      ...(data.estado !== undefined && { estado: data.estado }),
+    };
     return this.repo.actualizar(id, mapped);
   }
 }

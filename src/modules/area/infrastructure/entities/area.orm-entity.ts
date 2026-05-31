@@ -11,7 +11,7 @@ export enum EstadoArea {
 
 @Entity('area')
 export class AreaOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_area!: string;
 
   @Column('uuid')
@@ -21,7 +21,7 @@ export class AreaOrmEntity {
   @JoinColumn({ name: 'id_sede' })
   sede!: SedeOrmEntity;
 
-  @Column()
+  @Column('uuid')
   id_usuario!: string;
 
   @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.area)

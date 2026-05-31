@@ -15,7 +15,6 @@ import { ObtenerTodosUseCase } from './application/use-cases/obtener-todos.use-c
   controllers: [CentroController],
   imports: [TypeOrmModule.forFeature([CentroOrmEntity])],
   providers: [
-    CentroTypeOrmRepository,
     CreateCentroUseCase,
     ActualizarCentroUseCase,
     EliminarCentroUseCase,

@@ -15,10 +15,10 @@ export enum EstadoPrograma {
 
 @Entity('programa')
 export class ProgramaOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_programa!: string;
 
-  @Column()
+  @Column('uuid')
   id_area!: string;
 
   @ManyToOne(() => AreaOrmEntity, (area) => area.programa)
