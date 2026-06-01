@@ -1,7 +1,7 @@
 export class Entrega {
   constructor(
     public readonly id_entrega: string,
-    public id_prestamo: string,
+    public id_prestamo: string | null,
     public id_encargado: string,
     public fecha_entrega: Date,
     public observaciones: string,

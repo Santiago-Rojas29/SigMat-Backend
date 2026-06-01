@@ -80,7 +80,7 @@ export class SolicitudController {
 
   @Patch(':id/rechazar')
   rechazar(@Param('id') id: string, @Body() body: RechazarSolicitudDto) {
-    return this.rechazarUC.execute(id, body.motivo_rechazo);
+    return this.rechazarUC.execute(id, body.rol, body.motivo_rechazo);
   }
 
   @Patch(':id/cancelar')

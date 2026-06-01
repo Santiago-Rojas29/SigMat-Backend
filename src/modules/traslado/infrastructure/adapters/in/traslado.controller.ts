@@ -5,8 +5,10 @@ import { ObtenerTodosTrasladoUseCase } from '../../../application/use-cases/obte
 import { ObtenerPorIdTrasladoUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { ActualizarTrasladoUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarTrasladoUseCase } from '../../../application/use-cases/eliminar.use-case';
+import { RealizarTrasladoUseCase } from '../../../application/use-cases/realizar-traslado.use-case';
 import { CrearTrasladoDto } from './dto/crear.dto';
 import { ActualizarTrasladoDto } from './dto/actualizar.dto';
+import { RealizarTrasladoDto } from './dto/realizar-traslado.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('traslado')
@@ -17,7 +19,13 @@ export class TrasladoController {
     private readonly obtenerPorIdUseCase: ObtenerPorIdTrasladoUseCase,
     private readonly actualizarUseCase: ActualizarTrasladoUseCase,
     private readonly eliminarUseCase: EliminarTrasladoUseCase,
+    private readonly realizarUseCase: RealizarTrasladoUseCase,
   ) {}
+
+  @Post('realizar')
+  realizar(@Body() body: RealizarTrasladoDto) {
+    return this.realizarUseCase.execute(body);
+  }
 
   @Post()
   crear(@Body() body: CrearTrasladoDto) {

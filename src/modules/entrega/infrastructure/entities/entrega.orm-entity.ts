@@ -11,12 +11,12 @@ export class EntregaOrmEntity {
   @PrimaryGeneratedColumn()
   id_entrega!: string;
 
-  @Column()
-  id_prestamo!: string;
+  @Column({ nullable: true })
+  id_prestamo!: string | null;
 
-  @OneToOne(() => PrestamoOrmEntity, (prestamo) => prestamo.entrega)
+  @OneToOne(() => PrestamoOrmEntity, (prestamo) => prestamo.entrega, { nullable: true })
   @JoinColumn({ name: 'id_prestamo' })
-  prestamo!: PrestamoOrmEntity;
+  prestamo!: PrestamoOrmEntity | null;
 
   @Column()
   id_encargado!: string;

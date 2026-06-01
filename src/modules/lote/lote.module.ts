@@ -8,9 +8,10 @@ import { ActualizarLoteUseCase } from './application/use-cases/actualizar-lote.u
 import { EliminarLoteUseCase } from './application/use-cases/eliminar-lote.use-case';
 import { ObtenerPorIdUseCase } from './application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosUseCase } from './application/use-cases/obtener-todos.use-case';
+import { KardexModule } from '../kardex/kardex.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LoteOrmEntity])],
+  imports: [TypeOrmModule.forFeature([LoteOrmEntity]), KardexModule],
   controllers: [LoteController],
   providers: [
     CreateLoteUseCase,

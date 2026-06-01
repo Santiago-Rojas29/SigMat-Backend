@@ -8,9 +8,6 @@ export class MaterialOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('text')
-  id_ficha!: string;
-
   @Column({ type: 'varchar', length: 150 })
   nombre!: string;
 
@@ -20,11 +17,11 @@ export class MaterialOrmEntity {
   @Column({ type: 'varchar', length: 50 })
   tipo!: string;
 
-  @Column({ type: 'varchar', length: 50 })
-  marca!: string;
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  marca!: string | null;
 
-  @Column({ type: 'varchar', length: 50 })
-  modelo!: string;
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  modelo!: string | null;
 
   @Column('text')
   descripcion!: string;
@@ -34,9 +31,6 @@ export class MaterialOrmEntity {
 
   @Column({ type: 'varchar', length: 30, nullable: true })
   unidad_medida!: string | null;
-
-  @Column({ type: 'date', nullable: true })
-  fecha_vencimiento!: Date | null;
 
   @OneToMany(() => UnidadOrmEntity, (unidad) => unidad.material)
   unidades!: UnidadOrmEntity[];

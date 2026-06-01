@@ -4,7 +4,10 @@ import type { LoteFichaRepository } from '../../domain/ports/lote_ficha.reposito
 
 @Injectable()
 export class ObtenerTodosLoteFichaUseCase {
-  constructor(@Inject('LoteFichaRepository') private readonly repo: LoteFichaRepository) {}
+  constructor(
+    @Inject('LoteFichaRepository')
+    private readonly repo: LoteFichaRepository,
+  ) {}
 
   async execute(): Promise<LoteFicha[]> {
     return this.repo.obtenerTodos();

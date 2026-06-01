@@ -7,17 +7,17 @@ export class LoteFichaOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column('uuid')
   id_lote!: string;
 
-  @ManyToOne(() => LoteOrmEntity, (lote) => lote.loteFicha)
+  @ManyToOne(() => LoteOrmEntity, (lote) => lote.loteFicha, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_lote' })
   lote!: LoteOrmEntity;
 
-  @Column()
+  @Column('uuid')
   id_ficha!: string;
 
-  @ManyToOne(() => FichaOrmEntity, (ficha) => ficha.loteFicha)
+  @ManyToOne(() => FichaOrmEntity, (ficha) => ficha.loteFicha, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_ficha' })
   ficha!: FichaOrmEntity;
 

@@ -37,6 +37,7 @@ import { MaterialModule } from './modules/material/material.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsuarioPermisosModule } from './modules/usuario_permisos/usuario_permisos.module';
 import { LoteFichaModule } from './modules/lote_ficha/lote_ficha.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { LoteFichaModule } from './modules/lote_ficha/lote_ficha.module';
     AuthModule,
     UsuarioPermisosModule,
     LoteFichaModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],

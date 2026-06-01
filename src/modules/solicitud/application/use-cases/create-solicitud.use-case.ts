@@ -24,7 +24,9 @@ export class CreateSolicitudUseCase {
 
     const estadoInicial = data.tipo_flujo === TipoFlujo.APRENDIZ
       ? EstadoSolicitud.PENDIENTE_INSTRUCTOR
-      : EstadoSolicitud.PENDIENTE_BODEGA;
+      : data.tipo_prestamo === TipoPrestamo.EXTERNO
+        ? EstadoSolicitud.PENDIENTE_ADMIN
+        : EstadoSolicitud.PENDIENTE_BODEGA;
 
     const entity = new Solicitud(
       '',

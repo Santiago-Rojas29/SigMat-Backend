@@ -1,12 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { LoteRepository } from '../../domain/ports/lote.repository';
 import { EstadoLote, Lote } from '../../domain/entities/lote.entity';
+import { KardexAutoService } from '../../../kardex/application/services/kardex-auto.service';
 
 @Injectable()
 export class CreateLoteUseCase {
   constructor(
     @Inject('LoteRepository')
     private readonly repo: LoteRepository,
+    private readonly kardexAuto: KardexAutoService,
   ) {}
 
   async execute(data: {
@@ -36,6 +38,8 @@ export class CreateLoteUseCase {
       data.fecha_vencimiento ? new Date(data.fecha_vencimiento) : null,
       data.estado ?? null,
     );
-    return this.repo.crear(entity);
+    const lote = await this.repo.crear(entity);
+    await this.kardexAuto.entradaLote(lote.id_lote, lote.cantidad_inicial);
+    return lote;
   }
 }

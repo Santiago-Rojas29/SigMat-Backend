@@ -34,7 +34,7 @@ export class LoteFichaController {
 
   @Patch(':id')
   actualizar(@Param('id') id: string, @Body() body: UpdateLoteFichaDto) {
-    return this.actualizarUC.execute(id, body);
+    return this.actualizarUC.execute(id, body.cantidad!);
   }
 
   @Delete(':id')
