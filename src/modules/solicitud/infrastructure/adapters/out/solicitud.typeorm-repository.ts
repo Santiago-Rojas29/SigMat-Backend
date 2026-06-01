@@ -15,23 +15,39 @@ export class SolicitudTypeOrmRepository implements SolicitudRepository {
   private toEntity(orm: SolicitudOrmEntity): Solicitud {
     return new Solicitud(
       orm.id_solicitud,
-      orm.id_ficha,
       orm.id_solicitante,
-      orm.fecha_solicitud,
+      orm.tipo_flujo,
       orm.tipo_prestamo,
       orm.estado,
+      orm.id_instructor,
+      orm.id_admin,
+      orm.id_bodega,
       orm.observaciones,
+      orm.motivo_rechazo,
+      orm.fecha_solicitud,
+      orm.fecha_respuesta_instructor,
+      orm.fecha_respuesta_admin,
+      orm.fecha_respuesta_bodega,
+      orm.fecha_entrega,
     );
   }
 
   async crear(solicitud: Solicitud): Promise<Solicitud> {
     const orm = this.repo.create({
-      id_ficha: solicitud.id_ficha,
-      id_solicitante: solicitud.id_solicitante,
-      fecha_solicitud: solicitud.fecha_solicitud,
-      tipo_prestamo: solicitud.tipo_prestamo as any,
-      estado: solicitud.estado as any,
-      observaciones: solicitud.observaciones,
+      id_solicitante:    solicitud.id_solicitante,
+      tipo_flujo:        solicitud.tipo_flujo,
+      tipo_prestamo:     solicitud.tipo_prestamo,
+      estado:            solicitud.estado,
+      id_instructor:     solicitud.id_instructor,
+      id_admin:          solicitud.id_admin,
+      id_bodega:         solicitud.id_bodega,
+      observaciones:     solicitud.observaciones,
+      motivo_rechazo:    solicitud.motivo_rechazo,
+      fecha_solicitud:   solicitud.fecha_solicitud,
+      fecha_respuesta_instructor: solicitud.fecha_respuesta_instructor,
+      fecha_respuesta_admin:      solicitud.fecha_respuesta_admin,
+      fecha_respuesta_bodega:     solicitud.fecha_respuesta_bodega,
+      fecha_entrega:              solicitud.fecha_entrega,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);

@@ -1,3 +1,4 @@
+import { LoteFichaOrmEntity } from 'src/modules/lote_ficha/infrastructure/entities/lote_ficha.orm-entity';
 import { TrasladoLoteOrmEntity } from 'src/modules/traslado_lote/infrastructure/entities/traslado_lote.orm-entity';
 import { UbicacionOrmEntity } from 'src/modules/ubicacion/infrastructure/entities/ubicacion.orm-entity';
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
@@ -8,13 +9,6 @@ import { KardexOrmEntity } from 'src/modules/kardex/infrastructure/entities/kard
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { EstadoLote } from '../../domain/entities/lote.entity';
 
-export enum UnidadMedida {
-  KG = 'kg',
-  L = 'l',
-  M = 'm',
-  UNIDAD = 'unidad',
-  PAQUETE = 'paquete',
-}
 
 @Entity('lote')
 export class LoteOrmEntity {
@@ -51,11 +45,8 @@ export class LoteOrmEntity {
   @Column({ type: 'int' })
   cantidad_disponible!: number;
 
-  @Column({
-    type: 'enum',
-    enum: UnidadMedida,
-  })
-  unidad_medida!: UnidadMedida;
+  @Column({ type: 'varchar', length: 20 })
+  unidad_medida!: string;
 
   @Column({ type: 'date' })
   fecha_entrada!: Date;
@@ -80,4 +71,7 @@ export class LoteOrmEntity {
 
   @OneToMany(() => KardexOrmEntity, (kardex) => kardex.lote)
   kardex!: KardexOrmEntity[];
+
+  @OneToMany(() => LoteFichaOrmEntity, (lf) => lf.lote)
+  loteFicha!: LoteFichaOrmEntity[];
 }

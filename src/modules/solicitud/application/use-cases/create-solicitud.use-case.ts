@@ -1,6 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import type { SolicitudRepository } from '../../domain/ports/solicitud.repository';
-import { Solicitud } from '../../domain/entities/solicitud.entity';
+import { Solicitud, TipoFlujo, TipoPrestamo, EstadoSolicitud } from '../../domain/entities/solicitud.entity';
 
 @Injectable()
 export class CreateSolicitudUseCase {
@@ -10,20 +10,35 @@ export class CreateSolicitudUseCase {
   ) {}
 
   async execute(data: {
-    id_ficha: string;
     id_solicitante: string;
-    fecha_solicitud: string;
-    tipo_prestamo: string;
-    estado: string;
-    observaciones: string;
+    tipo_flujo:     TipoFlujo;
+    tipo_prestamo:  TipoPrestamo;
+    id_instructor?: string;
+    id_bodega?:     string;
+    observaciones?: string;
   }): Promise<Solicitud> {
-    const entity = new Solicitud("",
-      data.id_ficha,
+    if (data.tipo_flujo === TipoFlujo.APRENDIZ && !data.id_instructor)
+      throw new BadRequestException('Un aprendiz debe indicar su instructor');
+    if (data.tipo_flujo === TipoFlujo.INSTRUCTOR && !data.id_bodega)
+      throw new BadRequestException('Un instructor debe indicar el responsable de bodega');
+
+    const estadoInicial = data.tipo_flujo === TipoFlujo.APRENDIZ
+      ? EstadoSolicitud.PENDIENTE_INSTRUCTOR
+      : EstadoSolicitud.PENDIENTE_BODEGA;
+
+    const entity = new Solicitud(
+      '',
       data.id_solicitante,
-      new Date(data.fecha_solicitud),
+      data.tipo_flujo,
       data.tipo_prestamo,
-      data.estado,
-      data.observaciones,
+      estadoInicial,
+      data.id_instructor ?? null,
+      null,
+      data.id_bodega ?? null,
+      data.observaciones ?? null,
+      null,
+      new Date(),
+      null, null, null, null,
     );
     return this.repo.crear(entity);
   }

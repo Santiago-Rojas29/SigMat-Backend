@@ -1,32 +1,26 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { TipoFlujo, TipoPrestamo } from '../../../../domain/entities/solicitud.entity';
 
 export class CreateSolicitudDto {
   @IsString()
   @IsNotEmpty()
   id_solicitante!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  id_ficha!: string;
+  @IsEnum(TipoFlujo)
+  tipo_flujo!: TipoFlujo;
 
-  @IsDateString()
-  @IsNotEmpty()
-  fecha_solicitud!: string;
+  @IsEnum(TipoPrestamo)
+  tipo_prestamo!: TipoPrestamo;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  tipo_prestamo!: string;
+  id_instructor?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  estado!: string;
+  id_bodega?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  observaciones!: string;
+  observaciones?: string;
 }

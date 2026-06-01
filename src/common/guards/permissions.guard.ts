@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { PERMISSION_KEY } from '../decorators/require-permission.decorator';
+import { PERMISSION_KEY, PermissionRequirement } from '../decorators/require-permission.decorator';
 
 interface JwtUser {
   id: string;
@@ -18,28 +18,42 @@ export class PermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredModule = this.reflector.getAllAndOverride<string>(PERMISSION_KEY, [
+    const requirement = this.reflector.getAllAndOverride<PermissionRequirement>(PERMISSION_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    // Sin decorator → ruta pública o solo requiere JWT
-    if (!requiredModule) return true;
+    if (!requirement) return true;
 
     const request = context.switchToHttp().getRequest<{ user?: JwtUser }>();
     const user = request.user;
+    if (!user?.id) return false;
 
-    if (!user?.id_rol) return false;
+    const { modulo, submodulo } = requirement;
 
-    const result = await this.dataSource.query<{ modulo: string }[]>(
-      `SELECT p.modulo
-       FROM rol_permisos rp
-       JOIN permisos p ON p.id = rp.id_permiso
-       WHERE rp.id_rol = $1 AND p.modulo = $2
+    if (submodulo) {
+      const result = await this.dataSource.query<{ id: string }[]>(
+        `SELECT up.id
+         FROM usuario_permisos up
+         JOIN permisos p ON p.id = up.id_permiso
+         WHERE up.id_usuario = $1
+           AND p.modulo = $2
+           AND (up.submodulos = '{}' OR $3 = ANY(up.submodulos))
+         LIMIT 1`,
+        [user.id, modulo, submodulo],
+      );
+      return result.length > 0;
+    }
+
+    const result = await this.dataSource.query<{ id: string }[]>(
+      `SELECT up.id
+       FROM usuario_permisos up
+       JOIN permisos p ON p.id = up.id_permiso
+       WHERE up.id_usuario = $1
+         AND p.modulo = $2
        LIMIT 1`,
-      [user.id_rol, requiredModule],
+      [user.id, modulo],
     );
-
     return result.length > 0;
   }
 }

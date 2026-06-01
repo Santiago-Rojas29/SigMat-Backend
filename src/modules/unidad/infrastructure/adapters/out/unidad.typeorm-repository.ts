@@ -20,16 +20,18 @@ export class UnidadTypeOrmRepository implements UnidadRepository {
       orm.id_ubicacion,
       orm.codigo_unidad,
       orm.estado,
+      orm.id_ficha ?? undefined,
     );
   }
 
   async crear(unidad: Unidad): Promise<Unidad> {
     const orm = this.repo.create({
-      id_material: unidad.id_material,
+      id_material:    unidad.id_material,
       id_responsable: unidad.id_responsable,
-      id_ubicacion: unidad.id_ubicacion,
-      codigo_unidad: unidad.codigo_unidad,
-      estado: unidad.estado as any,
+      id_ubicacion:   unidad.id_ubicacion,
+      codigo_unidad:  unidad.codigo_unidad,
+      estado:         unidad.estado as any,
+      id_ficha:       unidad.id_ficha ?? null,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);

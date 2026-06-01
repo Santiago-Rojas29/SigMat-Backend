@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUnidadDto {
   @IsString()
@@ -20,4 +20,8 @@ export class CreateUnidadDto {
   @IsString()
   @IsNotEmpty()
   estado!: string;
+
+  @IsOptional()
+  @IsString()
+  id_ficha?: string;
 }

@@ -80,7 +80,7 @@ export class UsuarioOrmEntity {
   @OneToMany(() => SolicitudLoteOrmEntity, (solicitudLote) => solicitudLote.usuario)
   solicitudLote!: SolicitudLoteOrmEntity[];
 
-  @OneToMany(() => SolicitudOrmEntity, (solicitud) => solicitud.usuario)
+  @OneToMany(() => SolicitudOrmEntity, (solicitud) => solicitud.solicitante)
   solicitud!: SolicitudOrmEntity[];
 
   @OneToMany(() => ValidacionOrmEntity, (validacion) => validacion.usuario)

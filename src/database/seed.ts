@@ -30,9 +30,10 @@ async function seed() {
   console.log('📋 Creando roles...');
 
   const rolesData = [
-    { nombre: 'Administrador', descripcion: 'Acceso completo al sistema SIGMAT' },
-    { nombre: 'Instructor',    descripcion: 'Gestión de materiales y préstamos' },
-    { nombre: 'Aprendiz',      descripcion: 'Consulta y solicitud de préstamos' },
+    { nombre: 'Administrador',    descripcion: 'Acceso completo al sistema SIGMAT' },
+    { nombre: 'Instructor',       descripcion: 'Gestión de materiales y préstamos' },
+    { nombre: 'Aprendiz',         descripcion: 'Consulta y solicitud de préstamos' },
+    { nombre: 'InstructorBodega', descripcion: 'Responsable de la bodega: aprueba solicitudes y registra entregas' },
   ];
 
   for (const r of rolesData) {
@@ -52,18 +53,18 @@ async function seed() {
   console.log('\n🔑 Creando permisos...');
 
   const permisosData = [
-    { nombre: 'Gestión de Usuarios',   descripcion: 'Acceso a usuarios, roles y permisos',  modulo: 'usuarios' },
-    { nombre: 'Gestión de Materiales',  descripcion: 'Acceso a materiales, lotes y unidades', modulo: 'materiales' },
-    { nombre: 'Gestión de Préstamos',   descripcion: 'Acceso a solicitudes y préstamos',      modulo: 'prestamos' },
-    { nombre: 'Control de Inventario',  descripcion: 'Control y seguimiento del inventario',  modulo: 'inventario' },
-    { nombre: 'Gestión de Ubicaciones', descripcion: 'Acceso a ubicaciones del almacén',      modulo: 'ubicaciones' },
+    { nombre: 'Administración',  descripcion: 'Acceso a usuarios, roles y permisos',        modulo: 'administracion' },
+    { nombre: 'Inventario',      descripcion: 'Acceso a materiales, lotes y unidades',       modulo: 'inventario' },
+    { nombre: 'Movimientos',     descripcion: 'Acceso a solicitudes y préstamos',             modulo: 'movimientos' },
+    { nombre: 'Control',         descripcion: 'Control y seguimiento del inventario',         modulo: 'control' },
+    { nombre: 'Estructura',      descripcion: 'Acceso a ubicaciones, sedes y centros',        modulo: 'estructura' },
   ];
 
   for (const p of permisosData) {
     const existing = await q(`SELECT id FROM permisos WHERE modulo = $1`, [p.modulo]);
     if (existing.length === 0) {
       await q(
-        `INSERT INTO permisos (id, nombre, descripcion, modulo) VALUES (gen_random_uuid(), $1, $2, $3)`,
+        `INSERT INTO permisos (id, nombre, descripcion, modulo, submodulos) VALUES (gen_random_uuid(), $1, $2, $3, '{}')`,
         [p.nombre, p.descripcion, p.modulo],
       );
       console.log(`   ✅ Permiso '${p.modulo}' creado`);
@@ -76,9 +77,10 @@ async function seed() {
   console.log('\n🔗 Asignando permisos a roles...');
 
   const asignaciones: Record<string, string[]> = {
-    Administrador: ['usuarios', 'materiales', 'prestamos', 'inventario', 'ubicaciones'],
-    Instructor:    ['materiales', 'prestamos', 'inventario', 'ubicaciones'],
-    Aprendiz:      ['prestamos'],
+    Administrador:    ['administracion', 'inventario', 'movimientos', 'control', 'estructura'],
+    Instructor:       ['inventario', 'movimientos', 'control', 'estructura'],
+    Aprendiz:         ['movimientos'],
+    InstructorBodega: ['inventario', 'movimientos', 'control'],
   };
 
   for (const [rolNombre, modulos] of Object.entries(asignaciones)) {
@@ -145,6 +147,27 @@ async function seed() {
       [adminRol.id, customHash, customEmail]
     );
     console.log(`   ✅ Usuario personalizado actualizado (${customEmail})`);
+  }
+
+  // ── 5b. Usuario InstructorBodega de prueba ────────────────────────────────
+  console.log('\n👤 Creando usuario InstructorBodega de prueba...');
+
+  const bodegaEmail = 'bodega@sigmat.sena.edu.co';
+  const [bodegaRol] = await q(`SELECT id FROM rol WHERE nombre = 'InstructorBodega'`);
+  const bodegaExists = await q(`SELECT id FROM usuario WHERE correo = $1`, [bodegaEmail]);
+
+  if (bodegaExists.length === 0 && bodegaRol) {
+    const bodegaHash = await bcrypt.hash('Bodega123!', 10);
+    await q(
+      `INSERT INTO usuario (id, id_rol, tipo_documento, numero_documento, nombres, apellidos, correo, telefono, estado, contrasena)
+       VALUES (gen_random_uuid(), $1, 'cc', '00000003', 'Instructor', 'Bodega', $2, '3001111111', 'activo', $3)`,
+      [bodegaRol.id, bodegaEmail, bodegaHash],
+    );
+    console.log(`   ✅ InstructorBodega creado`);
+    console.log(`      Correo:     ${bodegaEmail}`);
+    console.log(`      Contraseña: Bodega123!`);
+  } else {
+    console.log(`   ℹ️  InstructorBodega ya existe (${bodegaEmail})`);
   }
 
   // ── 6. Actualizar usuario de desarrollo al rol Administrador ──────────────
@@ -237,6 +260,39 @@ async function seed() {
       console.log(`   ✅ Tipo '${t.nombre}' creado`);
     } else {
       console.log(`   ℹ️  Tipo '${t.nombre}' ya existe`);
+    }
+  }
+
+  // ── 10. Permisos directos a usuarios administradores ─────────────────────
+  console.log('\n🔐 Asignando permisos directos a usuarios administradores...');
+
+  const adminEmails = [
+    'admin@sigmat.sena.edu.co',
+    'lm20052908@gmail.com',
+    '00sgor@gmail.com',
+  ];
+
+  const todosLosPermisos = await q(`SELECT id, modulo FROM permisos`);
+
+  for (const email of adminEmails) {
+    const [usuario] = await q(`SELECT id FROM usuario WHERE correo = $1`, [email]);
+    if (!usuario) continue;
+
+    for (const permiso of todosLosPermisos) {
+      const existe = await q(
+        `SELECT id FROM usuario_permisos WHERE id_usuario = $1 AND id_permiso = $2`,
+        [usuario.id, permiso.id],
+      );
+      if (existe.length === 0) {
+        await q(
+          `INSERT INTO usuario_permisos (id, id_usuario, id_permiso, submodulos)
+           VALUES (gen_random_uuid(), $1, $2, '{}')`,
+          [usuario.id, permiso.id],
+        );
+        console.log(`   ✅ ${email} → ${permiso.modulo} (acceso completo)`);
+      } else {
+        console.log(`   ℹ️  ${email} → ${permiso.modulo} (ya asignado)`);
+      }
     }
   }
 

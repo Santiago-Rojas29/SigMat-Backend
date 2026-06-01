@@ -21,7 +21,7 @@ export class UsuarioController {
     private readonly eliminarUseCase: EliminarUsuarioUseCase,
   ) {}
 
-  @RequirePermission('usuarios')
+  @RequirePermission('administracion')
   @Post()
   crear(@Body() body: CrearUsuarioDto) {
     return this.crearUseCase.execute(body);
@@ -37,13 +37,13 @@ export class UsuarioController {
     return this.obtenerPorIdUseCase.execute(id);
   }
 
-  @RequirePermission('usuarios')
+  @RequirePermission('administracion')
   @Patch(':id')
   actualizar(@Param('id') id: string, @Body() body: ActualizarUsuarioDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
-  @RequirePermission('usuarios')
+  @RequirePermission('administracion')
   @Delete(':id')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);

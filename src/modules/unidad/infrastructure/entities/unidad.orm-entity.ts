@@ -2,6 +2,7 @@ import { TrasladoUnidadOrmEntity } from 'src/modules/traslado_unidad/infrastruct
 import { UbicacionOrmEntity } from 'src/modules/ubicacion/infrastructure/entities/ubicacion.orm-entity';
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
 import { MaterialOrmEntity } from 'src/modules/material/infrastructure/entities/material.orm-entity';
+import { FichaOrmEntity } from 'src/modules/ficha/infrastructure/entities/ficha.orm-entity';
 import { EntregaUnidadOrmEntity } from 'src/modules/entrega_unidad/infrastructure/entities/entrega_unidad.orm-entity';
 import { DevolucionUnidadOrmEntity } from 'src/modules/devolucion_unidad/infrastructure/entities/devolucion_unidad.orm-entity';
 import { SolicitudUnidadOrmEntity } from 'src/modules/solicitud_unidad/infrastructure/entities/solicitud_unidad.orm-entity';
@@ -42,6 +43,13 @@ export class UnidadOrmEntity {
   @ManyToOne(() => UbicacionOrmEntity, (ubicacion) => ubicacion.unidad)
   @JoinColumn({ name: 'id_ubicacion' })
   ubicacion!: UbicacionOrmEntity;
+
+  @Column({ type: 'uuid', nullable: true })
+  id_ficha!: string | null;
+
+  @ManyToOne(() => FichaOrmEntity, (ficha) => ficha.unidades, { nullable: true })
+  @JoinColumn({ name: 'id_ficha' })
+  ficha!: FichaOrmEntity | null;
 
   @Column({ length: 50 })
   codigo_unidad!: string;

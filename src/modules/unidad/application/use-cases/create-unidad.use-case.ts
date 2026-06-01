@@ -15,14 +15,16 @@ export class CreateUnidadUseCase {
     id_ubicacion: string;
     codigo_unidad: string;
     estado: string;
+    id_ficha?: string;
   }): Promise<Unidad> {
     const entity = new Unidad(
-      "",
+      '',
       data.id_material,
       data.id_responsable,
       data.id_ubicacion,
       data.codigo_unidad,
       data.estado,
+      data.id_ficha,
     );
     return this.repo.crear(entity);
   }

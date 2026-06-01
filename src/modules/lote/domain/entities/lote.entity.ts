@@ -1,4 +1,4 @@
-const unidadesMedida = ['kg', 'l', 'm', 'unidad', 'paquete'];
+const unidadesMedida = ['und', 'cja', 'paq', 'res', 'bol', 'rol', 'L', 'mL', 'kg', 'g', 'm', 'cm', 'unidad', 'paquete', 'l'];
 
 export enum EstadoLote {
   VIGENTE = 'vigente',

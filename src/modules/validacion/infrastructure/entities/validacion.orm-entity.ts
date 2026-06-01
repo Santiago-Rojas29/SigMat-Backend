@@ -8,10 +8,10 @@ export class ValidacionOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('text')
+  @Column('uuid')
   id_solicitud!: string;
 
-  @Column('text')
+  @Column('uuid')
   id_validador!: string;
 
   @ManyToOne(() => UsuarioOrmEntity, (usuario) => usuario.validacion)

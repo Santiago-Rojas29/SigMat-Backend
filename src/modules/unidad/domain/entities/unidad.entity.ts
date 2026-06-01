@@ -8,6 +8,7 @@ export class Unidad {
     public id_ubicacion: string,
     public codigo_unidad: string,
     public estado: string,
+    public id_ficha?: string,
   ) {}
 
   validar(): void {

@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsuarioOrmEntity } from '../usuario/infrastructure/entities/usuario.orm-entity';
-import { RolPermisosOrmEntity } from '../rol_permisos/infrastructure/entities/rol_permisos.orm-entity';
+import { UsuarioPermisosOrmEntity } from '../usuario_permisos/infrastructure/entities/usuario_permisos.orm-entity';
 import { PermisosOrmEntity } from '../permisos/infrastructure/entities/permisos.orm-entity';
 import { AuthController } from './infrastructure/adapters/in/auth.controller';
 import { AuthTypeOrmRepository } from './infrastructure/adapters/out/auth.typeorm-repository';
@@ -17,7 +17,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UsuarioOrmEntity, RolPermisosOrmEntity, PermisosOrmEntity]),
+    TypeOrmModule.forFeature([UsuarioOrmEntity, UsuarioPermisosOrmEntity, PermisosOrmEntity]),
     PassportModule,
     JwtModule.registerAsync({
       useFactory: () => ({

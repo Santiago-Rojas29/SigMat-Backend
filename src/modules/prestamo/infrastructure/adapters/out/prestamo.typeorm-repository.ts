@@ -15,6 +15,7 @@ export class PrestamoTypeOrmRepository implements PrestamoRepository {
   private toEntity(orm: PrestamoOrmEntity): Prestamo {
     return new Prestamo(
       orm.id,
+      orm.id_usuario,
       orm.id_validacion,
       orm.fecha_limite,
       orm.estado,
@@ -23,9 +24,10 @@ export class PrestamoTypeOrmRepository implements PrestamoRepository {
 
   async crear(prestamo: Prestamo): Promise<Prestamo> {
     const orm = this.repo.create({
+      id_usuario:    prestamo.id_usuario,
       id_validacion: prestamo.id_validacion,
-      fecha_limite: prestamo.fecha_limite,
-      estado: prestamo.estado as any,
+      fecha_limite:  prestamo.fecha_limite,
+      estado:        prestamo.estado as any,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);

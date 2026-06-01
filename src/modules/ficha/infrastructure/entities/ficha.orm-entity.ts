@@ -1,7 +1,8 @@
 import { FichaUsuarioOrmEntity } from 'src/modules/ficha_usuario/infrastructure/entities/ficha_usuario.orm-entity';
+import { LoteFichaOrmEntity } from 'src/modules/lote_ficha/infrastructure/entities/lote_ficha.orm-entity';
 import { ProgramaOrmEntity } from 'src/modules/programa/infrastructure/entities/programa.orm-entity';
-import { SolicitudOrmEntity } from 'src/modules/solicitud/infrastructure/entities/solicitud.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import type { UnidadOrmEntity } from 'src/modules/unidad/infrastructure/entities/unidad.orm-entity';
 
 export enum Jornada {
   MANANA = 'manana',
@@ -50,6 +51,10 @@ export class FichaOrmEntity {
   estado!: EstadoFicha;
   @OneToMany(() => FichaUsuarioOrmEntity, (fichaUsuario) => fichaUsuario.ficha)
   fichaUsuario!: FichaUsuarioOrmEntity[];
-  @OneToMany(() => SolicitudOrmEntity, (solicitud) => solicitud.ficha)
-  solicitud!: SolicitudOrmEntity[];
+
+  @OneToMany(() => LoteFichaOrmEntity, (lf) => lf.ficha)
+  loteFicha!: LoteFichaOrmEntity[];
+
+  @OneToMany('UnidadOrmEntity', (unidad: UnidadOrmEntity) => unidad.ficha)
+  unidades!: UnidadOrmEntity[];
 }
