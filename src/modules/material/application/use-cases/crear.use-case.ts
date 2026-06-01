@@ -10,29 +10,25 @@ export class CrearMaterialUseCase {
   ) {}
 
   async execute(data: {
-    id_ficha: string;
     nombre: string;
     categoria: CategoriaMaterial;
     tipo: string;
-    marca: string;
-    modelo: string;
+    marca?: string | null;
+    modelo?: string | null;
     descripcion: string;
     codigo_unspsc: string;
-    unidad_medida?: string;
-    fecha_vencimiento?: string;
+    unidad_medida?: string | null;
   }): Promise<Material> {
     const entity = new Material(
       '',
-      data.id_ficha,
       data.nombre,
       data.categoria,
       data.tipo,
-      data.marca,
-      data.modelo,
+      data.marca ?? null,
+      data.modelo ?? null,
       data.descripcion,
       data.codigo_unspsc,
-      data.unidad_medida,
-      data.fecha_vencimiento ? new Date(data.fecha_vencimiento) : undefined,
+      data.unidad_medida ?? null,
     );
     entity.validar();
     return this.repo.crear(entity);

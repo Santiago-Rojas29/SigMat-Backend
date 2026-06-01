@@ -1,13 +1,8 @@
-import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { CategoriaMaterial } from '../../../../domain/entities/material.entity';
 
 export class ActualizarMaterialDto {
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  id_ficha?: string;
-
   @IsOptional()
   @IsString()
   @IsNotEmpty()
@@ -25,16 +20,16 @@ export class ActualizarMaterialDto {
   tipo?: string;
 
   @IsOptional()
+  @Transform(({ value }) => value === '' ? null : value)
   @IsString()
-  @IsNotEmpty()
   @MaxLength(50)
-  marca?: string;
+  marca?: string | null;
 
   @IsOptional()
+  @Transform(({ value }) => value === '' ? null : value)
   @IsString()
-  @IsNotEmpty()
   @MaxLength(50)
-  modelo?: string;
+  modelo?: string | null;
 
   @IsOptional()
   @IsString()
@@ -48,13 +43,8 @@ export class ActualizarMaterialDto {
   codigo_unspsc?: string;
 
   @IsOptional()
-  @Transform(({ value }) => value === '' ? undefined : value)
+  @Transform(({ value }) => value === '' ? null : value)
   @IsString()
   @MaxLength(30)
-  unidad_medida?: string;
-
-  @IsOptional()
-  @Transform(({ value }) => value === '' ? undefined : value)
-  @IsDateString()
-  fecha_vencimiento?: string;
+  unidad_medida?: string | null;
 }

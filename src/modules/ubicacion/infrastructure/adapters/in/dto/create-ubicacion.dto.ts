@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateUbicacionDto {
   @IsString()
@@ -20,4 +21,9 @@ export class CreateUbicacionDto {
   @IsString()
   @IsNotEmpty()
   estado!: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value === '' ? null : value)
+  @IsUUID()
+  id_encargado?: string | null;
 }

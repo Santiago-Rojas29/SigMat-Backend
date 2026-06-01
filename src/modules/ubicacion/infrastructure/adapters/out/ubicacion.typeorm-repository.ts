@@ -20,16 +20,18 @@ export class UbicacionTypeOrmRepository implements UbicacionRepository {
       orm.nombre,
       orm.descripcion,
       orm.estado,
+      orm.id_encargado,
     );
   }
 
   async crear(ubicacion: Ubicacion): Promise<Ubicacion> {
     const orm = this.repo.create({
-      id_area: ubicacion.id_area,
+      id_area:          ubicacion.id_area,
       id_tipo_ubicacion: ubicacion.id_tipo_ubicacion,
-      nombre: ubicacion.nombre,
-      descripcion: ubicacion.descripcion,
-      estado: ubicacion.estado as any,
+      nombre:           ubicacion.nombre,
+      descripcion:      ubicacion.descripcion,
+      estado:           ubicacion.estado as any,
+      id_encargado:     ubicacion.id_encargado,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);
@@ -37,7 +39,7 @@ export class UbicacionTypeOrmRepository implements UbicacionRepository {
 
   async obtenerTodos(): Promise<Ubicacion[]> {
     const data = await this.repo.find();
-    return data.map((orm) => this.toEntity(orm));
+    return data.map(orm => this.toEntity(orm));
   }
 
   async obtenerPorId(id: string): Promise<Ubicacion | null> {

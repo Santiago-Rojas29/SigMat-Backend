@@ -8,9 +8,11 @@ import { ActualizarTrasladoUseCase } from './application/use-cases/actualizar.us
 import { EliminarTrasladoUseCase } from './application/use-cases/eliminar.use-case';
 import { ObtenerTodosTrasladoUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdTrasladoUseCase } from './application/use-cases/obtener-por-id.use-case';
+import { RealizarTrasladoUseCase } from './application/use-cases/realizar-traslado.use-case';
+import { KardexModule } from '../kardex/kardex.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TrasladoOrmEntity])],
+  imports: [TypeOrmModule.forFeature([TrasladoOrmEntity]), KardexModule],
   controllers: [TrasladoController],
   providers: [
     CrearTrasladoUseCase,
@@ -18,6 +20,7 @@ import { ObtenerPorIdTrasladoUseCase } from './application/use-cases/obtener-por
     EliminarTrasladoUseCase,
     ObtenerTodosTrasladoUseCase,
     ObtenerPorIdTrasladoUseCase,
+    RealizarTrasladoUseCase,
     { provide: 'TrasladoRepository', useClass: TrasladoTypeOrmRepository },
   ],
 })

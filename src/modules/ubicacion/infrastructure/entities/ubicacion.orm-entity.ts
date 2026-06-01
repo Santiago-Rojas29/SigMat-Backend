@@ -3,6 +3,7 @@ import { LoteOrmEntity } from 'src/modules/lote/infrastructure/entities/lote.orm
 import { TipoUbicacionOrmEntity } from 'src/modules/tipo_ubicacion/infrastructure/entities/tipo_ubicacion.orm-entity';
 import { TrasladoOrmEntity } from 'src/modules/traslado/infrastructure/entities/traslado.orm-entity';
 import { UnidadOrmEntity } from 'src/modules/unidad/infrastructure/entities/unidad.orm-entity';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 export enum EstadoUbicacion {
@@ -41,6 +42,14 @@ export class UbicacionOrmEntity {
     default: EstadoUbicacion.ACTIVO,
   })
   estado!: EstadoUbicacion;
+
+  @Column({ type: 'uuid', nullable: true })
+  id_encargado!: string | null;
+
+  @ManyToOne(() => UsuarioOrmEntity, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'id_encargado' })
+  encargado!: UsuarioOrmEntity | null;
+
   @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.ubicacionDestino)
   trasladoDestino!: TrasladoOrmEntity[];
   @OneToMany(() => TrasladoOrmEntity, (traslado) => traslado.ubicacionOrigen)

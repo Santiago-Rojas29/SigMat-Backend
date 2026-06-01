@@ -12,25 +12,25 @@ export class ActualizarMaterialUseCase {
   async execute(
     id: string,
     data: {
-      id_ficha?: string;
       nombre?: string;
       categoria?: CategoriaMaterial;
       tipo?: string;
-      marca?: string;
-      modelo?: string;
+      marca?: string | null;
+      modelo?: string | null;
       descripcion?: string;
       codigo_unspsc?: string;
+      unidad_medida?: string | null;
     },
   ): Promise<Material> {
     const mapped: Partial<Material> = {
-      ...(data.id_ficha && { id_ficha: data.id_ficha }),
-      ...(data.nombre && { nombre: data.nombre }),
-      ...(data.categoria && { categoria: data.categoria }),
-      ...(data.tipo && { tipo: data.tipo }),
-      ...(data.marca && { marca: data.marca }),
-      ...(data.modelo && { modelo: data.modelo }),
-      ...(data.descripcion && { descripcion: data.descripcion }),
-      ...(data.codigo_unspsc && { codigo_unspsc: data.codigo_unspsc }),
+      ...(data.nombre     !== undefined && { nombre:        data.nombre }),
+      ...(data.categoria  !== undefined && { categoria:     data.categoria }),
+      ...(data.tipo       !== undefined && { tipo:          data.tipo }),
+      ...(data.marca      !== undefined && { marca:         data.marca }),
+      ...(data.modelo     !== undefined && { modelo:        data.modelo }),
+      ...(data.descripcion !== undefined && { descripcion:  data.descripcion }),
+      ...(data.codigo_unspsc !== undefined && { codigo_unspsc: data.codigo_unspsc }),
+      ...(data.unidad_medida !== undefined && { unidad_medida: data.unidad_medida }),
     };
     return this.repo.actualizar(id, mapped);
   }
