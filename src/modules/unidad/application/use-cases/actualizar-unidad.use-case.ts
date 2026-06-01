@@ -17,9 +17,9 @@ export class ActualizarUnidadUseCase {
       id_ubicacion?: string;
       codigo_unidad?: string;
       estado?: string;
+      id_ficha?: string | null;
     },
   ): Promise<Unidad> {
-    const mapped: Partial<Unidad> = { ...data };
-    return this.repo.actualizar(id, mapped);
+    return this.repo.actualizar(id, data as Partial<Unidad>);
   }
 }

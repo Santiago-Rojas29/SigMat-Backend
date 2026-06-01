@@ -54,11 +54,16 @@ export class EntregarSolicitudUseCase {
 
       if (tieneUnidades) {
         // 4a. Solicitud con unidades (no consumible) → crear préstamo devolvible
+        const fechaLimite = data.fecha_limite ? new Date(data.fecha_limite) : null;
+        if (!fechaLimite || isNaN(fechaLimite.getTime())) {
+          throw new BadRequestException('La solicitud contiene unidades físicas y requiere una fecha límite de devolución');
+        }
+
         const [pre] = await manager.query(
           `INSERT INTO prestamo (id, id_usuario, id_validacion, fecha_limite, estado)
            VALUES (gen_random_uuid(), $1, $2, $3, 'activo')
            RETURNING id`,
-          [solicitud.id_solicitante, val.id, new Date(data.fecha_limite!)],
+          [solicitud.id_solicitante, val.id, fechaLimite],
         );
 
         const [ent] = await manager.query(

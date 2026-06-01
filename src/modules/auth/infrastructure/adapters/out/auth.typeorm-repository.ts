@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { UsuarioOrmEntity } from '../../../../usuario/infrastructure/entities/usuario.orm-entity';
 import { UsuarioPermisosOrmEntity } from '../../../../usuario_permisos/infrastructure/entities/usuario_permisos.orm-entity';
 import { PermisosOrmEntity } from '../../../../permisos/infrastructure/entities/permisos.orm-entity';
+import { RolPermisosOrmEntity } from '../../../../rol_permisos/infrastructure/entities/rol_permisos.orm-entity';
 import type { AuthRepository } from '../../../domain/ports/auth.repository';
 import { CredencialesUsuario } from 'src/modules/auth/domain/entities/auth.entity';
 
@@ -36,14 +37,31 @@ export class AuthTypeOrmRepository implements AuthRepository {
   }
 
   async obtenerModulosPorUsuario(id_usuario: string): Promise<string[]> {
-    const rows = await this.usuarioPermisosRepo
-      .createQueryBuilder('up')
-      .innerJoin(PermisosOrmEntity, 'p', 'p.id = up.id_permiso')
-      .select('DISTINCT p.modulo', 'modulo')
-      .where('up.id_usuario = :id_usuario', { id_usuario })
-      .getRawMany<{ modulo: string }>();
+    const [directRows, roleRows] = await Promise.all([
+      // Permisos asignados directamente al usuario
+      this.usuarioPermisosRepo
+        .createQueryBuilder('up')
+        .innerJoin(PermisosOrmEntity, 'p', 'p.id = up.id_permiso')
+        .select('DISTINCT p.modulo', 'modulo')
+        .where('up.id_usuario = :id_usuario', { id_usuario })
+        .getRawMany<{ modulo: string }>(),
 
-    return rows.map((r) => r.modulo);
+      // Permisos heredados del rol del usuario
+      this.usuarioRepo
+        .createQueryBuilder('u')
+        .innerJoin(RolPermisosOrmEntity, 'rp', 'rp.id_rol = u.id_rol')
+        .innerJoin(PermisosOrmEntity, 'p', 'p.id = rp.id_permiso')
+        .select('DISTINCT p.modulo', 'modulo')
+        .where('u.id = :id_usuario', { id_usuario })
+        .getRawMany<{ modulo: string }>(),
+    ]);
+
+    const modulos = new Set([
+      ...directRows.map((r) => r.modulo),
+      ...roleRows.map((r) => r.modulo),
+    ]);
+
+    return [...modulos];
   }
 
   async guardarTokenReset(correo: string, token: string, expires: Date): Promise<void> {
