@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { UsuarioOrmEntity } from '../../../../usuario/infrastructure/entities/usuario.orm-entity';
 import { UsuarioPermisosOrmEntity } from '../../../../usuario_permisos/infrastructure/entities/usuario_permisos.orm-entity';
 import { PermisosOrmEntity } from '../../../../permisos/infrastructure/entities/permisos.orm-entity';
+import { RolPermisosOrmEntity } from '../../../../rol_permisos/infrastructure/entities/rol_permisos.orm-entity';
 import type { AuthRepository } from '../../../domain/ports/auth.repository';
 import { CredencialesUsuario } from 'src/modules/auth/domain/entities/auth.entity';
 
@@ -36,14 +37,35 @@ export class AuthTypeOrmRepository implements AuthRepository {
   }
 
   async obtenerModulosPorUsuario(id_usuario: string): Promise<string[]> {
-    const rows = await this.usuarioPermisosRepo
+    const usuario = await this.usuarioRepo.findOne({
+      where: { id: id_usuario },
+      select: ['id', 'id_rol'],
+    });
+
+    const modulos = new Set<string>();
+
+    const directos = await this.usuarioPermisosRepo
       .createQueryBuilder('up')
       .innerJoin(PermisosOrmEntity, 'p', 'p.id = up.id_permiso')
       .select('DISTINCT p.modulo', 'modulo')
       .where('up.id_usuario = :id_usuario', { id_usuario })
       .getRawMany<{ modulo: string }>();
 
-    return rows.map((r) => r.modulo);
+    directos.forEach((r) => modulos.add(r.modulo));
+
+    if (usuario?.id_rol) {
+      const porRol = await this.usuarioPermisosRepo.manager
+        .createQueryBuilder()
+        .select('DISTINCT p.modulo', 'modulo')
+        .from(RolPermisosOrmEntity, 'rp')
+        .innerJoin(PermisosOrmEntity, 'p', 'p.id = rp.id_permiso')
+        .where('rp.id_rol = :id_rol', { id_rol: usuario.id_rol })
+        .getRawMany<{ modulo: string }>();
+
+      porRol.forEach((r) => modulos.add(r.modulo));
+    }
+
+    return Array.from(modulos);
   }
 
   async guardarTokenReset(correo: string, token: string, expires: Date): Promise<void> {

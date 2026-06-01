@@ -130,9 +130,9 @@ async function seed() {
 
   // ── 5. Usuario administrador personalizado solicitado ──────────────────────
   console.log('\n👤 Creando/Actualizando usuario administrador personalizado...');
-  const customEmail = 'lm20052908@gmail.com';
+  const customEmail = 'lm@gmail.com';
   const customExists = await q(`SELECT id FROM usuario WHERE correo = $1`, [customEmail]);
-  const customHash = await bcrypt.hash('Lucius29*', 10);
+  const customHash = await bcrypt.hash('123123', 10);
 
   if (customExists.length === 0) {
     await q(
