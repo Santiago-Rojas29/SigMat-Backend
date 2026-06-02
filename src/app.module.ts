@@ -3,6 +3,9 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
+import { BullModule } from '@nestjs/bullmq';
+import { createKeyv } from '@keyv/redis';
 
 import { PrestamoModule } from './modules/prestamo/prestamo.module';
 import { ValidacionModule } from './modules/validacion/validacion.module';
@@ -29,6 +32,7 @@ import { LoteModule } from './modules/lote/lote.module';
 import { SolicitudModule } from './modules/solicitud/solicitud.module';
 import { SolicitudUnidadModule } from './modules/solicitud_unidad/solicitud_unidad.module';
 import { SolicitudLoteModule } from './modules/solicitud_lote/solicitud_lote.module';
+import { SolicitudAprendizModule } from './modules/solicitud_aprendiz/solicitud_aprendiz.module';
 import { RolModule } from './modules/rol/rol.module';
 import { RolPermisosModule } from './modules/rol_permisos/rol_permisos.module';
 import { PermisosModule } from './modules/permisos/permisos.module';
@@ -38,6 +42,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsuarioPermisosModule } from './modules/usuario_permisos/usuario_permisos.module';
 import { LoteFichaModule } from './modules/lote_ficha/lote_ficha.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ReportesModule } from './modules/reportes/reportes.module';
+import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -45,6 +51,26 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
       rootPath: join(__dirname, '..', 'public'),
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        stores: [
+          createKeyv(
+            `redis://${config.get('REDIS_HOST', 'localhost')}:${config.get('REDIS_PORT', 6379)}`,
+          ),
+        ],
+      }),
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: {
+          host: config.get<string>('REDIS_HOST', 'localhost'),
+          port: config.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -84,6 +110,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     SolicitudModule,
     SolicitudUnidadModule,
     SolicitudLoteModule,
+    SolicitudAprendizModule,
     RolModule,
     RolPermisosModule,
     PermisosModule,
@@ -93,6 +120,8 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     UsuarioPermisosModule,
     LoteFichaModule,
     DashboardModule,
+    ReportesModule,
+    NotificacionesModule,
   ],
   controllers: [],
   providers: [],

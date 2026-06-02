@@ -1,6 +1,7 @@
 import { Injectable, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
 import type { SolicitudRepository } from '../../domain/ports/solicitud.repository';
 import { EstadoSolicitud } from '../../domain/entities/solicitud.entity';
+import { NotificacionesService } from '../../../notificaciones/notificaciones.service';
 
 export enum RolRechazador {
   INSTRUCTOR  = 'instructor',
@@ -25,6 +26,7 @@ export class RechazarSolicitudUseCase {
   constructor(
     @Inject('SolicitudRepository')
     private readonly repo: SolicitudRepository,
+    private readonly notificaciones: NotificacionesService,
   ) {}
 
   async execute(id: string, rol: RolRechazador, motivo_rechazo?: string): Promise<void> {
@@ -43,5 +45,7 @@ export class RechazarSolicitudUseCase {
       estado: EstadoSolicitud.RECHAZADO,
       motivo_rechazo: motivo_rechazo ?? null,
     });
+
+    await this.notificaciones.notificarCambioEstado(id, EstadoSolicitud.RECHAZADO);
   }
 }

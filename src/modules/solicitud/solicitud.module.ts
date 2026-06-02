@@ -14,9 +14,17 @@ import { AprobarBodegaUseCase }        from './application/use-cases/aprobar-bod
 import { EntregarSolicitudUseCase }    from './application/use-cases/entregar-solicitud.use-case';
 import { RechazarSolicitudUseCase }    from './application/use-cases/rechazar-solicitud.use-case';
 import { CancelarSolicitudUseCase }    from './application/use-cases/cancelar-solicitud.use-case';
+import { NotificacionesModule }        from '../notificaciones/notificaciones.module';
+import { RebacModule }                 from '../rebac/rebac.module';
+import { AuthModule }                  from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SolicitudOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([SolicitudOrmEntity]),
+    NotificacionesModule,
+    RebacModule,
+    AuthModule,
+  ],
   controllers: [SolicitudController],
   providers: [
     CreateSolicitudUseCase,

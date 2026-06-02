@@ -1,12 +1,14 @@
 import { Injectable, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
 import type { SolicitudRepository } from '../../domain/ports/solicitud.repository';
 import { EstadoSolicitud } from '../../domain/entities/solicitud.entity';
+import { NotificacionesService } from '../../../notificaciones/notificaciones.service';
 
 @Injectable()
 export class AprobarBodegaUseCase {
   constructor(
     @Inject('SolicitudRepository')
     private readonly repo: SolicitudRepository,
+    private readonly notificaciones: NotificacionesService,
   ) {}
 
   async execute(id: string, id_bodega: string): Promise<void> {
@@ -20,5 +22,7 @@ export class AprobarBodegaUseCase {
       id_bodega,
       fecha_respuesta_bodega: new Date(),
     });
+
+    await this.notificaciones.notificarCambioEstado(id, EstadoSolicitud.APROBADO);
   }
 }

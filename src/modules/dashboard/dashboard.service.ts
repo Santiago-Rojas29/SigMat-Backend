@@ -1,15 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+
+const TTL_STATS   = 5  * 60 * 1000; // 5 min
+const TTL_ANIO    = 30 * 60 * 1000; // 30 min
+const TTL_DIA     = 15 * 60 * 1000; // 15 min
 
 @Injectable()
 export class DashboardService {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    @Inject(CACHE_MANAGER)
+    private readonly cache: Cache,
   ) {}
 
   async getStats() {
+    const KEY = 'dashboard:stats';
+    const cached = await this.cache.get(KEY);
+    if (cached) return cached;
+
     const [
       kpis,
       materialesNoDevueltos,
@@ -26,7 +38,7 @@ export class DashboardService {
       this.getStockCritico(),
     ]);
 
-    return {
+    const result = {
       kpis,
       materialesNoDevueltos,
       materialesSolicitados,
@@ -34,9 +46,16 @@ export class DashboardService {
       incidenciasTipo,
       stockCritico,
     };
+
+    await this.cache.set(KEY, result, TTL_STATS);
+    return result;
   }
 
   async getSolicitudesPorAnio(anio: number): Promise<{ mes: number; total: number }[]> {
+    const KEY = `dashboard:solicitudes-anio:${anio}`;
+    const cached = await this.cache.get<{ mes: number; total: number }[]>(KEY);
+    if (cached) return cached;
+
     const rows: { mes: string; total: string }[] = await this.dataSource.query(
       `SELECT EXTRACT(MONTH FROM fecha_solicitud)::int AS mes, COUNT(*) AS total
        FROM solicitud
@@ -46,13 +65,20 @@ export class DashboardService {
       [anio],
     );
     const map = new Map(rows.map((r) => [Number(r.mes), Number(r.total)]));
-    return Array.from({ length: 12 }, (_, i) => ({
+    const result = Array.from({ length: 12 }, (_, i) => ({
       mes: i + 1,
       total: map.get(i + 1) ?? 0,
     }));
+
+    await this.cache.set(KEY, result, TTL_ANIO);
+    return result;
   }
 
   async getSolicitudesPorDia(anio: number, mes: number): Promise<{ dia: number; total: number }[]> {
+    const KEY = `dashboard:solicitudes-dia:${anio}-${mes}`;
+    const cached = await this.cache.get<{ dia: number; total: number }[]>(KEY);
+    if (cached) return cached;
+
     const rows: { dia: string; total: string }[] = await this.dataSource.query(
       `SELECT EXTRACT(DAY FROM fecha_solicitud)::int AS dia, COUNT(*) AS total
        FROM solicitud
@@ -64,10 +90,13 @@ export class DashboardService {
     );
     const daysInMonth = new Date(anio, mes, 0).getDate();
     const map = new Map(rows.map((r) => [Number(r.dia), Number(r.total)]));
-    return Array.from({ length: daysInMonth }, (_, i) => ({
+    const result = Array.from({ length: daysInMonth }, (_, i) => ({
       dia: i + 1,
       total: map.get(i + 1) ?? 0,
     }));
+
+    await this.cache.set(KEY, result, TTL_DIA);
+    return result;
   }
 
   private async getKpis() {

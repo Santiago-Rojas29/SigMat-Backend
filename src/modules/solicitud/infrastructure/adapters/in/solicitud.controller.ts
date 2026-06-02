@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { CreateSolicitudUseCase }      from '../../../application/use-cases/create-solicitud.use-case';
 import { ActualizarSolicitudUseCase }  from '../../../application/use-cases/actualizar-solicitud.use-case';
 import { EliminarSolicitudUseCase }    from '../../../application/use-cases/eliminar-solicitud.use-case';
@@ -14,8 +14,12 @@ import { CreateSolicitudDto }          from './dto/create-solicitud.dto';
 import { UpdateSolicitudDto }          from './dto/update-solicitud.dto';
 import { RechazarSolicitudDto }        from './dto/rechazar-solicitud.dto';
 import { EntregarSolicitudDto }        from './dto/entregar-solicitud.dto';
+import { JwtAuthGuard }                from '../../../../../common/guards/jwt-auth.guard';
+import { RebacGuard }                  from '../../../../rebac/rebac.guard';
+import { RequiereRelacion, Relacion }  from '../../../../rebac/rebac.decorator';
 
 @Controller('solicitud')
+@UseGuards(JwtAuthGuard)
 export class SolicitudController {
   constructor(
     private readonly createUseCase:           CreateSolicitudUseCase,
@@ -41,7 +45,10 @@ export class SolicitudController {
     return this.obtenerTodosUseCase.execute();
   }
 
+  // REBAC: solo el solicitante, el instructor asignado, o personal con permiso de módulo
   @Get(':id')
+  @UseGuards(RebacGuard)
+  @RequiereRelacion(Relacion.VER_SOLICITUD)
   obtenerPorId(@Param('id') id: string) {
     return this.obtenerPorIdUseCase.execute(id);
   }
@@ -58,7 +65,10 @@ export class SolicitudController {
 
   // ── Transiciones de estado ────────────────────────────────────────────────
 
+  // REBAC: solo el instructor explícitamente asignado a esta solicitud puede aprobarla
   @Patch(':id/aprobar-instructor')
+  @UseGuards(RebacGuard)
+  @RequiereRelacion(Relacion.APROBAR_COMO_INSTRUCTOR)
   aprobarInstructor(@Param('id') id: string) {
     return this.aprobarInstructorUC.execute(id);
   }

@@ -1,6 +1,7 @@
 import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
 import { SolicitudUnidadOrmEntity } from 'src/modules/solicitud_unidad/infrastructure/entities/solicitud_unidad.orm-entity';
 import { SolicitudLoteOrmEntity } from 'src/modules/solicitud_lote/infrastructure/entities/solicitud_lote.orm-entity';
+import { SolicitudAprendizOrmEntity } from 'src/modules/solicitud_aprendiz/infrastructure/entities/solicitud_aprendiz.orm-entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { TipoFlujo, TipoPrestamo, EstadoSolicitud } from '../../domain/entities/solicitud.entity';
 
@@ -72,4 +73,7 @@ export class SolicitudOrmEntity {
 
   @OneToMany(() => SolicitudLoteOrmEntity, (sl) => sl.solicitud)
   solicitudLote!: SolicitudLoteOrmEntity[];
+
+  @OneToMany(() => SolicitudAprendizOrmEntity, (sa) => sa.solicitud)
+  solicitudAprendiz!: SolicitudAprendizOrmEntity[];
 }
