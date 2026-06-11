@@ -20,13 +20,55 @@ const dataSource = new DataSource({
   synchronize: false,
 });
 
+// ── Acciones por módulo ────────────────────────────────────────────────────────
+
+const ACCIONES_GLOBALES = ['ver', 'crear', 'editar', 'eliminar'];
+
+const ACCIONES_EXTRA: Record<string, string[]> = {
+  movimientos: ['solicitar', 'aprobar', 'rechazar', 'prestar', 'entregar', 'devolver'],
+  inventario:  ['ajustar_stock'],
+  control:     ['generar_reporte'],
+};
+
+function acciones(modulo: string, extras: string[] = []): string[] {
+  return [...ACCIONES_GLOBALES, ...(ACCIONES_EXTRA[modulo] ?? []), ...extras];
+}
+
+// ── Asignaciones rol → módulo → acciones ─────────────────────────────────────
+
+const ASIGNACIONES: Record<string, Record<string, string[]>> = {
+  Administrador: {
+    administracion: acciones('administracion'),
+    inventario:     acciones('inventario'),
+    movimientos:    acciones('movimientos'),
+    control:        acciones('control'),
+    estructura:     acciones('estructura'),
+  },
+  Instructor: {
+    estructura:  ['ver'],
+    inventario:  ['ver'],
+    movimientos: ['ver', 'solicitar', 'aprobar', 'rechazar'],
+    control:     ['ver', 'generar_reporte'],
+  },
+  Aprendiz: {
+    movimientos: ['ver', 'solicitar'],
+  },
+  InstructorBodega: {
+    inventario:  acciones('inventario'),
+    movimientos: ['ver', 'aprobar', 'rechazar', 'prestar', 'entregar', 'devolver'],
+    control:     ['ver', 'generar_reporte'],
+  },
+};
+
+// ── Seed ──────────────────────────────────────────────────────────────────────
+
 async function seed() {
   await dataSource.initialize();
   console.log('\n🌱 Conectado a la base de datos. Iniciando seed...\n');
 
   const q = dataSource.query.bind(dataSource);
 
-  // ── 1. Roles ──────────────────────────────────────────────────────────────
+  // ── 1. Roles ────────────────────────────────────────────────────────────────
   console.log('📋 Creando roles...');
 
   const rolesData = [
@@ -49,15 +91,15 @@ async function seed() {
     }
   }
 
-  // ── 2. Permisos ───────────────────────────────────────────────────────────
+  // ── 2. Permisos (plantillas por módulo) ─────────────────────────────────────
   console.log('\n🔑 Creando permisos...');
 
   const permisosData = [
-    { nombre: 'Administración',  descripcion: 'Acceso a usuarios, roles y permisos',        modulo: 'administracion' },
-    { nombre: 'Inventario',      descripcion: 'Acceso a materiales, lotes y unidades',       modulo: 'inventario' },
-    { nombre: 'Movimientos',     descripcion: 'Acceso a solicitudes y préstamos',             modulo: 'movimientos' },
-    { nombre: 'Control',         descripcion: 'Control y seguimiento del inventario',         modulo: 'control' },
-    { nombre: 'Estructura',      descripcion: 'Acceso a ubicaciones, sedes y centros',        modulo: 'estructura' },
+    { nombre: 'Administración', descripcion: 'Acceso a usuarios, roles y permisos',       modulo: 'administracion' },
+    { nombre: 'Inventario',     descripcion: 'Acceso a materiales, lotes y unidades',      modulo: 'inventario' },
+    { nombre: 'Movimientos',    descripcion: 'Acceso a solicitudes y préstamos',            modulo: 'movimientos' },
+    { nombre: 'Control',        descripcion: 'Control y seguimiento del inventario',        modulo: 'control' },
+    { nombre: 'Estructura',     descripcion: 'Acceso a ubicaciones, sedes y centros',       modulo: 'estructura' },
   ];
 
   for (const p of permisosData) {
@@ -73,41 +115,41 @@ async function seed() {
     }
   }
 
-  // ── 3. Asignar permisos a roles ───────────────────────────────────────────
+  // ── 3. Asignar permisos a roles con acciones ─────────────────────────────────
   console.log('\n🔗 Asignando permisos a roles...');
 
-  const asignaciones: Record<string, string[]> = {
-    Administrador:    ['administracion', 'inventario', 'movimientos', 'control', 'estructura'],
-    Instructor:       ['inventario', 'movimientos', 'control', 'estructura'],
-    Aprendiz:         ['movimientos'],
-    InstructorBodega: ['inventario', 'movimientos', 'control'],
-  };
-
-  for (const [rolNombre, modulos] of Object.entries(asignaciones)) {
+  for (const [rolNombre, modulos] of Object.entries(ASIGNACIONES)) {
     const [rol] = await q(`SELECT id FROM rol WHERE nombre = $1`, [rolNombre]);
     if (!rol) continue;
 
-    for (const modulo of modulos) {
+    for (const [modulo, accs] of Object.entries(modulos)) {
       const [permiso] = await q(`SELECT id FROM permisos WHERE modulo = $1`, [modulo]);
       if (!permiso) continue;
 
       const exists = await q(
-        `SELECT 1 FROM rol_permisos WHERE id_rol = $1 AND id_permiso = $2`,
+        `SELECT id FROM rol_permisos WHERE id_rol = $1 AND id_permiso = $2`,
         [rol.id, permiso.id],
       );
+
       if (exists.length === 0) {
         await q(
-          `INSERT INTO rol_permisos (id_rol, id_permiso) VALUES ($1, $2)`,
-          [rol.id, permiso.id],
+          `INSERT INTO rol_permisos (id, id_rol, id_permiso, submodulos, acciones)
+           VALUES (gen_random_uuid(), $1, $2, '{}', $3)`,
+          [rol.id, permiso.id, accs],
         );
-        console.log(`   ✅ ${rolNombre} → ${modulo}`);
+        console.log(`   ✅ ${rolNombre} → ${modulo} [${accs.join(', ')}]`);
       } else {
-        console.log(`   ℹ️  ${rolNombre} → ${modulo} (ya asignado)`);
+        // Actualizar acciones si ya existía (útil al re-ejecutar el seed)
+        await q(
+          `UPDATE rol_permisos SET acciones = $1 WHERE id_rol = $2 AND id_permiso = $3`,
+          [accs, rol.id, permiso.id],
+        );
+        console.log(`   ♻️  ${rolNombre} → ${modulo} (actualizado)`);
       }
     }
   }
 
-  // ── 4. Usuario administrador por defecto ──────────────────────────────────
+  // ── 4. Usuario administrador por defecto ────────────────────────────────────
   console.log('\n👤 Creando usuario administrador...');
 
   const adminEmail = 'admin@sigmat.sena.edu.co';
@@ -128,8 +170,9 @@ async function seed() {
     console.log(`   ℹ️  Usuario admin ya existe (${adminEmail})`);
   }
 
-  // ── 5. Usuario administrador personalizado solicitado ──────────────────────
+  // ── 5. Usuario administrador personalizado ───────────────────────────────────
   console.log('\n👤 Creando/Actualizando usuario administrador personalizado...');
+
   const customEmail = 'lm20052908@gmail.com';
   const customExists = await q(`SELECT id FROM usuario WHERE correo = $1`, [customEmail]);
   const customHash = await bcrypt.hash('Lucius29*', 10);
@@ -144,12 +187,12 @@ async function seed() {
   } else {
     await q(
       `UPDATE usuario SET id_rol = $1, contrasena = $2, estado = 'activo' WHERE correo = $3`,
-      [adminRol.id, customHash, customEmail]
+      [adminRol.id, customHash, customEmail],
     );
     console.log(`   ✅ Usuario personalizado actualizado (${customEmail})`);
   }
 
-  // ── 5b. Usuario InstructorBodega de prueba ────────────────────────────────
+  // ── 5b. Usuario InstructorBodega de prueba ───────────────────────────────────
   console.log('\n👤 Creando usuario InstructorBodega de prueba...');
 
   const bodegaEmail = 'bodega@sigmat.sena.edu.co';
@@ -170,7 +213,7 @@ async function seed() {
     console.log(`   ℹ️  InstructorBodega ya existe (${bodegaEmail})`);
   }
 
-  // ── 6. Actualizar usuario de desarrollo al rol Administrador ──────────────
+  // ── 6. Actualizar usuario de desarrollo al rol Administrador ─────────────────
   const devEmail = '00sgor@gmail.com';
   const devExists = await q(`SELECT id FROM usuario WHERE correo = $1`, [devEmail]);
   if (devExists.length > 0 && adminRol) {
@@ -178,7 +221,7 @@ async function seed() {
     console.log(`\n   ✅ ${devEmail} actualizado a rol Administrador`);
   }
 
-  // ── 6. Centro ─────────────────────────────────────────────────────────────
+  // ── 7. Centro ────────────────────────────────────────────────────────────────
   console.log('\n🏛️  Creando centro SENA...');
 
   let centroId: string;
@@ -196,7 +239,7 @@ async function seed() {
     console.log(`   ℹ️  Centro ya existe`);
   }
 
-  // ── 7. Sede ───────────────────────────────────────────────────────────────
+  // ── 8. Sede ──────────────────────────────────────────────────────────────────
   console.log('\n📍 Creando sede...');
 
   let sedeId: string;
@@ -214,7 +257,7 @@ async function seed() {
     console.log(`   ℹ️  Sede ya existe`);
   }
 
-  // ── 8. Área ───────────────────────────────────────────────────────────────
+  // ── 9. Área ───────────────────────────────────────────────────────────────────
   console.log('\n📁 Creando área...');
 
   const [adminUser] = await q(`SELECT id FROM usuario WHERE correo = 'admin@sigmat.sena.edu.co'`);
@@ -230,16 +273,13 @@ async function seed() {
     console.log(`   ℹ️  Área ya existe`);
   }
 
-  // ── 9. Tipos de ubicación ─────────────────────────────────────────────────
+  // ── 10. Tipos de ubicación ────────────────────────────────────────────────────
   console.log('\n📦 Creando tipos de ubicación...');
 
-  // Eliminar residuos de la migración enum → varchar
   const nullTipos = await q(`SELECT id_tipo_ubicacion FROM tipo_ubicacion WHERE nombre IS NULL OR nombre = ''`);
   if (nullTipos.length > 0) {
     const ids = nullTipos.map((t: any) => t.id_tipo_ubicacion);
-    // Primero eliminar ubicaciones que referencian esos tipos huérfanos
     await q(`DELETE FROM ubicacion WHERE id_tipo_ubicacion = ANY($1::int[])`, [ids]);
-    // Luego eliminar los tipos nulos
     await q(`DELETE FROM tipo_ubicacion WHERE nombre IS NULL OR nombre = ''`);
     console.log(`   🧹 Eliminados ${nullTipos.length} tipos sin nombre y sus ubicaciones`);
   }
@@ -260,39 +300,6 @@ async function seed() {
       console.log(`   ✅ Tipo '${t.nombre}' creado`);
     } else {
       console.log(`   ℹ️  Tipo '${t.nombre}' ya existe`);
-    }
-  }
-
-  // ── 10. Permisos directos a usuarios administradores ─────────────────────
-  console.log('\n🔐 Asignando permisos directos a usuarios administradores...');
-
-  const adminEmails = [
-    'admin@sigmat.sena.edu.co',
-    'lm20052908@gmail.com',
-    '00sgor@gmail.com',
-  ];
-
-  const todosLosPermisos = await q(`SELECT id, modulo FROM permisos`);
-
-  for (const email of adminEmails) {
-    const [usuario] = await q(`SELECT id FROM usuario WHERE correo = $1`, [email]);
-    if (!usuario) continue;
-
-    for (const permiso of todosLosPermisos) {
-      const existe = await q(
-        `SELECT id FROM usuario_permisos WHERE id_usuario = $1 AND id_permiso = $2`,
-        [usuario.id, permiso.id],
-      );
-      if (existe.length === 0) {
-        await q(
-          `INSERT INTO usuario_permisos (id, id_usuario, id_permiso, submodulos)
-           VALUES (gen_random_uuid(), $1, $2, '{}')`,
-          [usuario.id, permiso.id],
-        );
-        console.log(`   ✅ ${email} → ${permiso.modulo} (acceso completo)`);
-      } else {
-        console.log(`   ℹ️  ${email} → ${permiso.modulo} (ya asignado)`);
-      }
     }
   }
 

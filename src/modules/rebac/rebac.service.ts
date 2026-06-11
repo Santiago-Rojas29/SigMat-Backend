@@ -116,21 +116,14 @@ export class RebacService {
     userId: string,
     modulos: string[],
   ): Promise<boolean> {
-    const porRol = await this.dataSource.query(
+    const rows = await this.dataSource.query(
       `SELECT 1 FROM usuario u
        JOIN rol_permisos rp ON rp.id_rol = u.id_rol
-       WHERE u.id = $1 AND rp.modulo = ANY($2::text[])
+       JOIN permisos p ON p.id = rp.id_permiso
+       WHERE u.id = $1 AND p.modulo = ANY($2::text[])
        LIMIT 1`,
       [userId, modulos],
     );
-    if (porRol.length > 0) return true;
-
-    const directo = await this.dataSource.query(
-      `SELECT 1 FROM usuario_permisos
-       WHERE id_usuario = $1 AND modulo = ANY($2::text[])
-       LIMIT 1`,
-      [userId, modulos],
-    );
-    return directo.length > 0;
+    return rows.length > 0;
   }
 }

@@ -3,6 +3,8 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import type { SolicitudRepository } from '../../domain/ports/solicitud.repository';
 import { EstadoSolicitud } from '../../domain/entities/solicitud.entity';
+import { NotificacionesService } from '../../../notificaciones/notificaciones.service';
+import { KardexAutoService } from '../../../kardex/application/services/kardex-auto.service';
 
 @Injectable()
 export class EntregarSolicitudUseCase {
@@ -11,21 +13,27 @@ export class EntregarSolicitudUseCase {
     private readonly repo: SolicitudRepository,
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    private readonly notificaciones: NotificacionesService,
+    private readonly kardexAuto: KardexAutoService,
   ) {}
 
   async execute(
     id: string,
     data: { id_bodega: string; fecha_limite?: string; observaciones?: string },
   ): Promise<
-    | { id_prestamo: string; id_validacion: string; requiere_devolucion: true }
-    | { id_validacion: string; requiere_devolucion: false }
+    | { id_prestamo: string; id_validacion: string; id_entrega: string; requiere_devolucion: true }
+    | { id_validacion: string; id_entrega: string; requiere_devolucion: false }
   > {
     const solicitud = await this.repo.obtenerPorId(id);
     if (!solicitud) throw new NotFoundException('Solicitud no encontrada');
     if (solicitud.estado !== EstadoSolicitud.APROBADO)
       throw new BadRequestException('La solicitud debe estar aprobada para marcarla como entregada');
 
-    return this.dataSource.transaction(async (manager) => {
+    type EntregarResult =
+      | { id_prestamo: string; id_validacion: string; id_entrega: string; requiere_devolucion: true }
+      | { id_validacion: string; id_entrega: string; requiere_devolucion: false };
+
+    const result: EntregarResult = await this.dataSource.transaction(async (manager) => {
       // 1. Marcar solicitud como entregada
       await manager.query(
         `UPDATE solicitud SET estado = 'entregado', fecha_entrega = NOW() WHERE id_solicitud = $1`,
@@ -80,6 +88,10 @@ export class EntregarSolicitudUseCase {
             `INSERT INTO entrega_unidad (id_entrega, id_unidad) VALUES ($1, $2)`,
             [entId, u.id_unidad],
           );
+          await manager.query(
+            `UPDATE unidad SET estado = 'prestado' WHERE id_unidad = $1`,
+            [u.id_unidad],
+          );
         }
 
         // Si la solicitud también tiene lotes, se registran en la misma entrega
@@ -91,7 +103,7 @@ export class EntregarSolicitudUseCase {
           );
         }
 
-        return { id_prestamo: pre.id, id_validacion: val.id, requiere_devolucion: true };
+        return { id_prestamo: pre.id, id_validacion: val.id, id_entrega: entId, requiere_devolucion: true };
       } else {
         // 4b. Solicitud solo con lotes (consumible/perecedero) → entrega directa sin préstamo
         const [ent] = await manager.query(
@@ -111,8 +123,16 @@ export class EntregarSolicitudUseCase {
           );
         }
 
-        return { id_validacion: val.id, requiere_devolucion: false };
+        return { id_validacion: val.id, id_entrega: entId, requiere_devolucion: false };
       }
     });
+
+    // Notify and register kardex after successful transaction
+    this.notificaciones.notificarEntrega(id, solicitud.id_solicitante).catch(() => {});
+    this.notificaciones.notificarActualizacion('solicitud');
+    if (result.requiere_devolucion) this.notificaciones.notificarActualizacion('prestamo');
+    this.kardexAuto.salidaEntrega(result.id_entrega).catch(() => {});
+
+    return result;
   }
 }

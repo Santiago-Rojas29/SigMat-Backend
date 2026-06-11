@@ -5,8 +5,10 @@ import { ObtenerTodosMaterialUseCase } from '../../../application/use-cases/obte
 import { ObtenerPorIdMaterialUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { ActualizarMaterialUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarMaterialUseCase } from '../../../application/use-cases/eliminar.use-case';
+import { ImportarMaterialesUseCase } from '../../../application/use-cases/importar-materiales.use-case';
 import { CrearMaterialDto } from './dto/crear.dto';
 import { ActualizarMaterialDto } from './dto/actualizar.dto';
+import { ImportarMaterialesDto } from './dto/importar.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('material')
@@ -17,7 +19,13 @@ export class MaterialController {
     private readonly obtenerPorIdUseCase: ObtenerPorIdMaterialUseCase,
     private readonly actualizarUseCase: ActualizarMaterialUseCase,
     private readonly eliminarUseCase: EliminarMaterialUseCase,
+    private readonly importarUseCase: ImportarMaterialesUseCase,
   ) {}
+
+  @Post('importar')
+  importar(@Body() body: ImportarMaterialesDto) {
+    return this.importarUseCase.execute(body.materiales);
+  }
 
   @Post()
   crear(@Body() body: CrearMaterialDto) {

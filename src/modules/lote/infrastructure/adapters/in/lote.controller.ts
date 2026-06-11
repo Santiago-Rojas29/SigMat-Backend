@@ -12,6 +12,7 @@ import { ActualizarLoteUseCase } from '../../../application/use-cases/actualizar
 import { EliminarLoteUseCase } from '../../../application/use-cases/eliminar-lote.use-case';
 import { ObtenerPorIdUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todos.use-case';
+import { ObtenerLotesPorUbicacionUseCase } from '../../../application/use-cases/obtener-por-ubicacion.use-case';
 import { CreateLoteDto } from './dto/create-lote.dto';
 import { UpdateLoteDto } from './dto/update-lote.dto';
 
@@ -23,6 +24,7 @@ export class LoteController {
     private readonly eliminarUseCase: EliminarLoteUseCase,
     private readonly obtenerPorIdUseCase: ObtenerPorIdUseCase,
     private readonly obtenerTodosUseCase: ObtenerTodosUseCase,
+    private readonly obtenerPorUbicacionUseCase: ObtenerLotesPorUbicacionUseCase,
   ) {}
 
   @Post()
@@ -33,6 +35,11 @@ export class LoteController {
   @Get()
   obtenerTodos() {
     return this.obtenerTodosUseCase.execute();
+  }
+
+  @Get('por-ubicacion/:id')
+  obtenerPorUbicacion(@Param('id') id: string) {
+    return this.obtenerPorUbicacionUseCase.execute(id);
   }
 
   @Get(':id')

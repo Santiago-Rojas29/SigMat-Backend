@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CrearRolPermisosDto {
+export class AsignarRolPermisosDto {
   @IsString()
   @IsNotEmpty()
   id_rol!: string;
@@ -8,4 +8,14 @@ export class CrearRolPermisosDto {
   @IsString()
   @IsNotEmpty()
   id_permiso!: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  submodulos?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  acciones?: string[];
 }

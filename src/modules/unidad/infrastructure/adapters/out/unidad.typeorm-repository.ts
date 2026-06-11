@@ -42,6 +42,11 @@ export class UnidadTypeOrmRepository implements UnidadRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
+  async obtenerPorUbicacion(id_ubicacion: string): Promise<Unidad[]> {
+    const data = await this.repo.findBy({ id_ubicacion });
+    return data.map((orm) => this.toEntity(orm));
+  }
+
   async obtenerPorId(id: string): Promise<Unidad | null> {
     const orm = await this.repo.findOneBy({ id_unidad: id });
     return orm ? this.toEntity(orm) : null;

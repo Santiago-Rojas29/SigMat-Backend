@@ -8,6 +8,7 @@ import { ActualizarUnidadUseCase } from './application/use-cases/actualizar-unid
 import { EliminarUnidadUseCase } from './application/use-cases/eliminar-unidad.use-case';
 import { ObtenerPorIdUseCase } from './application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosUseCase } from './application/use-cases/obtener-todos.use-case';
+import { ObtenerUnidadesPorUbicacionUseCase } from './application/use-cases/obtener-por-ubicacion.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UnidadOrmEntity])],
@@ -18,6 +19,7 @@ import { ObtenerTodosUseCase } from './application/use-cases/obtener-todos.use-c
     EliminarUnidadUseCase,
     ObtenerPorIdUseCase,
     ObtenerTodosUseCase,
+    ObtenerUnidadesPorUbicacionUseCase,
     {
       provide: 'UnidadRepository',
       useClass: UnidadTypeOrmRepository,

@@ -78,4 +78,68 @@ export class KardexAutoService {
       id_incidencia,
     });
   }
+
+  async salidaEntrega(id_entrega: string): Promise<void> {
+    const unidades: { id_unidad: string }[] = await this.db.query(
+      `SELECT id_unidad FROM entrega_unidad WHERE id_entrega = $1`,
+      [id_entrega],
+    );
+    const lotes: { id_lote: string; cantidad_entregada: number; cantidad_disponible: number }[] = await this.db.query(
+      `SELECT el.id_lote, el.cantidad_entregada, l.cantidad_disponible
+       FROM entrega_lote el
+       JOIN lote l ON l.id_lote = el.id_lote
+       WHERE el.id_entrega = $1`,
+      [id_entrega],
+    );
+    for (const u of unidades) {
+      await this.insertar({
+        tipo_movimiento: TipoMovimiento.SALIDA,
+        cantidad: 1,
+        saldo:    0,
+        id_unidad: u.id_unidad,
+        id_entrega,
+      });
+    }
+    for (const l of lotes) {
+      await this.insertar({
+        tipo_movimiento: TipoMovimiento.SALIDA,
+        cantidad: l.cantidad_entregada,
+        saldo:    l.cantidad_disponible,
+        id_lote:  l.id_lote,
+        id_entrega,
+      });
+    }
+  }
+
+  async entradaDevolucion(id_devolucion: string, id_entrega: string): Promise<void> {
+    const unidades: { id_unidad: string }[] = await this.db.query(
+      `SELECT id_unidad FROM entrega_unidad WHERE id_entrega = $1`,
+      [id_entrega],
+    );
+    const lotes: { id_lote: string; cantidad_entregada: number; cantidad_disponible: number }[] = await this.db.query(
+      `SELECT el.id_lote, el.cantidad_entregada, l.cantidad_disponible
+       FROM entrega_lote el
+       JOIN lote l ON l.id_lote = el.id_lote
+       WHERE el.id_entrega = $1`,
+      [id_entrega],
+    );
+    for (const u of unidades) {
+      await this.insertar({
+        tipo_movimiento: TipoMovimiento.ENTRADA,
+        cantidad: 1,
+        saldo:    1,
+        id_unidad:    u.id_unidad,
+        id_devolucion,
+      });
+    }
+    for (const l of lotes) {
+      await this.insertar({
+        tipo_movimiento: TipoMovimiento.ENTRADA,
+        cantidad: l.cantidad_entregada,
+        saldo:    l.cantidad_disponible,
+        id_lote:  l.id_lote,
+        id_devolucion,
+      });
+    }
+  }
 }

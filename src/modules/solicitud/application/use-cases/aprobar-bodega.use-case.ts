@@ -23,6 +23,7 @@ export class AprobarBodegaUseCase {
       fecha_respuesta_bodega: new Date(),
     });
 
-    await this.notificaciones.notificarCambioEstado(id, EstadoSolicitud.APROBADO);
+    await this.notificaciones.notificarCambioEstado(id, EstadoSolicitud.APROBADO, solicitud.id_solicitante);
+    this.notificaciones.notificarActualizacion('solicitud');
   }
 }

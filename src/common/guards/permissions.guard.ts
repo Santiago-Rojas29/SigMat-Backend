@@ -33,12 +33,13 @@ export class PermissionsGuard implements CanActivate {
 
     if (submodulo) {
       const result = await this.dataSource.query<{ id: string }[]>(
-        `SELECT up.id
-         FROM usuario_permisos up
-         JOIN permisos p ON p.id = up.id_permiso
-         WHERE up.id_usuario = $1
+        `SELECT rp.id
+         FROM usuario u
+         JOIN rol_permisos rp ON rp.id_rol = u.id_rol
+         JOIN permisos p ON p.id = rp.id_permiso
+         WHERE u.id = $1
            AND p.modulo = $2
-           AND (up.submodulos = '{}' OR $3 = ANY(up.submodulos))
+           AND (rp.submodulos = '{}' OR $3 = ANY(rp.submodulos))
          LIMIT 1`,
         [user.id, modulo, submodulo],
       );
@@ -46,10 +47,11 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const result = await this.dataSource.query<{ id: string }[]>(
-      `SELECT up.id
-       FROM usuario_permisos up
-       JOIN permisos p ON p.id = up.id_permiso
-       WHERE up.id_usuario = $1
+      `SELECT rp.id
+       FROM usuario u
+       JOIN rol_permisos rp ON rp.id_rol = u.id_rol
+       JOIN permisos p ON p.id = rp.id_permiso
+       WHERE u.id = $1
          AND p.modulo = $2
        LIMIT 1`,
       [user.id, modulo],

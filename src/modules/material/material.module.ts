@@ -8,6 +8,7 @@ import { ActualizarMaterialUseCase } from './application/use-cases/actualizar.us
 import { EliminarMaterialUseCase } from './application/use-cases/eliminar.use-case';
 import { ObtenerTodosMaterialUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdMaterialUseCase } from './application/use-cases/obtener-por-id.use-case';
+import { ImportarMaterialesUseCase } from './application/use-cases/importar-materiales.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MaterialOrmEntity])],
@@ -18,6 +19,7 @@ import { ObtenerPorIdMaterialUseCase } from './application/use-cases/obtener-por
     EliminarMaterialUseCase,
     ObtenerTodosMaterialUseCase,
     ObtenerPorIdMaterialUseCase,
+    ImportarMaterialesUseCase,
     { provide: 'MaterialRepository', useClass: MaterialTypeOrmRepository },
   ],
 })

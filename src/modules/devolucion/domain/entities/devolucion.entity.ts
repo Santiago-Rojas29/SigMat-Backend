@@ -18,10 +18,9 @@ export class Devolucion {
     if (!this.fecha_devolucion) throw new Error('La fecha de devolucion es obligatoria');
     const fecha = new Date(this.fecha_devolucion);
     if (isNaN(fecha.getTime())) throw new Error('La fecha de devolucion no es valida');
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    fecha.setHours(0, 0, 0, 0);
-    if (fecha < hoy) throw new Error('La fecha de devolucion no puede ser pasada');
+    const fechaDia = fecha.toISOString().slice(0, 10);
+    const hoyDia   = new Date().toISOString().slice(0, 10);
+    if (fechaDia < hoyDia) throw new Error('La fecha de devolucion no puede ser pasada');
     if (!Object.values(CondicionDevolucion).includes(this.condicion)) throw new Error('La condicion no es valida');
   }
 }

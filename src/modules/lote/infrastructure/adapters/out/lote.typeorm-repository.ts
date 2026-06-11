@@ -52,6 +52,11 @@ export class LoteTypeOrmRepository implements LoteRepository {
     return data.map((orm) => this.toEntity(orm));
   }
 
+  async obtenerPorUbicacion(id_ubicacion: string): Promise<Lote[]> {
+    const data = await this.repo.findBy({ id_ubicacion });
+    return data.map((orm) => this.toEntity(orm));
+  }
+
   async obtenerPorId(id: string): Promise<Lote | null> {
     const orm = await this.repo.findOneBy({ id_lote: id });
     return orm ? this.toEntity(orm) : null;

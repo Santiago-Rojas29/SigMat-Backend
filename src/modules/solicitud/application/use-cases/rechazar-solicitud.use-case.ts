@@ -46,6 +46,7 @@ export class RechazarSolicitudUseCase {
       motivo_rechazo: motivo_rechazo ?? null,
     });
 
-    await this.notificaciones.notificarCambioEstado(id, EstadoSolicitud.RECHAZADO);
+    await this.notificaciones.notificarCambioEstado(id, EstadoSolicitud.RECHAZADO, solicitud.id_solicitante);
+    this.notificaciones.notificarActualizacion('solicitud');
   }
 }

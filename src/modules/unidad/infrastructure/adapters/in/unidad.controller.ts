@@ -12,6 +12,7 @@ import { ActualizarUnidadUseCase } from '../../../application/use-cases/actualiz
 import { EliminarUnidadUseCase } from '../../../application/use-cases/eliminar-unidad.use-case';
 import { ObtenerPorIdUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todos.use-case';
+import { ObtenerUnidadesPorUbicacionUseCase } from '../../../application/use-cases/obtener-por-ubicacion.use-case';
 import { CreateUnidadDto } from './dto/create-unidad.dto';
 import { UpdateUnidadDto } from './dto/update-unidad.dto';
 
@@ -23,6 +24,7 @@ export class UnidadController {
     private readonly eliminarUseCase: EliminarUnidadUseCase,
     private readonly obtenerPorIdUseCase: ObtenerPorIdUseCase,
     private readonly obtenerTodosUseCase: ObtenerTodosUseCase,
+    private readonly obtenerPorUbicacionUseCase: ObtenerUnidadesPorUbicacionUseCase,
   ) {}
 
   @Post()
@@ -33,6 +35,11 @@ export class UnidadController {
   @Get()
   obtenerTodos() {
     return this.obtenerTodosUseCase.execute();
+  }
+
+  @Get('por-ubicacion/:id')
+  obtenerPorUbicacion(@Param('id') id: string) {
+    return this.obtenerPorUbicacionUseCase.execute(id);
   }
 
   @Get(':id')

@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
 import { createKeyv } from '@keyv/redis';
 
 import { PrestamoModule } from './modules/prestamo/prestamo.module';
@@ -44,12 +45,14 @@ import { LoteFichaModule } from './modules/lote_ficha/lote_ficha.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ReportesModule } from './modules/reportes/reportes.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
+import { SesionWhatsappModule } from './modules/sesion_whatsapp/sesion_whatsapp.module';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     CacheModule.registerAsync({
       isGlobal: true,
@@ -122,6 +125,7 @@ import { NotificacionesModule } from './modules/notificaciones/notificaciones.mo
     DashboardModule,
     ReportesModule,
     NotificacionesModule,
+    SesionWhatsappModule,
   ],
   controllers: [],
   providers: [],

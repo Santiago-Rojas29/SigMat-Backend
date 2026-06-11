@@ -8,6 +8,7 @@ import { ActualizarLoteUseCase } from './application/use-cases/actualizar-lote.u
 import { EliminarLoteUseCase } from './application/use-cases/eliminar-lote.use-case';
 import { ObtenerPorIdUseCase } from './application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosUseCase } from './application/use-cases/obtener-todos.use-case';
+import { ObtenerLotesPorUbicacionUseCase } from './application/use-cases/obtener-por-ubicacion.use-case';
 import { KardexModule } from '../kardex/kardex.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { KardexModule } from '../kardex/kardex.module';
     EliminarLoteUseCase,
     ObtenerPorIdUseCase,
     ObtenerTodosUseCase,
+    ObtenerLotesPorUbicacionUseCase,
     {
       provide: 'LoteRepository',
       useClass: LoteTypeOrmRepository,

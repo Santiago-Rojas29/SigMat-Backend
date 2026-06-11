@@ -15,6 +15,7 @@ import { EntregarSolicitudUseCase }    from './application/use-cases/entregar-so
 import { RechazarSolicitudUseCase }    from './application/use-cases/rechazar-solicitud.use-case';
 import { CancelarSolicitudUseCase }    from './application/use-cases/cancelar-solicitud.use-case';
 import { NotificacionesModule }        from '../notificaciones/notificaciones.module';
+import { KardexAutoService }           from '../kardex/application/services/kardex-auto.service';
 import { RebacModule }                 from '../rebac/rebac.module';
 import { AuthModule }                  from '../auth/auth.module';
 
@@ -38,6 +39,7 @@ import { AuthModule }                  from '../auth/auth.module';
     EntregarSolicitudUseCase,
     RechazarSolicitudUseCase,
     CancelarSolicitudUseCase,
+    KardexAutoService,
     {
       provide: 'SolicitudRepository',
       useClass: SolicitudTypeOrmRepository,
