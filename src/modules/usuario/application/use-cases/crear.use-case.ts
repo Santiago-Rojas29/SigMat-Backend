@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Usuario, TipoDocumento, EstadoUsuario } from '../../domain/entities/usuario.entity';
 import type { UsuarioRepository } from '../../domain/ports/usuario.repository';
@@ -21,6 +21,9 @@ export class CrearUsuarioUseCase {
     estado: EstadoUsuario;
     contrasena: string;
   }): Promise<Usuario> {
+    const existe = await this.repo.buscarPorCorreo(data.correo);
+    if (existe) throw new ConflictException('El correo electrónico ya está registrado.');
+
     const hashContrasena = await bcrypt.hash(data.contrasena, 10);
     const entity = new Usuario(
       '',

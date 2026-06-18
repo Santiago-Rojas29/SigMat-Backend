@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Usuario, TipoDocumento, EstadoUsuario } from '../../domain/entities/usuario.entity';
 import type { UsuarioRepository } from '../../domain/ports/usuario.repository';
@@ -24,6 +24,13 @@ export class ActualizarUsuarioUseCase {
       contrasena?: string;
     },
   ): Promise<Usuario> {
+    if (data.correo) {
+      const existente = await this.repo.buscarPorCorreo(data.correo);
+      if (existente && existente.id !== id) {
+        throw new ConflictException('El correo electrónico ya está registrado por otro usuario.');
+      }
+    }
+
     const mapped: Partial<Usuario> = {
       ...(data.id_rol && { id_rol: data.id_rol }),
       ...(data.tipo_documento && { tipo_documento: data.tipo_documento }),

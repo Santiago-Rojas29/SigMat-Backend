@@ -5,4 +5,5 @@ export interface CredencialesUsuario {
     id_rol: string;
     nombres: string;
     apellidos: string;
+    estado: string;
 }

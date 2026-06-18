@@ -1,7 +1,8 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type { AuthRepository } from '../../domain/ports/auth.repository';
+import { EstadoUsuario } from '../../../usuario/domain/entities/usuario.entity';
 
 @Injectable()
 export class LoginUseCase {
@@ -17,6 +18,10 @@ export class LoginUseCase {
 
     const esValida = await bcrypt.compare(contrasena, usuario.contrasena);
     if (!esValida) throw new UnauthorizedException('Credenciales inválidas');
+
+    if (usuario.estado !== EstadoUsuario.ACTIVO) {
+      throw new ForbiddenException('Tu cuenta está inactiva. Contacta al administrador.');
+    }
 
     const payload = {
       sub: usuario.id,
