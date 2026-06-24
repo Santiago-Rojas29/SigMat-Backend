@@ -8,6 +8,7 @@ interface JwtUser {
   id: string;
   correo: string;
   id_rol: string;
+  id_sede: string | null;
 }
 
 @Injectable()
@@ -28,6 +29,8 @@ export class PermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{ user?: JwtUser }>();
     const user = request.user;
     if (!user?.id) return false;
+
+    if (user.id_sede === null || user.id_sede === undefined) return true;
 
     const { modulo, submodulo } = requirement;
 

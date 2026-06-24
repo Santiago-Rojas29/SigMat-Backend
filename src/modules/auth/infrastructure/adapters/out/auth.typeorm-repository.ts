@@ -20,7 +20,7 @@ export class AuthTypeOrmRepository implements AuthRepository {
   async encontrarPorCorreo(correo: string): Promise<CredencialesUsuario | null> {
     const orm = await this.usuarioRepo
       .createQueryBuilder('usuario')
-      .select(['usuario.id', 'usuario.correo', 'usuario.id_rol', 'usuario.nombres', 'usuario.apellidos', 'usuario.estado'])
+      .select(['usuario.id', 'usuario.correo', 'usuario.id_rol', 'usuario.nombres', 'usuario.apellidos', 'usuario.estado', 'usuario.id_sede'])
       .addSelect('usuario.contrasena')
       .where('usuario.correo = :correo', { correo })
       .getOne();
@@ -34,35 +34,50 @@ export class AuthTypeOrmRepository implements AuthRepository {
       nombres: orm.nombres,
       apellidos: orm.apellidos,
       estado: orm.estado,
+      id_sede: orm.id_sede ?? null,
     };
   }
 
-  async obtenerModulosPorUsuario(id_usuario: string): Promise<string[]> {
+  async obtenerModulosPorUsuario(id_usuario: string): Promise<Record<string, string[]>> {
     const [directRows, roleRows] = await Promise.all([
-      // Permisos asignados directamente al usuario
       this.usuarioPermisosRepo
         .createQueryBuilder('up')
         .innerJoin(PermisosOrmEntity, 'p', 'p.id = up.id_permiso')
-        .select('DISTINCT p.modulo', 'modulo')
+        .select('p.modulo', 'modulo')
+        .addSelect('up.submodulos', 'submodulos')
         .where('up.id_usuario = :id_usuario', { id_usuario })
-        .getRawMany<{ modulo: string }>(),
+        .getRawMany<{ modulo: string; submodulos: string[] }>(),
 
-      // Permisos heredados del rol del usuario
       this.usuarioRepo
         .createQueryBuilder('u')
         .innerJoin(RolPermisosOrmEntity, 'rp', 'rp.id_rol = u.id_rol')
         .innerJoin(PermisosOrmEntity, 'p', 'p.id = rp.id_permiso')
-        .select('DISTINCT p.modulo', 'modulo')
+        .select('p.modulo', 'modulo')
+        .addSelect('rp.submodulos', 'submodulos')
         .where('u.id = :id_usuario', { id_usuario })
-        .getRawMany<{ modulo: string }>(),
+        .getRawMany<{ modulo: string; submodulos: string[] }>(),
     ]);
 
-    const modulos = new Set([
-      ...directRows.map((r) => r.modulo),
-      ...roleRows.map((r) => r.modulo),
-    ]);
+    const parseSubs = (val: any): string[] => {
+      if (Array.isArray(val)) return val;
+      if (typeof val === 'string') {
+        const trimmed = val.replace(/^\{|\}$/g, '');
+        return trimmed ? trimmed.split(',') : [];
+      }
+      return [];
+    };
 
-    return [...modulos];
+    const result: Record<string, Set<string>> = {};
+    for (const row of [...directRows, ...roleRows]) {
+      if (!result[row.modulo]) result[row.modulo] = new Set();
+      parseSubs(row.submodulos).forEach(s => result[row.modulo].add(s));
+    }
+
+    const out: Record<string, string[]> = {};
+    for (const [mod, subs] of Object.entries(result)) {
+      out[mod] = [...subs];
+    }
+    return out;
   }
 
   async guardarTokenReset(correo: string, token: string, expires: Date): Promise<void> {

@@ -9,6 +9,9 @@ export class DevolucionOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column('text')
   id_entrega!: string;
 

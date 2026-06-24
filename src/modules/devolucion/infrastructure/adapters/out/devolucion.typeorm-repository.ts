@@ -4,12 +4,14 @@ import { Devolucion } from '../../../domain/entities/devolucion.entity';
 import { DevolucionOrmEntity } from '../../entities/devolucion.orm-entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class DevolucionTypeOrmRepository implements DevolucionRepository {
   constructor(
     @InjectRepository(DevolucionOrmEntity)
     private readonly repo: Repository<DevolucionOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: DevolucionOrmEntity): Devolucion {
@@ -18,6 +20,7 @@ export class DevolucionTypeOrmRepository implements DevolucionRepository {
 
   async crear(devolucion: Devolucion): Promise<Devolucion> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_entrega: devolucion.id_entrega,
       fecha_devolucion: devolucion.fecha_devolucion,
       condicion: devolucion.condicion,
@@ -28,7 +31,8 @@ export class DevolucionTypeOrmRepository implements DevolucionRepository {
   }
 
   async obtenerTodos(): Promise<Devolucion[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

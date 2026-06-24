@@ -6,4 +6,5 @@ export interface CredencialesUsuario {
     nombres: string;
     apellidos: string;
     estado: string;
+    id_sede: string | null;
 }

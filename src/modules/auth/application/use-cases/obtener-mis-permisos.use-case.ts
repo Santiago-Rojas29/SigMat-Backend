@@ -8,7 +8,7 @@ export class ObtenerMisPermisosUseCase {
     private readonly repo: AuthRepository,
   ) {}
 
-  async execute(id_usuario: string): Promise<{ modulos: string[] }> {
+  async execute(id_usuario: string): Promise<{ modulos: Record<string, string[]> }> {
     const modulos = await this.repo.obtenerModulosPorUsuario(id_usuario);
     return { modulos };
   }

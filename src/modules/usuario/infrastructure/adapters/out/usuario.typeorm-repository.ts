@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { Usuario } from '../../../domain/entities/usuario.entity';
 import { UsuarioRepository } from '../../../domain/ports/usuario.repository';
 import { UsuarioOrmEntity } from '../../entities/usuario.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class UsuarioTypeOrmRepository implements UsuarioRepository {
   constructor(
     @InjectRepository(UsuarioOrmEntity)
     private readonly repo: Repository<UsuarioOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: UsuarioOrmEntity): Usuario {
@@ -23,6 +25,8 @@ export class UsuarioTypeOrmRepository implements UsuarioRepository {
       orm.correo,
       orm.telefono,
       orm.estado,
+      '',
+      orm.id_sede ?? null,
     );
   }
 
@@ -37,13 +41,15 @@ export class UsuarioTypeOrmRepository implements UsuarioRepository {
       telefono: entity.telefono,
       estado: entity.estado,
       contrasena: entity.contrasena,
+      id_sede: entity.id_sede,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);
   }
 
   async obtenerTodos(): Promise<Usuario[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

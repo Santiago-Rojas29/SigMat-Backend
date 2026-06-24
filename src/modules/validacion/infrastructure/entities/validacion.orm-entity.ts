@@ -8,6 +8,9 @@ export class ValidacionOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column('uuid')
   id_solicitud!: string;
 

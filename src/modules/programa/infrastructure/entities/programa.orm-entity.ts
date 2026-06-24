@@ -18,6 +18,9 @@ export class ProgramaOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id_programa!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column('uuid')
   id_area!: string;
 

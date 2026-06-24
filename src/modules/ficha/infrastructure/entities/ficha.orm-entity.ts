@@ -21,6 +21,9 @@ export class FichaOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id_ficha!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column('uuid')
   id_programa!: string;
 

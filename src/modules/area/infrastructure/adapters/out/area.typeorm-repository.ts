@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { AreaRepository } from '../../../domain/ports/area.repository';
 import { Area } from '../../../domain/entities/area.entity';
 import { AreaOrmEntity } from '../../entities/area.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class AreaTypeOrmRepository implements AreaRepository {
   constructor(
     @InjectRepository(AreaOrmEntity)
     private readonly repo: Repository<AreaOrmEntity>,
+    private readonly tenant: TenantService,
   ) { }
 
   private toEntity(orm: AreaOrmEntity): Area {
@@ -36,7 +38,8 @@ export class AreaTypeOrmRepository implements AreaRepository {
   }
 
   async obtenerTodos(): Promise<Area[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

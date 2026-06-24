@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { ProgramaRepository } from '../../../domain/ports/programa.repository';
 import { Programa } from '../../../domain/entities/programa.entity';
 import { ProgramaOrmEntity } from '../../entities/programa.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class ProgramaTypeOrmRepository implements ProgramaRepository {
   constructor(
     @InjectRepository(ProgramaOrmEntity)
     private readonly repo: Repository<ProgramaOrmEntity>,
+    private readonly tenant: TenantService,
   ) { }
 
   private toEntity(orm: ProgramaOrmEntity): Programa {
@@ -25,6 +27,7 @@ export class ProgramaTypeOrmRepository implements ProgramaRepository {
 
   async crear(programa: Programa): Promise<Programa> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_area: programa.id_area,
       nombre: programa.nombre,
       codigo_programa: programa.codigo_programa,
@@ -36,7 +39,8 @@ export class ProgramaTypeOrmRepository implements ProgramaRepository {
   }
 
   async obtenerTodos(): Promise<Programa[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

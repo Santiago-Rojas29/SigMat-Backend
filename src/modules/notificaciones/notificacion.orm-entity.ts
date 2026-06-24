@@ -15,6 +15,9 @@ export class NotificacionOrmEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'id_notificacion' })
   id_notificacion: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede: string | null;
+
   @Column({ name: 'id_usuario', type: 'varchar' })
   id_usuario: string;
 

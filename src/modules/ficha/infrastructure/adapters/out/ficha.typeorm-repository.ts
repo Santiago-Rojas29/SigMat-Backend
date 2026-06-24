@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { FichaRepository } from '../../../domain/ports/ficha.repository';
 import { Ficha } from '../../../domain/entities/ficha.entity';
 import { FichaOrmEntity } from '../../entities/ficha.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class FichaTypeOrmRepository implements FichaRepository {
   constructor(
     @InjectRepository(FichaOrmEntity)
     private readonly repo: Repository<FichaOrmEntity>,
+    private readonly tenant: TenantService,
   ) { }
 
   private toEntity(orm: FichaOrmEntity): Ficha {
@@ -26,6 +28,7 @@ export class FichaTypeOrmRepository implements FichaRepository {
 
   async crear(ficha: Ficha): Promise<Ficha> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_programa: ficha.id_programa,
       codigo_ficha: ficha.codigo_ficha,
       fecha_inicio: ficha.fecha_inicio,
@@ -38,7 +41,8 @@ export class FichaTypeOrmRepository implements FichaRepository {
   }
 
   async obtenerTodos(): Promise<Ficha[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

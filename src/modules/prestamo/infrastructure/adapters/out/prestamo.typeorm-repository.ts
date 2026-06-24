@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { PrestamoRepository } from '../../../domain/ports/prestamo.repository';
 import { Prestamo } from '../../../domain/entities/prestamo.entity';
 import { PrestamoOrmEntity } from '../../entities/prestamo.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class PrestamoTypeOrmRepository implements PrestamoRepository {
   constructor(
     @InjectRepository(PrestamoOrmEntity)
     private readonly repo: Repository<PrestamoOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: PrestamoOrmEntity): Prestamo {
@@ -24,6 +26,7 @@ export class PrestamoTypeOrmRepository implements PrestamoRepository {
 
   async crear(prestamo: Prestamo): Promise<Prestamo> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_usuario:    prestamo.id_usuario,
       id_validacion: prestamo.id_validacion,
       fecha_limite:  prestamo.fecha_limite,
@@ -34,7 +37,8 @@ export class PrestamoTypeOrmRepository implements PrestamoRepository {
   }
 
   async obtenerTodos(): Promise<Prestamo[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

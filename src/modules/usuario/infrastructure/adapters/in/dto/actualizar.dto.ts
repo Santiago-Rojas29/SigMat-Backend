@@ -8,6 +8,10 @@ export class ActualizarUsuarioDto {
   id_rol?: string;
 
   @IsOptional()
+  @IsString()
+  id_sede?: string | null;
+
+  @IsOptional()
   @IsEnum(TipoDocumento)
   tipo_documento?: TipoDocumento;
 

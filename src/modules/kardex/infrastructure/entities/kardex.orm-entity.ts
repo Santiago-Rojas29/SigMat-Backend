@@ -12,6 +12,9 @@ export class KardexOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column({ type: 'enum', enum: TipoMovimiento })
   tipo_movimiento!: TipoMovimiento;
 

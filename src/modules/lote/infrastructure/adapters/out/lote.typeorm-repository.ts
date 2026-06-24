@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { LoteRepository } from '../../../domain/ports/lote.repository';
 import { Lote } from '../../../domain/entities/lote.entity';
 import { LoteOrmEntity } from '../../entities/lote.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class LoteTypeOrmRepository implements LoteRepository {
   constructor(
     @InjectRepository(LoteOrmEntity)
     private readonly repo: Repository<LoteOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: LoteOrmEntity): Lote {
@@ -31,6 +33,7 @@ export class LoteTypeOrmRepository implements LoteRepository {
 
   async crear(lote: Lote): Promise<Lote> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_material: lote.id_material,
       id_responsable: lote.id_responsable,
       id_ubicacion: lote.id_ubicacion,
@@ -48,7 +51,8 @@ export class LoteTypeOrmRepository implements LoteRepository {
   }
 
   async obtenerTodos(): Promise<Lote[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

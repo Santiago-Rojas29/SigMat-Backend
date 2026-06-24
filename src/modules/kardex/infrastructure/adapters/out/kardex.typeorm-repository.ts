@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { Kardex } from '../../../domain/entities/kardex.entity';
 import { KardexRepository } from '../../../domain/ports/kardex.repository';
 import { KardexOrmEntity } from '../../entities/kardex.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class KardexTypeOrmRepository implements KardexRepository {
   constructor(
     @InjectRepository(KardexOrmEntity)
     private readonly repo: Repository<KardexOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: KardexOrmEntity): Kardex {
@@ -30,6 +32,7 @@ export class KardexTypeOrmRepository implements KardexRepository {
 
   async crear(entity: Kardex): Promise<Kardex> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       tipo_movimiento: entity.tipo_movimiento,
       cantidad: entity.cantidad,
       fecha_movimiento: entity.fecha_movimiento,
@@ -46,7 +49,8 @@ export class KardexTypeOrmRepository implements KardexRepository {
   }
 
   async obtenerTodos(): Promise<Kardex[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

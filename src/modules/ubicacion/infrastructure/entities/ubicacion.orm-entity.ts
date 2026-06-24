@@ -16,6 +16,9 @@ export class UbicacionOrmEntity {
   @PrimaryGeneratedColumn()
   id_ubicacion!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column()
   id_area!: string;
 

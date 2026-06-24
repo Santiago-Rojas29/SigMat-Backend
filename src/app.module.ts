@@ -46,6 +46,15 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ReportesModule } from './modules/reportes/reportes.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
 import { SesionWhatsappModule } from './modules/sesion_whatsapp/sesion_whatsapp.module';
+import { TenantModule } from './common/tenant/tenant.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TenantInterceptor } from './common/tenant/tenant.interceptor';
+import { RootSeedService } from './common/seed/root-seed.service';
+import { RolOrmEntity } from './modules/rol/infrastructure/entities/rol.orm-entity';
+import { UsuarioOrmEntity } from './modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { PermisosOrmEntity } from './modules/permisos/infrastructure/entities/permisos.orm-entity';
+import { RolPermisosOrmEntity } from './modules/rol_permisos/infrastructure/entities/rol_permisos.orm-entity';
+import { TypeOrmModule as TypeOrmFeature } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -126,8 +135,13 @@ import { SesionWhatsappModule } from './modules/sesion_whatsapp/sesion_whatsapp.
     ReportesModule,
     NotificacionesModule,
     SesionWhatsappModule,
+    TenantModule,
+    TypeOrmFeature.forFeature([RolOrmEntity, UsuarioOrmEntity, PermisosOrmEntity, RolPermisosOrmEntity]),
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
+    RootSeedService,
+  ],
 })
 export class AppModule {}

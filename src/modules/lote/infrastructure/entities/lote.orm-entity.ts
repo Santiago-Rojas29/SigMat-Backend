@@ -15,6 +15,9 @@ export class LoteOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id_lote!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column()
   id_material!: string;
 

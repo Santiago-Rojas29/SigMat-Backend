@@ -11,6 +11,9 @@ export class EntregaOrmEntity {
   @PrimaryGeneratedColumn()
   id_entrega!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column({ nullable: true })
   id_prestamo!: string | null;
 

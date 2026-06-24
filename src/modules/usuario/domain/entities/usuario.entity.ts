@@ -22,6 +22,7 @@ export class Usuario {
     public telefono: string,
     public estado: EstadoUsuario,
     public contrasena: string = '',
+    public id_sede: string | null = null,
   ) {}
 
   validar(): void {

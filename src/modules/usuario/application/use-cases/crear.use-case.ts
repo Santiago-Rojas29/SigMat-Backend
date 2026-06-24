@@ -20,6 +20,7 @@ export class CrearUsuarioUseCase {
     telefono: string;
     estado: EstadoUsuario;
     contrasena: string;
+    id_sede?: string | null;
   }): Promise<Usuario> {
     const existe = await this.repo.buscarPorCorreo(data.correo);
     if (existe) throw new ConflictException('El correo electrónico ya está registrado.');
@@ -36,6 +37,7 @@ export class CrearUsuarioUseCase {
       data.telefono,
       data.estado,
       hashContrasena,
+      data.id_sede ?? null,
     );
     entity.validar();
     return this.repo.crear(entity);

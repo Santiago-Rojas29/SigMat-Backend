@@ -28,7 +28,7 @@ export class AuthController {
 
   @Get('permisos')
   @UseGuards(JwtAuthGuard)
-  misPermisos(@Request() req: JwtRequest): Promise<{ modulos: string[] }> {
+  misPermisos(@Request() req: JwtRequest): Promise<{ modulos: Record<string, string[]> }> {
     return this.misPermisosUseCase.execute(req.user.id);
   }
 

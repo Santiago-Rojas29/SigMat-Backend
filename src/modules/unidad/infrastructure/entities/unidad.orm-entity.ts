@@ -23,6 +23,9 @@ export class UnidadOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id_unidad!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column()
   id_material!: string;
 

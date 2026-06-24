@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { Validacion } from '../../../domain/entities/validacion.entity';
 import type { ValidacionRepository } from '../../../domain/ports/validacion.repository';
 import { ValidacionOrmEntity } from '../../entities/validacion.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class ValidacionTypeOrmRepository implements ValidacionRepository {
   constructor(
     @InjectRepository(ValidacionOrmEntity)
     private readonly repo: Repository<ValidacionOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: ValidacionOrmEntity): Validacion {
@@ -25,6 +27,7 @@ export class ValidacionTypeOrmRepository implements ValidacionRepository {
 
   async crear(validacion: Validacion): Promise<Validacion> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_solicitud: validacion.id_solicitud,
       id_validador: validacion.id_validador,
       fecha_validacion: validacion.fecha_validacion,
@@ -36,7 +39,8 @@ export class ValidacionTypeOrmRepository implements ValidacionRepository {
   }
 
   async obtenerTodos(): Promise<Validacion[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

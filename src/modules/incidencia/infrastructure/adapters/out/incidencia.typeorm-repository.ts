@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { Incidencia } from '../../../domain/entities/incidencia.entity';
 import { IncidenciaRepository } from '../../../domain/ports/incidencia.repository';
 import { IncidenciaOrmEntity } from '../../entities/incidencia.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class IncidenciaTypeOrmRepository implements IncidenciaRepository {
   constructor(
     @InjectRepository(IncidenciaOrmEntity)
     private readonly repo: Repository<IncidenciaOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: IncidenciaOrmEntity): Incidencia {
@@ -26,6 +28,7 @@ export class IncidenciaTypeOrmRepository implements IncidenciaRepository {
 
   async crear(entity: Incidencia): Promise<Incidencia> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_unidad: entity.id_unidad,
       id_usuario: entity.id_usuario,
       tipo: entity.tipo,
@@ -38,7 +41,8 @@ export class IncidenciaTypeOrmRepository implements IncidenciaRepository {
   }
 
   async obtenerTodos(): Promise<Incidencia[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

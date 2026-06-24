@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { EntregaRepository } from '../../../domain/ports/entrega.repository';
 import { Entrega } from '../../../domain/entities/entrega.entity';
 import { EntregaOrmEntity } from '../../entities/entrega.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class EntregaTypeOrmRepository implements EntregaRepository {
   constructor(
     @InjectRepository(EntregaOrmEntity)
     private readonly repo: Repository<EntregaOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: EntregaOrmEntity): Entrega {
@@ -24,6 +26,7 @@ export class EntregaTypeOrmRepository implements EntregaRepository {
 
   async crear(entrega: Entrega): Promise<Entrega> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_prestamo: entrega.id_prestamo,
       id_encargado: entrega.id_encargado,
       fecha_entrega: entrega.fecha_entrega,
@@ -34,7 +37,8 @@ export class EntregaTypeOrmRepository implements EntregaRepository {
   }
 
   async obtenerTodos(): Promise<Entrega[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

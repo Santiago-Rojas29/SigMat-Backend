@@ -24,6 +24,14 @@ export class CreateFichaUsuarioUseCase {
       );
       if (existing) throw new BadRequestException('Esta ficha ya tiene un Instructor líder asignado');
     }
+
+    if (data.rol_en_ficha === 'aprendiz') {
+      const [existing] = await this.db.query<{ id_ficha: string }[]>(
+        `SELECT id_ficha FROM ficha_usuario WHERE id_usuario = $1 AND rol_en_ficha = 'aprendiz' LIMIT 1`,
+        [data.id_usuario],
+      );
+      if (existing) throw new BadRequestException('Este aprendiz ya está asignado a otra ficha.');
+    }
     const entity = new FichaUsuario(data.id_ficha, data.id_usuario, data.rol_en_ficha);
     entity.validar();
     return this.repo.crear(entity);

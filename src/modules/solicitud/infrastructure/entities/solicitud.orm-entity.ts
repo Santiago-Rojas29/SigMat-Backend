@@ -10,6 +10,9 @@ export class SolicitudOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id_solicitud!: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column()
   id_solicitante!: string;
 

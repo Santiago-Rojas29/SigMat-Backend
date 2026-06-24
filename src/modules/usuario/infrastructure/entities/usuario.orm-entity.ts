@@ -47,6 +47,9 @@ export class UsuarioOrmEntity {
   @Column({ type: 'enum', enum: EstadoUsuario })
   estado!: EstadoUsuario;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_sede!: string | null;
+
   @Column({ type: 'varchar', length: 255, select: false })
   contrasena!: string;
 

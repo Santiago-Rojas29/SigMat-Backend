@@ -1,10 +1,14 @@
-import { IsEnum, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { TipoDocumento, EstadoUsuario } from '../../../../domain/entities/usuario.entity';
 
 export class CrearUsuarioDto {
   @IsString()
   @IsNotEmpty()
   id_rol!: string;
+
+  @IsOptional()
+  @IsString()
+  id_sede?: string | null;
 
   @IsEnum(TipoDocumento)
   tipo_documento!: TipoDocumento;

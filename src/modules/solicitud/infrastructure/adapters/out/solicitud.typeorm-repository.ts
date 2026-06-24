@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { SolicitudRepository } from '../../../domain/ports/solicitud.repository';
 import { Solicitud } from '../../../domain/entities/solicitud.entity';
 import { SolicitudOrmEntity } from '../../entities/solicitud.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class SolicitudTypeOrmRepository implements SolicitudRepository {
   constructor(
     @InjectRepository(SolicitudOrmEntity)
     private readonly repo: Repository<SolicitudOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: SolicitudOrmEntity): Solicitud {
@@ -34,6 +36,7 @@ export class SolicitudTypeOrmRepository implements SolicitudRepository {
 
   async crear(solicitud: Solicitud): Promise<Solicitud> {
     const orm = this.repo.create({
+      id_sede: this.tenant.tenantId,
       id_solicitante:    solicitud.id_solicitante,
       tipo_flujo:        solicitud.tipo_flujo,
       tipo_prestamo:     solicitud.tipo_prestamo,
@@ -54,7 +57,8 @@ export class SolicitudTypeOrmRepository implements SolicitudRepository {
   }
 
   async obtenerTodos(): Promise<Solicitud[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 
