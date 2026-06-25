@@ -41,7 +41,7 @@ export class UsuarioTypeOrmRepository implements UsuarioRepository {
       telefono: entity.telefono,
       estado: entity.estado,
       contrasena: entity.contrasena,
-      id_sede: entity.id_sede,
+      id_sede: this.tenant.isRoot ? entity.id_sede : this.tenant.tenantId,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);
