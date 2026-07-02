@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateUnidadUseCase } from '../../../application/use-cases/create-unidad.use-case';
 import { ActualizarUnidadUseCase } from '../../../application/use-cases/actualizar-unidad.use-case';
 import { EliminarUnidadUseCase } from '../../../application/use-cases/eliminar-unidad.use-case';
@@ -16,6 +18,7 @@ import { ObtenerUnidadesPorUbicacionUseCase } from '../../../application/use-cas
 import { CreateUnidadDto } from './dto/create-unidad.dto';
 import { UpdateUnidadDto } from './dto/update-unidad.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('unidad')
 export class UnidadController {
   constructor(

@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateProgramaUseCase } from '../../../application/use-cases/create-programa.use-case';
 import { ActualizarProgramaUseCase } from '../../../application/use-cases/actualizar-programa.use-case';
 import { EliminarProgramaUseCase } from '../../../application/use-cases/eliminar-programa.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosProgramaUseCase } from '../../../application/use-cases/obte
 import { CreateProgramaDto } from './dto/create-programa.dto';
 import { UpdateProgramaDto } from './dto/update-programa.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('programa')
 export class ProgramaController {
   constructor(

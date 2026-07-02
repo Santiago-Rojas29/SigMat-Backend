@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Body, Request, UseGuards, HttpCode } from '@nestjs/common';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { LoginUseCase } from '../../../application/use-cases/login.use-case';
 import { ObtenerMisPermisosUseCase } from '../../../application/use-cases/obtener-mis-permisos.use-case';
@@ -21,17 +22,20 @@ export class AuthController {
     private readonly resetearContrasenaUseCase: ResetearContrasenaUseCase,
   ) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('login')
   login(@Body() dto: LoginDto): Promise<{ access_token: string }> {
     return this.loginUseCase.execute(dto.correo, dto.contrasena);
   }
 
+  @SkipThrottle()
   @Get('permisos')
   @UseGuards(JwtAuthGuard)
   misPermisos(@Request() req: JwtRequest): Promise<{ modulos: Record<string, string[]> }> {
     return this.misPermisosUseCase.execute(req.user.id);
   }
 
+  @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @Post('solicitar-reset')
   @HttpCode(200)
   async solicitarReset(@Body() dto: SolicitarResetDto): Promise<{ mensaje: string }> {
@@ -39,6 +43,7 @@ export class AuthController {
     return { mensaje: 'Se envió un código de 6 dígitos a tu correo. Expira en 15 minutos.' };
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('resetear-contrasena')
   @HttpCode(200)
   async resetearContrasena(@Body() dto: ResetearContrasenaDto): Promise<{ mensaje: string }> {

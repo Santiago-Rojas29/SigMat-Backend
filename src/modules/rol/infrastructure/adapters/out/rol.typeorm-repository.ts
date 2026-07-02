@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Rol } from '../../../domain/entities/rol.entity';
 import { RolRepository } from '../../../domain/ports/rol.repository';
 import { RolOrmEntity } from '../../entities/rol.orm-entity';
@@ -26,7 +26,7 @@ export class RolTypeOrmRepository implements RolRepository {
   }
 
   async obtenerTodos(): Promise<Rol[]> {
-    const data = await this.repo.find();
+    const data = await this.repo.find({ where: { nombre: Not('Root') } });
     return data.map((orm) => this.toEntity(orm));
   }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { ReportesService } from './reportes.service';
 
@@ -57,5 +57,25 @@ export class ReportesController {
     @Query('hasta') hasta?: string,
   ) {
     return this.reportesService.getResumen({ desde, hasta });
+  }
+
+  @Get('mis-solicitudes')
+  getMisSolicitudes(
+    @Req() req: any,
+    @Query('desde') desde?: string,
+    @Query('hasta') hasta?: string,
+    @Query('estado') estado?: string,
+  ) {
+    return this.reportesService.getSolicitudesInstructor(req.user.id, { desde, hasta, estado });
+  }
+
+  @Get('mis-morosos')
+  getMisMorosos(@Req() req: any) {
+    return this.reportesService.getMorososInstructor(req.user.id);
+  }
+
+  @Get('mis-prestamos')
+  getMisPrestamos(@Req() req: any) {
+    return this.reportesService.getMisPrestamos(req.user.id);
   }
 }

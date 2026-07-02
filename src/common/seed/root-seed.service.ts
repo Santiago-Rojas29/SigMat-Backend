@@ -1,9 +1,12 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { RolOrmEntity } from 'src/modules/rol/infrastructure/entities/rol.orm-entity';
 import { PermisosOrmEntity } from 'src/modules/permisos/infrastructure/entities/permisos.orm-entity';
 import { RolPermisosOrmEntity } from 'src/modules/rol_permisos/infrastructure/entities/rol_permisos.orm-entity';
+import { UsuarioOrmEntity } from 'src/modules/usuario/infrastructure/entities/usuario.orm-entity';
+import { TipoDocumento, EstadoUsuario } from 'src/modules/usuario/domain/entities/usuario.entity';
 
 const ROLES = [
   { nombre: 'Root',                  descripcion: 'Super administrador — gestiona centros, sedes y asigna admins' },
@@ -39,9 +42,12 @@ export class RootSeedService implements OnModuleInit {
     private readonly permisoRepo: Repository<PermisosOrmEntity>,
     @InjectRepository(RolPermisosOrmEntity)
     private readonly rolPermisoRepo: Repository<RolPermisosOrmEntity>,
+    @InjectRepository(UsuarioOrmEntity)
+    private readonly usuarioRepo: Repository<UsuarioOrmEntity>,
   ) {}
 
   async onModuleInit() {
+    // 1. Roles
     const rolesMap: Record<string, RolOrmEntity> = {};
     for (const r of ROLES) {
       let rol = await this.rolRepo.findOneBy({ nombre: r.nombre });
@@ -52,6 +58,7 @@ export class RootSeedService implements OnModuleInit {
       rolesMap[r.nombre] = rol;
     }
 
+    // 2. Permisos
     const permisosMap: Record<string, PermisosOrmEntity> = {};
     for (const p of PERMISOS) {
       let permiso = await this.permisoRepo.findOneBy({ modulo: p.modulo as any });
@@ -62,6 +69,7 @@ export class RootSeedService implements OnModuleInit {
       permisosMap[p.modulo] = permiso!;
     }
 
+    // 3. Asignación de permisos a roles
     for (const [rolNombre, modulos] of Object.entries(ROL_PERMISOS)) {
       const rol = rolesMap[rolNombre];
       if (!rol) continue;
@@ -79,6 +87,36 @@ export class RootSeedService implements OnModuleInit {
           this.logger.log(`  ${rolNombre} → ${permiso.nombre}`);
         }
       }
+    }
+
+    // 4. Usuario root
+    const rootEmail = process.env.ROOT_EMAIL ?? 'root@sigmat.com';
+    const rootPassword = process.env.ROOT_PASSWORD ?? 'Sigmat2024*';
+    const rolRoot = rolesMap['Root'];
+
+    const rootExistente = await this.usuarioRepo
+      .createQueryBuilder('u')
+      .addSelect('u.contrasena')
+      .where('u.correo = :correo', { correo: rootEmail })
+      .getOne();
+
+    if (!rootExistente && rolRoot) {
+      const hash = await bcrypt.hash(rootPassword, 10);
+      await this.usuarioRepo.save(this.usuarioRepo.create({
+        id_rol:           rolRoot.id,
+        tipo_documento:   TipoDocumento.CC,
+        numero_documento: '0000000000',
+        nombres:          'Administrador',
+        apellidos:        'Root',
+        correo:           rootEmail,
+        telefono:         '0000000000',
+        estado:           EstadoUsuario.ACTIVO,
+        id_sede:          null,
+        contrasena:       hash,
+        reset_token:      null,
+        reset_token_expires: null,
+      }));
+      this.logger.log(`Usuario root creado — correo: ${rootEmail}`);
     }
 
     this.logger.log('Seed completado');

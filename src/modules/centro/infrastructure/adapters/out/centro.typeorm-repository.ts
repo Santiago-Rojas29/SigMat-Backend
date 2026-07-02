@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { CentroRepository } from '../../../domain/ports/centro.repository';
 import { Centro } from '../../../domain/entities/centro.entity';
 import { CentroOrmEntity } from '../../entities/centro.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class CentroTypeOrmRepository implements CentroRepository {
   constructor(
     @InjectRepository(CentroOrmEntity)
     private readonly repo: Repository<CentroOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: CentroOrmEntity): Centro {
@@ -36,8 +38,15 @@ export class CentroTypeOrmRepository implements CentroRepository {
   }
 
   async obtenerTodos(): Promise<Centro[]> {
-    const data = await this.repo.find();
-    return data.map((orm) => this.toEntity(orm));
+    if (this.tenant.isRoot) {
+      return (await this.repo.find()).map(orm => this.toEntity(orm));
+    }
+    const data = await this.repo
+      .createQueryBuilder('centro')
+      .innerJoin('centro.sedes', 'sede')
+      .where('sede.id_sede = :tenantId', { tenantId: this.tenant.tenantId })
+      .getMany();
+    return data.map(orm => this.toEntity(orm));
   }
 
   async obtenerPorId(id: string): Promise<Centro | null> {

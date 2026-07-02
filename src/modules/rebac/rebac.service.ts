@@ -120,7 +120,7 @@ export class RebacService {
       `SELECT 1 FROM usuario u
        JOIN rol_permisos rp ON rp.id_rol = u.id_rol
        JOIN permisos p ON p.id = rp.id_permiso
-       WHERE u.id = $1 AND p.modulo = ANY($2::text[])
+       WHERE u.id = $1 AND p.modulo::text = ANY($2::text[])
        LIMIT 1`,
       [userId, modulos],
     );

@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateAreaUseCase } from '../../../application/use-cases/create-area.use-case';
 import { ActualizarAreaUseCase } from '../../../application/use-cases/actualizar-area.use-case';
 import { EliminarAreaUseCase } from '../../../application/use-cases/eliminar-area.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosAreaUseCase } from '../../../application/use-cases/obtener-
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('area')
 export class AreaController {
   constructor(

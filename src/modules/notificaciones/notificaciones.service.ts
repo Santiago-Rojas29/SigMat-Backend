@@ -163,6 +163,86 @@ export class NotificacionesService {
     }
   }
 
+  async notificarNuevaIncidencia(params: {
+    incidenciaId: string;
+    tipo: string;
+    id_creador: string;
+  }): Promise<void> {
+    const { incidenciaId, tipo, id_creador } = params;
+    const etiquetas: Record<string, string> = { dano: 'daño', perdida: 'pérdida', mantenimiento: 'mantenimiento' };
+    const label = etiquetas[tipo] ?? tipo;
+
+    const destinatarios: { id: string }[] = await this.dataSource.query(
+      `SELECT u.id FROM usuario u
+       JOIN rol r ON u.id_rol = r.id
+       WHERE r.nombre IN ('Administrador', 'Responsable de Bodega')
+         AND u.id != $1`,
+      [id_creador],
+    );
+    await Promise.all(
+      destinatarios.map(d =>
+        this.crear({
+          id_usuario:      d.id,
+          tipo:            TipoNotificacion.NUEVA_INCIDENCIA,
+          titulo:          'Nueva incidencia registrada',
+          mensaje:         `Se ha registrado una nueva incidencia de tipo ${label}.`,
+          referencia_id:   incidenciaId,
+          referencia_tipo: 'incidencia',
+        }),
+      ),
+    );
+  }
+
+  async notificarCambioEstadoIncidencia(params: {
+    incidenciaId: string;
+    nuevoEstado: string;
+    id_creador: string;
+  }): Promise<void> {
+    const { incidenciaId, nuevoEstado, id_creador } = params;
+    const mensajes: Record<string, string> = {
+      'en proceso': 'Tu incidencia está siendo atendida por el equipo de bodega.',
+      'cerrada':    'Tu incidencia ha sido cerrada.',
+    };
+    const mensaje = mensajes[nuevoEstado.toLowerCase()];
+    if (!mensaje) return;
+
+    await this.crear({
+      id_usuario:      id_creador,
+      tipo:            TipoNotificacion.INCIDENCIA_ESTADO,
+      titulo:          'Estado de incidencia actualizado',
+      mensaje,
+      referencia_id:   incidenciaId,
+      referencia_tipo: 'incidencia',
+    });
+  }
+
+  async notificarNuevoTraslado(params: {
+    trasladoId: string;
+    id_responsable: string;
+  }): Promise<void> {
+    const { trasladoId, id_responsable } = params;
+
+    const destinatarios: { id: string }[] = await this.dataSource.query(
+      `SELECT u.id FROM usuario u
+       JOIN rol r ON u.id_rol = r.id
+       WHERE r.nombre IN ('Administrador', 'Responsable de Bodega')
+         AND u.id != $1`,
+      [id_responsable],
+    );
+    await Promise.all(
+      destinatarios.map(d =>
+        this.crear({
+          id_usuario:      d.id,
+          tipo:            TipoNotificacion.NUEVO_TRASLADO,
+          titulo:          'Nuevo traslado registrado',
+          mensaje:         'Se ha realizado un traslado de materiales entre ubicaciones del almacén.',
+          referencia_id:   trasladoId,
+          referencia_tipo: 'traslado',
+        }),
+      ),
+    );
+  }
+
   async notificarDevolucion(id_entrega: string): Promise<void> {
     const rows: { id_encargado: string }[] = await this.dataSource.query(
       `SELECT id_encargado FROM entrega WHERE id_entrega = $1`,

@@ -8,9 +8,11 @@ import { ActualizarIncidenciaUseCase } from './application/use-cases/actualizar.
 import { EliminarIncidenciaUseCase } from './application/use-cases/eliminar.use-case';
 import { ObtenerTodosIncidenciaUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdIncidenciaUseCase } from './application/use-cases/obtener-por-id.use-case';
+import { KardexAutoService } from '../kardex/application/services/kardex-auto.service';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([IncidenciaOrmEntity])],
+  imports: [TypeOrmModule.forFeature([IncidenciaOrmEntity]), NotificacionesModule],
   controllers: [IncidenciaController],
   providers: [
     CrearIncidenciaUseCase,
@@ -18,6 +20,7 @@ import { ObtenerPorIdIncidenciaUseCase } from './application/use-cases/obtener-p
     EliminarIncidenciaUseCase,
     ObtenerTodosIncidenciaUseCase,
     ObtenerPorIdIncidenciaUseCase,
+    KardexAutoService,
     { provide: 'IncidenciaRepository', useClass: IncidenciaTypeOrmRepository },
   ],
 })

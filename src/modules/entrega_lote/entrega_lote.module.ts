@@ -10,6 +10,7 @@ import { ActualizarEntregaLoteUseCase } from './application/use-cases/actualizar
 import { EliminarEntregaLoteUseCase } from './application/use-cases/eliminar.use-case';
 import { ObtenerTodosEntregaLoteUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerEntregaLotePorIdsUseCase } from './application/use-cases/obtener-por-id.use-case';
+import { KardexAutoService } from '../kardex/application/services/kardex-auto.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([EntregaLoteOrmEntity])],
@@ -20,6 +21,7 @@ import { ObtenerEntregaLotePorIdsUseCase } from './application/use-cases/obtener
     EliminarEntregaLoteUseCase,
     ObtenerTodosEntregaLoteUseCase,
     ObtenerEntregaLotePorIdsUseCase,
+    KardexAutoService,
     {
       provide: 'EntregaLoteRepository',
       useClass: EntregaLoteTypeOrmRepository,

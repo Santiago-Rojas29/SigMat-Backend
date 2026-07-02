@@ -23,7 +23,7 @@ export class RolController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermission('usuarios')
+  @RequirePermission('administracion')
   crear(@Body() body: CrearRolDto) {
     return this.crearUseCase.execute(body);
   }
@@ -40,14 +40,14 @@ export class RolController {
 
   @Patch(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermission('usuarios')
+  @RequirePermission('administracion')
   actualizar(@Param('id') id: string, @Body() body: ActualizarRolDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermission('usuarios')
+  @RequirePermission('administracion')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

@@ -9,7 +9,6 @@ import { EliminarDevolucionUseCase } from './application/use-cases/eliminar.use-
 import { ObtenerTodosDevolucionUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdDevolucionUseCase } from './application/use-cases/obtener-por-id.use-case';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
-import { KardexAutoService }    from '../kardex/application/services/kardex-auto.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([DevolucionOrmEntity]), NotificacionesModule],
@@ -20,7 +19,6 @@ import { KardexAutoService }    from '../kardex/application/services/kardex-auto
     EliminarDevolucionUseCase,
     ObtenerTodosDevolucionUseCase,
     ObtenerPorIdDevolucionUseCase,
-    KardexAutoService,
     { provide: 'DevolucionRepository', useClass: DevolucionTypeOrmRepository },
   ],
 })

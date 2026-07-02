@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateFichaUseCase } from '../../../application/use-cases/create-ficha.use-case';
 import { ActualizarFichaUseCase } from '../../../application/use-cases/actualizar-ficha.use-case';
 import { EliminarFichaUseCase } from '../../../application/use-cases/eliminar-ficha.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosFichaUseCase } from '../../../application/use-cases/obtener
 import { CreateFichaDto } from './dto/create-ficha.dto';
 import { UpdateFichaDto } from './dto/update-ficha.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('ficha')
 export class FichaController {
   constructor(

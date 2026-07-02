@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateSedeUseCase } from '../../../application/use-cases/create-sede.use-case';
 import { ActualizarSedeUseCase } from '../../../application/use-cases/actualizar-sede.use-case';
 import { EliminarSedeUseCase } from '../../../application/use-cases/eliminar-sede.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosSedeUseCase } from '../../../application/use-cases/obtener-
 import { CreateSedeDto } from './dto/create-sede.dto';
 import { UpdateSedeDto } from './dto/update-sede.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('sede')
 export class SedeController {
   constructor(

@@ -26,5 +26,6 @@ import { KardexModule } from '../kardex/kardex.module';
       useClass: LoteTypeOrmRepository,
     },
   ],
+  exports: [TypeOrmModule, { provide: 'LoteRepository', useClass: LoteTypeOrmRepository }],
 })
 export class LoteModule {}

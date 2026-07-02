@@ -202,6 +202,92 @@ export class DashboardService {
     return rows.map((r) => ({ tipo: r.tipo, total: Number(r.total) }));
   }
 
+  async getStatsPersonal(userId: string) {
+    const KEY = `dashboard:personal:${userId}`;
+    const cached = await this.cache.get(KEY);
+    if (cached) return cached;
+
+    const [solicitudesRaw, prestamosRaw, vencidosRaw, proximosRaw, ultimasRaw] = await Promise.all([
+      this.dataSource.query(
+        `SELECT estado, COUNT(*) AS total FROM solicitud WHERE id_solicitante = $1 GROUP BY estado`,
+        [userId],
+      ),
+      this.dataSource.query(
+        `SELECT COUNT(*) AS total FROM prestamo WHERE id_usuario = $1 AND estado = 'activo'`,
+        [userId],
+      ),
+      this.dataSource.query(
+        `SELECT COUNT(*) AS total FROM prestamo WHERE id_usuario = $1 AND estado = 'activo' AND fecha_limite < NOW()`,
+        [userId],
+      ),
+      this.dataSource.query(
+        `SELECT COUNT(*) AS total FROM prestamo
+         WHERE id_usuario = $1 AND estado = 'activo'
+           AND fecha_limite BETWEEN NOW() AND NOW() + INTERVAL '3 days'`,
+        [userId],
+      ),
+      this.dataSource.query(
+        `SELECT s.id_solicitud, s.estado, s.fecha_solicitud, s.observaciones
+         FROM solicitud s WHERE s.id_solicitante = $1
+         ORDER BY s.fecha_solicitud DESC LIMIT 5`,
+        [userId],
+      ),
+    ]);
+
+    const solicitudesPorEstado: Record<string, number> = {};
+    for (const row of solicitudesRaw as { estado: string; total: string }[]) {
+      solicitudesPorEstado[row.estado] = Number(row.total);
+    }
+
+    const result = {
+      solicitudesPorEstado,
+      prestamosActivos:    Number((prestamosRaw as { total: string }[])[0]?.total ?? 0),
+      prestamosVencidos:   Number((vencidosRaw  as { total: string }[])[0]?.total ?? 0),
+      proximosAVencer:     Number((proximosRaw  as { total: string }[])[0]?.total ?? 0),
+      ultimasSolicitudes:  (ultimasRaw as { id_solicitud: string; estado: string; fecha_solicitud: Date; observaciones: string | null }[])
+        .map(r => ({ id: r.id_solicitud, estado: r.estado, fecha_solicitud: r.fecha_solicitud, motivo: r.observaciones })),
+    };
+
+    await this.cache.set(KEY, result, 60_000); // 1 min — datos personales cambian más seguido
+    return result;
+  }
+
+  async getStatsRoot() {
+    const KEY = 'dashboard:root';
+    const cached = await this.cache.get(KEY);
+    if (cached) return cached;
+
+    const [centrosRaw, sedesRaw, adminsRaw, usuariosRaw, usuariosPorRolRaw] = await Promise.all([
+      this.dataSource.query(`SELECT COUNT(*) AS total FROM centro WHERE estado = 'activo'`),
+      this.dataSource.query(`SELECT COUNT(*) AS total FROM sede WHERE estado = 'activo'`),
+      this.dataSource.query(
+        `SELECT COUNT(*) AS total FROM usuario u
+         JOIN rol r ON u.id_rol = r.id
+         WHERE r.nombre = 'Administrador' AND u.estado = 'activo'`,
+      ),
+      this.dataSource.query(`SELECT COUNT(*) AS total FROM usuario WHERE estado = 'activo'`),
+      this.dataSource.query(
+        `SELECT r.nombre AS rol, COUNT(u.id) AS total
+         FROM usuario u JOIN rol r ON u.id_rol = r.id
+         WHERE u.estado = 'activo'
+         GROUP BY r.nombre ORDER BY total DESC`,
+      ),
+    ]);
+
+    const result = {
+      centrosActivos:     Number((centrosRaw   as { total: string }[])[0]?.total ?? 0),
+      sedesActivas:       Number((sedesRaw     as { total: string }[])[0]?.total ?? 0),
+      administradores:    Number((adminsRaw    as { total: string }[])[0]?.total ?? 0),
+      usuariosActivos:    Number((usuariosRaw  as { total: string }[])[0]?.total ?? 0),
+      usuariosPorRol:     (usuariosPorRolRaw as { rol: string; total: string }[]).map(r => ({
+        rol: r.rol, total: Number(r.total),
+      })),
+    };
+
+    await this.cache.set(KEY, result, TTL_STATS);
+    return result;
+  }
+
   private async getStockCritico(): Promise<
     { nombre: string; codigo_lote: string; disponible: number; inicial: number; porcentaje: number }[]
   > {

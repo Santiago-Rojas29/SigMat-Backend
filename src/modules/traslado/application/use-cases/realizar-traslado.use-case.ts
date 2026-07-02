@@ -2,7 +2,9 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { KardexAutoService } from '../../../kardex/application/services/kardex-auto.service';
+import { TenantService } from 'src/common/tenant/tenant.service';
 import { Traslado } from '../../domain/entities/traslado.entity';
+import { NotificacionesService } from '../../../notificaciones/notificaciones.service';
 
 export interface ItemTraslado {
   tipo: 'unidad' | 'lote';
@@ -15,6 +17,8 @@ export class RealizarTrasladoUseCase {
   constructor(
     @InjectDataSource() private readonly db: DataSource,
     private readonly kardexAuto: KardexAutoService,
+    private readonly tenant: TenantService,
+    private readonly notificaciones: NotificacionesService,
   ) {}
 
   async execute(data: {
@@ -32,10 +36,11 @@ export class RealizarTrasladoUseCase {
     // 1. Crear registro del traslado
     const [traslado] = await this.db.query<{ id: string }[]>(
       `INSERT INTO traslado
-         (id, id_responsable, id_ubicacion_origen, id_ubicacion_destino, fecha_traslado, motivo, observaciones)
-       VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)
+         (id, id_sede, id_responsable, id_ubicacion_origen, id_ubicacion_destino, fecha_traslado, motivo, observaciones)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7)
        RETURNING id`,
       [
+        this.tenant.tenantId,
         data.id_responsable,
         data.id_ubicacion_origen,
         data.id_ubicacion_destino,
@@ -54,6 +59,11 @@ export class RealizarTrasladoUseCase {
         await this.trasladarLote(item.id, item.cantidad ?? 1, id_traslado, data.id_ubicacion_destino);
       }
     }
+
+    this.notificaciones.notificarNuevoTraslado({
+      trasladoId:     id_traslado,
+      id_responsable: data.id_responsable,
+    }).catch(() => {});
 
     return new Traslado(
       id_traslado,
@@ -160,11 +170,12 @@ export class RealizarTrasladoUseCase {
         const nuevo_codigo = `${lote.codigo_lote}-T${Date.now().toString().slice(-4)}`;
         const [lote_nuevo] = await this.db.query<{ id_lote: string }[]>(
           `INSERT INTO lote
-             (id_lote, id_material, id_responsable, id_ubicacion, codigo_lote,
+             (id_lote, id_sede, id_material, id_responsable, id_ubicacion, codigo_lote,
               cantidad_inicial, cantidad_disponible, unidad_medida, fecha_entrada, estado)
-           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $5, $6, NOW(), $7)
+           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $6, $7, NOW(), $8)
            RETURNING id_lote`,
           [
+            this.tenant.tenantId,
             lote.id_material, lote.id_responsable, id_ubicacion_destino,
             nuevo_codigo, cantidad, lote.unidad_medida, lote.estado,
           ],

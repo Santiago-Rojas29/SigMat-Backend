@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { SedeRepository } from '../../../domain/ports/sede.repository';
 import { Sede } from '../../../domain/entities/sede.entity';
 import { SedeOrmEntity } from '../../entities/sede.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class SedeTypeOrmRepository implements SedeRepository {
   constructor(
     @InjectRepository(SedeOrmEntity)
     private readonly repo: Repository<SedeOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: SedeOrmEntity): Sede {
@@ -36,7 +38,8 @@ export class SedeTypeOrmRepository implements SedeRepository {
   }
 
   async obtenerTodos(): Promise<Sede[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

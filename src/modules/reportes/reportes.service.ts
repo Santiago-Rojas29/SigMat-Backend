@@ -210,6 +210,112 @@ export class ReportesService {
     }));
   }
 
+  // ── 8. Solicitudes del instructor (propias + sus aprendices) ─────────────
+  async getSolicitudesInstructor(id_usuario: string, filtros: {
+    desde?: string; hasta?: string; estado?: string;
+  }) {
+    const conditions: string[] = [
+      `(s.id_instructor = $1 OR s.id_solicitante = $1)`,
+    ];
+    const params: any[] = [id_usuario];
+    let i = 2;
+
+    if (filtros.desde) { conditions.push(`s.fecha_solicitud >= $${i++}`); params.push(filtros.desde); }
+    if (filtros.hasta) { conditions.push(`s.fecha_solicitud <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
+    if (filtros.estado) { conditions.push(`s.estado = $${i++}`); params.push(filtros.estado); }
+
+    const where = 'WHERE ' + conditions.join(' AND ');
+
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        s.id_solicitud,
+        s.fecha_solicitud,
+        s.estado,
+        s.tipo_flujo,
+        s.tipo_prestamo,
+        s.fecha_entrega,
+        CONCAT(u.nombres, ' ', u.apellidos) AS solicitante,
+        CONCAT(inst.nombres, ' ', inst.apellidos) AS instructor,
+        s.fecha_respuesta_instructor,
+        s.fecha_respuesta_admin,
+        s.fecha_respuesta_bodega
+      FROM solicitud s
+      JOIN usuario u ON s.id_solicitante = u.id
+      LEFT JOIN usuario inst ON s.id_instructor = inst.id
+      ${where}
+      ORDER BY s.fecha_solicitud DESC
+      LIMIT 500
+    `, params);
+
+    const fmt = (d: any) => d ? new Date(d).toLocaleDateString('es-CO') : '—';
+    return rows.map(r => ({
+      ...r,
+      fecha_solicitud: fmt(r.fecha_solicitud),
+      fecha_entrega: fmt(r.fecha_entrega),
+      fecha_respuesta_instructor: fmt(r.fecha_respuesta_instructor),
+      fecha_respuesta_admin: fmt(r.fecha_respuesta_admin),
+      fecha_respuesta_bodega: fmt(r.fecha_respuesta_bodega),
+    }));
+  }
+
+  // ── 9. Morosos de las fichas del instructor ───────────────────────────────
+  async getMorososInstructor(id_usuario: string) {
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        CONCAT(u.nombres, ' ', u.apellidos) AS usuario,
+        u.correo,
+        COUNT(p.id)::int AS prestamos_vencidos,
+        MIN(p.fecha_limite) AS fecha_mas_antigua,
+        CEIL((EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM MIN(p.fecha_limite))) / 86400)::int AS dias_vencido
+      FROM prestamo p
+      JOIN usuario u ON p.id_usuario = u.id
+      JOIN ficha_usuario fu_apr ON fu_apr.id_usuario = u.id AND fu_apr.rol_en_ficha = 'aprendiz'
+      JOIN ficha_usuario fu_ins ON fu_ins.id_ficha = fu_apr.id_ficha
+        AND fu_ins.id_usuario = $1 AND fu_ins.rol_en_ficha = 'instructor'
+      WHERE p.estado = 'activo' AND p.fecha_limite < NOW()
+      GROUP BY u.id, u.nombres, u.apellidos, u.correo
+      ORDER BY prestamos_vencidos DESC
+    `, [id_usuario]);
+
+    return rows.map(r => ({
+      ...r,
+      fecha_mas_antigua: r.fecha_mas_antigua
+        ? new Date(r.fecha_mas_antigua).toLocaleDateString('es-CO') : '—',
+    }));
+  }
+
+  // ── 10. Préstamos propios del aprendiz ───────────────────────────────────────
+  async getMisPrestamos(id_usuario: string) {
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        p.id AS id_prestamo,
+        p.fecha_limite,
+        p.estado,
+        s.tipo_prestamo,
+        s.tipo_flujo,
+        s.fecha_solicitud,
+        CASE WHEN d.id IS NOT NULL THEN 'Devuelto' ELSE 'Pendiente' END AS devolucion,
+        d.fecha_devolucion,
+        d.condicion AS condicion_devolucion
+      FROM prestamo p
+      JOIN validacion v ON p.id_validacion = v.id
+      JOIN solicitud s ON v.id_solicitud = s.id_solicitud
+      LEFT JOIN entrega e ON e.id_prestamo = p.id
+      LEFT JOIN devolucion d ON d.id_entrega = e.id_entrega
+      WHERE p.id_usuario = $1
+      ORDER BY p.fecha_limite DESC
+      LIMIT 100
+    `, [id_usuario]);
+
+    const fmt = (d: any) => d ? new Date(d).toLocaleDateString('es-CO') : '—';
+    return rows.map(r => ({
+      ...r,
+      fecha_solicitud:  fmt(r.fecha_solicitud),
+      fecha_limite:     fmt(r.fecha_limite),
+      fecha_devolucion: fmt(r.fecha_devolucion),
+    }));
+  }
+
   // ── 7. Resumen general ────────────────────────────────────────────────────
   async getResumen(filtros: { desde?: string; hasta?: string }) {
     const desde = filtros.desde ?? new Date(new Date().getFullYear(), 0, 1).toISOString();

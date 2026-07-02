@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { createKeyv } from '@keyv/redis';
 
 import { PrestamoModule } from './modules/prestamo/prestamo.module';
@@ -47,8 +48,9 @@ import { ReportesModule } from './modules/reportes/reportes.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
 import { SesionWhatsappModule } from './modules/sesion_whatsapp/sesion_whatsapp.module';
 import { TenantModule } from './common/tenant/tenant.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TenantInterceptor } from './common/tenant/tenant.interceptor';
+import { RateLimitGuard } from './common/guards/throttler.guard';
 import { RootSeedService } from './common/seed/root-seed.service';
 import { RolOrmEntity } from './modules/rol/infrastructure/entities/rol.orm-entity';
 import { UsuarioOrmEntity } from './modules/usuario/infrastructure/entities/usuario.orm-entity';
@@ -63,6 +65,13 @@ import { TypeOrmModule as TypeOrmFeature } from '@nestjs/typeorm';
     }),
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60_000,
+        limit: 200,
+      },
+    ]),
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],
@@ -140,6 +149,7 @@ import { TypeOrmModule as TypeOrmFeature } from '@nestjs/typeorm';
   ],
   controllers: [],
   providers: [
+    { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
     RootSeedService,
   ],

@@ -6,7 +6,9 @@ import {
   Delete,
   Patch,
   Param,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateCentroUseCase } from '../../../application/use-cases/create-centro.use-case';
 import { ActualizarCentroUseCase } from '../../../application/use-cases/actualizar-centro.use-case';
 import { EliminarCentroUseCase } from '../../../application/use-cases/eliminar-centro.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todo
 import { CreateCentroDto } from './dto/create-centro.dto';
 import { UpdateCentroDto } from './dto/update-centro.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('centro')
 export class CentroController {
   constructor(

@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('tipo_ubicacion')
 export class TipoUbicacionOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_tipo_ubicacion!: string;
 
   @Column({ type: 'varchar', length: 100 })

@@ -8,6 +8,9 @@ export enum TipoNotificacion {
   PRESTAMO_VENCIDO  = 'prestamo_vencido',
   LOTE_VENCIMIENTO  = 'lote_vencimiento',
   STOCK_BAJO        = 'stock_bajo',
+  NUEVA_INCIDENCIA  = 'nueva_incidencia',
+  INCIDENCIA_ESTADO = 'incidencia_estado',
+  NUEVO_TRASLADO    = 'nuevo_traslado',
 }
 
 @Entity('notificacion')

@@ -13,20 +13,20 @@ export enum EstadoUbicacion {
 
 @Entity('ubicacion')
 export class UbicacionOrmEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id_ubicacion!: string;
 
   @Column({ type: 'uuid', nullable: true })
   id_sede!: string | null;
 
-  @Column()
+  @Column({ type: 'uuid' })
   id_area!: string;
 
   @ManyToOne(() => AreaOrmEntity, (area) => area.ubicacion)
   @JoinColumn({ name: 'id_area' })
   area!: AreaOrmEntity;
 
-  @Column()
+  @Column({ type: 'uuid' })
   id_tipo_ubicacion!: string;
 
   @ManyToOne(() => TipoUbicacionOrmEntity, (tipoUbicacion) => tipoUbicacion.ubicacion)

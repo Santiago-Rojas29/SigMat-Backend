@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateUbicacionUseCase } from '../../../application/use-cases/create-ubicacion.use-case';
 import { ActualizarUbicacionUseCase } from '../../../application/use-cases/actualizar-ubicacion.use-case';
 import { EliminarUbicacionUseCase } from '../../../application/use-cases/eliminar-ubicacion.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosUbicacionUseCase } from '../../../application/use-cases/obt
 import { CreateUbicacionDto } from './dto/create-ubicacion.dto';
 import { UpdateUbicacionDto } from './dto/update-ubicacion.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('ubicacion')
 export class UbicacionController {
   constructor(

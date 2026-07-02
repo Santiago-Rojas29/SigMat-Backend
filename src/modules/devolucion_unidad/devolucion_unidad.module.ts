@@ -6,6 +6,7 @@ import { DevolucionUnidadTypeOrmRepository } from './infrastructure/adapters/out
 import { CrearDevolucionUnidadUseCase } from './application/use-cases/crear.use-case';
 import { ObtenerTodosDevolucionUnidadUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdsDevolucionUnidadUseCase } from './application/use-cases/obtener-por-ids.use-case';
+import { KardexAutoService } from '../kardex/application/services/kardex-auto.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([DevolucionUnidadOrmEntity])],
@@ -14,6 +15,7 @@ import { ObtenerPorIdsDevolucionUnidadUseCase } from './application/use-cases/ob
     CrearDevolucionUnidadUseCase,
     ObtenerTodosDevolucionUnidadUseCase,
     ObtenerPorIdsDevolucionUnidadUseCase,
+    KardexAutoService,
     { provide: 'DevolucionUnidadRepository', useClass: DevolucionUnidadTypeOrmRepository },
   ],
 })

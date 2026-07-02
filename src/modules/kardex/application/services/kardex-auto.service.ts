@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { TipoMovimiento } from '../../domain/entities/kardex.entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class KardexAutoService {
   constructor(
     @InjectDataSource() private readonly db: DataSource,
+    private readonly tenant: TenantService,
   ) {}
 
   private async insertar(data: {
@@ -22,11 +24,12 @@ export class KardexAutoService {
   }): Promise<void> {
     await this.db.query(
       `INSERT INTO kardex
-         (id, tipo_movimiento, cantidad, fecha_movimiento, saldo,
+         (id, id_sede, tipo_movimiento, cantidad, fecha_movimiento, saldo,
           id_unidad, id_lote, id_traslado, id_incidencia, id_entrega, id_devolucion)
        VALUES
-         (gen_random_uuid(), $1, $2, NOW(), $3, $4, $5, $6, $7, $8, $9)`,
+         (gen_random_uuid(), $1, $2, $3, NOW(), $4, $5, $6, $7, $8, $9, $10)`,
       [
+        this.tenant.tenantId,
         data.tipo_movimiento,
         data.cantidad,
         data.saldo,
@@ -79,6 +82,17 @@ export class KardexAutoService {
     });
   }
 
+  async reingresoUnidad(id_unidad: string, id_incidencia: string): Promise<void> {
+    await this.insertar({
+      tipo_movimiento: TipoMovimiento.AJUSTE,
+      cantidad: 1,
+      saldo:    1,
+      id_unidad,
+      id_incidencia,
+    });
+  }
+
+  /** Usado por EntregarSolicitudUseCase, que inserta entrega_unidad/entrega_lote en una sola transacción raw. */
   async salidaEntrega(id_entrega: string): Promise<void> {
     const unidades: { id_unidad: string }[] = await this.db.query(
       `SELECT id_unidad FROM entrega_unidad WHERE id_entrega = $1`,
@@ -111,35 +125,43 @@ export class KardexAutoService {
     }
   }
 
-  async entradaDevolucion(id_devolucion: string, id_entrega: string): Promise<void> {
-    const unidades: { id_unidad: string }[] = await this.db.query(
-      `SELECT id_unidad FROM entrega_unidad WHERE id_entrega = $1`,
-      [id_entrega],
-    );
-    const lotes: { id_lote: string; cantidad_entregada: number; cantidad_disponible: number }[] = await this.db.query(
-      `SELECT el.id_lote, el.cantidad_entregada, l.cantidad_disponible
-       FROM entrega_lote el
-       JOIN lote l ON l.id_lote = el.id_lote
-       WHERE el.id_entrega = $1`,
-      [id_entrega],
-    );
-    for (const u of unidades) {
-      await this.insertar({
-        tipo_movimiento: TipoMovimiento.ENTRADA,
-        cantidad: 1,
-        saldo:    1,
-        id_unidad:    u.id_unidad,
-        id_devolucion,
-      });
-    }
-    for (const l of lotes) {
-      await this.insertar({
-        tipo_movimiento: TipoMovimiento.ENTRADA,
-        cantidad: l.cantidad_entregada,
-        saldo:    l.cantidad_disponible,
-        id_lote:  l.id_lote,
-        id_devolucion,
-      });
-    }
+  async salidaEntregaUnidad(id_unidad: string, id_entrega: string): Promise<void> {
+    await this.insertar({
+      tipo_movimiento: TipoMovimiento.SALIDA,
+      cantidad: 1,
+      saldo:    0,
+      id_unidad,
+      id_entrega,
+    });
+  }
+
+  async salidaLote(id_lote: string, cantidad: number, saldo_restante: number, id_entrega: string): Promise<void> {
+    await this.insertar({
+      tipo_movimiento: TipoMovimiento.SALIDA,
+      cantidad,
+      saldo: saldo_restante,
+      id_lote,
+      id_entrega,
+    });
+  }
+
+  async entradaDevolucionUnidad(id_unidad: string, id_devolucion: string): Promise<void> {
+    await this.insertar({
+      tipo_movimiento: TipoMovimiento.ENTRADA,
+      cantidad: 1,
+      saldo:    1,
+      id_unidad,
+      id_devolucion,
+    });
+  }
+
+  async entradaDevolucionLote(id_lote: string, cantidad: number, saldo_restante: number, id_entrega: string): Promise<void> {
+    await this.insertar({
+      tipo_movimiento: TipoMovimiento.ENTRADA,
+      cantidad,
+      saldo: saldo_restante,
+      id_lote,
+      id_entrega,
+    });
   }
 }

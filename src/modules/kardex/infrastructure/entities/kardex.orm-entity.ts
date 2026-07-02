@@ -21,7 +21,7 @@ export class KardexOrmEntity {
   @Column('int')
   cantidad!: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   fecha_movimiento!: Date;
 
   @Column('int')

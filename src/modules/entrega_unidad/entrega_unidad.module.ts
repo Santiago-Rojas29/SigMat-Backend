@@ -9,6 +9,7 @@ import { CreateEntregaUnidadUseCase } from './application/use-cases/crear.use-ca
 import { ObtenerTodosEntregaUnidadUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerEntregaUnidadPorIdsUseCase } from './application/use-cases/obtener-por-id.use-case';
 import { EliminarEntregaUnidadUseCase } from './application/use-cases/eliminar.use-case';
+import { KardexAutoService } from '../kardex/application/services/kardex-auto.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([EntregaUnidadOrmEntity])],
@@ -18,6 +19,7 @@ import { EliminarEntregaUnidadUseCase } from './application/use-cases/eliminar.u
     ObtenerTodosEntregaUnidadUseCase,
     ObtenerEntregaUnidadPorIdsUseCase,
     EliminarEntregaUnidadUseCase,
+    KardexAutoService,
     {
       provide: 'EntregaUnidadRepository',
       useClass: EntregaUnidadTypeOrmRepository,

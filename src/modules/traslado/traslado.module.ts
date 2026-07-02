@@ -10,9 +10,10 @@ import { ObtenerTodosTrasladoUseCase } from './application/use-cases/obtener-tod
 import { ObtenerPorIdTrasladoUseCase } from './application/use-cases/obtener-por-id.use-case';
 import { RealizarTrasladoUseCase } from './application/use-cases/realizar-traslado.use-case';
 import { KardexModule } from '../kardex/kardex.module';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TrasladoOrmEntity]), KardexModule],
+  imports: [TypeOrmModule.forFeature([TrasladoOrmEntity]), KardexModule, NotificacionesModule],
   controllers: [TrasladoController],
   providers: [
     CrearTrasladoUseCase,
