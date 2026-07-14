@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CreateAreaUseCase } from '../../../application/use-cases/create-area.use-case';
 import { ActualizarAreaUseCase } from '../../../application/use-cases/actualizar-area.use-case';
 import { EliminarAreaUseCase } from '../../../application/use-cases/eliminar-area.use-case';
@@ -29,6 +31,8 @@ export class AreaController {
   ) { }
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'areas', 'crear')
   crear(@Body() body: CreateAreaDto) {
     return this.createUseCase.execute(body);
   }
@@ -44,6 +48,8 @@ export class AreaController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'areas', 'editar')
   actualizar(
     @Param('id') id: string,
     @Body() body: UpdateAreaDto,
@@ -52,6 +58,8 @@ export class AreaController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'areas', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

@@ -26,6 +26,14 @@ export class AprobarInstructorUseCase {
       fecha_respuesta_instructor: new Date(),
     });
 
+    await this.notificaciones.notificarCambioEstado(id, estadoSiguiente, solicitud.id_solicitante);
+    if (estadoSiguiente === EstadoSolicitud.PENDIENTE_ADMIN) {
+      await this.notificaciones.notificarPendienteAdmin(id);
+    } else if (solicitud.id_bodega) {
+      await this.notificaciones.notificarPendienteBodega(id, solicitud.id_bodega);
+    } else {
+      await this.notificaciones.notificarPendienteBodegaTodos(id);
+    }
     this.notificaciones.notificarActualizacion('solicitud');
   }
 }

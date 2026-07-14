@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateSolicitudLoteUseCase } from '../../../application/use-cases/create-solicitud-lote.use-case';
 import { ActualizarSolicitudLoteUseCase } from '../../../application/use-cases/actualizar-solicitud-lote.use-case';
 import { EliminarSolicitudLoteUseCase } from '../../../application/use-cases/eliminar-solicitud-lote.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todo
 import { CreateSolicitudLoteDto } from './dto/create-solicitud-lote.dto';
 import { UpdateSolicitudLoteDto } from './dto/update-solicitud-lote.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('solicitud-lote')
 export class SolicitudLoteController {
   constructor(

@@ -52,6 +52,8 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TenantInterceptor } from './common/tenant/tenant.interceptor';
 import { RateLimitGuard } from './common/guards/throttler.guard';
 import { RootSeedService } from './common/seed/root-seed.service';
+import { RolPermisosMigrationService } from './common/seed/rol-permisos-migration.service';
+import { TipoUbicacionMigrationService } from './common/seed/tipo-ubicacion-migration.service';
 import { RolOrmEntity } from './modules/rol/infrastructure/entities/rol.orm-entity';
 import { UsuarioOrmEntity } from './modules/usuario/infrastructure/entities/usuario.orm-entity';
 import { PermisosOrmEntity } from './modules/permisos/infrastructure/entities/permisos.orm-entity';
@@ -151,6 +153,8 @@ import { TypeOrmModule as TypeOrmFeature } from '@nestjs/typeorm';
   providers: [
     { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
+    RolPermisosMigrationService,
+    TipoUbicacionMigrationService,
     RootSeedService,
   ],
 })

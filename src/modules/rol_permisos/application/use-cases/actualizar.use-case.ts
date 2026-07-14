@@ -9,9 +9,9 @@ export class ActualizarRolPermisosUseCase {
     private readonly repo: RolPermisosRepository,
   ) {}
 
-  async execute(id: string, submodulos: string[], acciones: string[]): Promise<RolPermisos> {
+  async execute(id: string, acciones: string[]): Promise<RolPermisos> {
     const existing = await this.repo.obtenerPorId(id);
     if (!existing) throw new NotFoundException(`Asignación con id ${id} no encontrada`);
-    return this.repo.actualizar(id, submodulos, acciones);
+    return this.repo.actualizar(id, acciones);
   }
 }

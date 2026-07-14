@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateEntregaUseCase } from '../../../application/use-cases/create-entrega.use-case';
 import { ActualizarEntregaUseCase } from '../../../application/use-cases/actualizar-entrega.use-case';
 import { EliminarEntregaUseCase } from '../../../application/use-cases/eliminar-entrega.use-case';
@@ -15,6 +17,7 @@ import { ObtenerTodosEntregaUseCase } from '../../../application/use-cases/obten
 import { CreateEntregaDto } from './dto/create-entrega.dto';
 import { UpdateEntregaDto } from './dto/update-entrega.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('entrega')
 export class EntregaController {
   constructor(

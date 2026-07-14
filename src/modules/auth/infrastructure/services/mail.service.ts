@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import * as dns from 'dns';
 
 @Injectable()
 export class MailService {
@@ -12,6 +13,19 @@ export class MailService {
       pass: process.env.MAIL_PASSWORD,
     },
   });
+
+  // Verifica que el dominio del correo tenga registros MX (puede recibir correo).
+  // No confirma que el buzón puntual exista: eso Gmail/Outlook no lo exponen por SMTP.
+  async dominioPuedeRecibirCorreo(correo: string): Promise<boolean> {
+    const dominio = correo.split('@')[1];
+    if (!dominio) return false;
+    try {
+      const registros = await dns.promises.resolveMx(dominio);
+      return registros.length > 0;
+    } catch {
+      return false;
+    }
+  }
 
   async enviarCodigoReset(correo: string, codigo: string): Promise<void> {
     try {

@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Unique }
 import { RolOrmEntity }      from 'src/modules/rol/infrastructure/entities/rol.orm-entity';
 import { PermisosOrmEntity } from 'src/modules/permisos/infrastructure/entities/permisos.orm-entity';
 
-@Unique(['id_rol', 'id_permiso'])
+@Unique(['id_rol', 'id_permiso', 'submodulo'])
 @Entity('rol_permisos')
 export class RolPermisosOrmEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -22,9 +22,14 @@ export class RolPermisosOrmEntity {
   @JoinColumn({ name: 'id_permiso' })
   permiso!: PermisosOrmEntity;
 
-  @Column({ type: 'text', array: true, default: '{}' })
-  submodulos!: string[];
+  // '' = módulo completo (todos los submódulos); valor específico = solo ese submódulo
+  @Column({ type: 'text', default: '' })
+  submodulo!: string;
 
   @Column({ type: 'text', array: true, default: '{}' })
   acciones!: string[];
+
+  // Columna legada — se elimina una vez confirmada la migración de datos (RolPermisosMigrationService)
+  @Column({ type: 'text', array: true, default: '{}' })
+  submodulos!: string[];
 }

@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CreateCentroUseCase } from '../../../application/use-cases/create-centro.use-case';
 import { ActualizarCentroUseCase } from '../../../application/use-cases/actualizar-centro.use-case';
 import { EliminarCentroUseCase } from '../../../application/use-cases/eliminar-centro.use-case';
@@ -29,16 +31,22 @@ export class CentroController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'centros', 'crear')
   create(@Body() body: CreateCentroDto) {
     return this.createUseCase.execute(body);
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'centros', 'editar')
   update(@Param('id') id: string, @Body() body: UpdateCentroDto) {
     return this.updateUseCase.execute(id, body);
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'centros', 'eliminar')
   delete(@Param('id') id: string) {
     return this.deleteUseCase.execute(id);
   }

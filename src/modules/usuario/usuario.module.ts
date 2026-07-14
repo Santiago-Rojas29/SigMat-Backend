@@ -8,6 +8,7 @@ import { ActualizarUsuarioUseCase } from './application/use-cases/actualizar.use
 import { EliminarUsuarioUseCase } from './application/use-cases/eliminar.use-case';
 import { ObtenerTodosUsuarioUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdUsuarioUseCase } from './application/use-cases/obtener-por-id.use-case';
+import { ActualizarDisponibilidadUseCase } from './application/use-cases/actualizar-disponibilidad.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UsuarioOrmEntity])],
@@ -18,6 +19,7 @@ import { ObtenerPorIdUsuarioUseCase } from './application/use-cases/obtener-por-
     EliminarUsuarioUseCase,
     ObtenerTodosUsuarioUseCase,
     ObtenerPorIdUsuarioUseCase,
+    ActualizarDisponibilidadUseCase,
     { provide: 'UsuarioRepository', useClass: UsuarioTypeOrmRepository },
   ],
 })

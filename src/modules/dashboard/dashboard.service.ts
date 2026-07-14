@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 const TTL_STATS   = 5  * 60 * 1000; // 5 min
 const TTL_ANIO    = 30 * 60 * 1000; // 30 min
@@ -15,13 +16,25 @@ export class DashboardService {
     private readonly dataSource: DataSource,
     @Inject(CACHE_MANAGER)
     private readonly cache: Cache,
+    private readonly tenant: TenantService,
   ) {}
 
+  // NULL = Root, ve todo (los `IS NULL OR` de cada query dejan pasar todo);
+  // un uuid real = solo esa sede.
+  private get sede(): string | null {
+    return this.tenant.isRoot ? null : this.tenant.tenantId;
+  }
+
+  private get cacheTenantKey(): string {
+    return this.tenant.isRoot ? 'root' : this.tenant.tenantId!;
+  }
+
   async getStats() {
-    const KEY = 'dashboard:stats';
+    const KEY = `dashboard:stats:${this.cacheTenantKey}`;
     const cached = await this.cache.get(KEY);
     if (cached) return cached;
 
+    const sede = this.sede;
     const [
       kpis,
       materialesNoDevueltos,
@@ -30,12 +43,12 @@ export class DashboardService {
       incidenciasTipo,
       stockCritico,
     ] = await Promise.all([
-      this.getKpis(),
-      this.getMaterialesNoDevueltos(),
-      this.getMaterialesMasSolicitados(),
-      this.getUsuariosMorosos(),
-      this.getIncidenciasPorTipo(),
-      this.getStockCritico(),
+      this.getKpis(sede),
+      this.getMaterialesNoDevueltos(sede),
+      this.getMaterialesMasSolicitados(sede),
+      this.getUsuariosMorosos(sede),
+      this.getIncidenciasPorTipo(sede),
+      this.getStockCritico(sede),
     ]);
 
     const result = {
@@ -52,7 +65,7 @@ export class DashboardService {
   }
 
   async getSolicitudesPorAnio(anio: number): Promise<{ mes: number; total: number }[]> {
-    const KEY = `dashboard:solicitudes-anio:${anio}`;
+    const KEY = `dashboard:solicitudes-anio:${anio}:${this.cacheTenantKey}`;
     const cached = await this.cache.get<{ mes: number; total: number }[]>(KEY);
     if (cached) return cached;
 
@@ -60,9 +73,10 @@ export class DashboardService {
       `SELECT EXTRACT(MONTH FROM fecha_solicitud)::int AS mes, COUNT(*) AS total
        FROM solicitud
        WHERE EXTRACT(YEAR FROM fecha_solicitud) = $1
+         AND ($2::uuid IS NULL OR id_sede = $2)
        GROUP BY mes
        ORDER BY mes`,
-      [anio],
+      [anio, this.sede],
     );
     const map = new Map(rows.map((r) => [Number(r.mes), Number(r.total)]));
     const result = Array.from({ length: 12 }, (_, i) => ({
@@ -75,7 +89,7 @@ export class DashboardService {
   }
 
   async getSolicitudesPorDia(anio: number, mes: number): Promise<{ dia: number; total: number }[]> {
-    const KEY = `dashboard:solicitudes-dia:${anio}-${mes}`;
+    const KEY = `dashboard:solicitudes-dia:${anio}-${mes}:${this.cacheTenantKey}`;
     const cached = await this.cache.get<{ dia: number; total: number }[]>(KEY);
     if (cached) return cached;
 
@@ -84,9 +98,10 @@ export class DashboardService {
        FROM solicitud
        WHERE EXTRACT(YEAR  FROM fecha_solicitud) = $1
          AND EXTRACT(MONTH FROM fecha_solicitud) = $2
+         AND ($3::uuid IS NULL OR id_sede = $3)
        GROUP BY dia
        ORDER BY dia`,
-      [anio, mes],
+      [anio, mes, this.sede],
     );
     const daysInMonth = new Date(anio, mes, 0).getDate();
     const map = new Map(rows.map((r) => [Number(r.dia), Number(r.total)]));
@@ -99,21 +114,26 @@ export class DashboardService {
     return result;
   }
 
-  private async getKpis() {
+  private async getKpis(sede: string | null) {
     const results = await Promise.all([
-      this.dataSource.query(`SELECT COUNT(*) as total FROM material`),
-      this.dataSource.query(`SELECT COUNT(*) as total FROM prestamo WHERE estado = 'activo'`),
+      this.dataSource.query(`SELECT COUNT(*) as total FROM material WHERE ($1::uuid IS NULL OR id_sede = $1)`, [sede]),
+      this.dataSource.query(`SELECT COUNT(*) as total FROM prestamo WHERE estado = 'activo' AND ($1::uuid IS NULL OR id_sede = $1)`, [sede]),
       this.dataSource.query(
-        `SELECT COUNT(*) as total FROM prestamo WHERE estado = 'activo' AND fecha_limite < NOW()`,
+        `SELECT COUNT(*) as total FROM prestamo WHERE estado = 'activo' AND fecha_limite < NOW() AND ($1::uuid IS NULL OR id_sede = $1)`,
+        [sede],
       ),
       this.dataSource.query(
         `SELECT COUNT(*) as total FROM solicitud
-         WHERE estado IN ('pendiente_instructor','pendiente_admin','pendiente_bodega')`,
+         WHERE estado IN ('pendiente_instructor','pendiente_admin','pendiente_bodega')
+           AND ($1::uuid IS NULL OR id_sede = $1)`,
+        [sede],
       ),
-      this.dataSource.query(`SELECT COUNT(*) as total FROM incidencia WHERE estado != 'cerrada'`),
+      this.dataSource.query(`SELECT COUNT(*) as total FROM incidencia WHERE estado != 'cerrada' AND ($1::uuid IS NULL OR id_sede = $1)`, [sede]),
       this.dataSource.query(
         `SELECT COUNT(*) as total FROM lote
-         WHERE cantidad_disponible <= CEIL(cantidad_inicial * 0.25) AND cantidad_inicial > 0`,
+         WHERE cantidad_disponible <= CEIL(cantidad_inicial * 0.25) AND cantidad_inicial > 0
+           AND ($1::uuid IS NULL OR id_sede = $1)`,
+        [sede],
       ),
     ]);
     const [mats, presActivos, presVencidos, solPend, incActivas, lotesStock] = results.map(
@@ -129,42 +149,45 @@ export class DashboardService {
     };
   }
 
-  private async getMaterialesNoDevueltos(): Promise<{ nombre: string; total: number }[]> {
+  private async getMaterialesNoDevueltos(sede: string | null): Promise<{ nombre: string; total: number }[]> {
     const rows: { nombre: string; total: string }[] = await this.dataSource.query(`
       SELECT m.nombre, COUNT(u.id_unidad) AS total
       FROM unidad u
       JOIN material m ON u.id_material = m.id
       WHERE u.estado = 'prestado'
+        AND ($1::uuid IS NULL OR u.id_sede = $1)
       GROUP BY m.id, m.nombre
       ORDER BY total DESC
       LIMIT 10
-    `);
+    `, [sede]);
     return rows.map((r) => ({ nombre: r.nombre, total: Number(r.total) }));
   }
 
-  private async getMaterialesMasSolicitados(): Promise<{ nombre: string; total: number }[]> {
+  private async getMaterialesMasSolicitados(sede: string | null): Promise<{ nombre: string; total: number }[]> {
     const rows: { nombre: string; total: string }[] = await this.dataSource.query(`
       WITH sol_material AS (
         SELECT m.nombre, sl.id_solicitud
         FROM solicitud_lote sl
         JOIN lote     l ON sl.id_lote     = l.id_lote
         JOIN material m ON l.id_material  = m.id
+        WHERE ($1::uuid IS NULL OR l.id_sede = $1)
         UNION ALL
         SELECT m.nombre, su.id_solicitud
         FROM solicitud_unidad su
         JOIN unidad   u ON su.id_unidad   = u.id_unidad
         JOIN material m ON u.id_material  = m.id
+        WHERE ($1::uuid IS NULL OR u.id_sede = $1)
       )
       SELECT nombre, COUNT(DISTINCT id_solicitud) AS total
       FROM sol_material
       GROUP BY nombre
       ORDER BY total DESC
       LIMIT 8
-    `);
+    `, [sede]);
     return rows.map((r) => ({ nombre: r.nombre, total: Number(r.total) }));
   }
 
-  private async getUsuariosMorosos(): Promise<
+  private async getUsuariosMorosos(sede: string | null): Promise<
     { nombre: string; correo: string; prestamos_vencidos: number; dias_vencido: number }[]
   > {
     const rows: {
@@ -180,10 +203,11 @@ export class DashboardService {
       FROM prestamo p
       JOIN usuario u ON p.id_usuario = u.id
       WHERE p.estado = 'activo' AND p.fecha_limite < NOW()
+        AND ($1::uuid IS NULL OR p.id_sede = $1)
       GROUP BY u.id, u.nombres, u.apellidos, u.correo
       ORDER BY prestamos_vencidos DESC
       LIMIT 10
-    `);
+    `, [sede]);
     return rows.map((r) => ({
       nombre: `${r.nombres} ${r.apellidos}`,
       correo: r.correo,
@@ -195,9 +219,12 @@ export class DashboardService {
     }));
   }
 
-  private async getIncidenciasPorTipo(): Promise<{ tipo: string; total: number }[]> {
+  private async getIncidenciasPorTipo(sede: string | null): Promise<{ tipo: string; total: number }[]> {
     const rows: { tipo: string; total: string }[] = await this.dataSource.query(
-      `SELECT tipo, COUNT(*) AS total FROM incidencia GROUP BY tipo ORDER BY total DESC`,
+      `SELECT tipo, COUNT(*) AS total FROM incidencia
+       WHERE ($1::uuid IS NULL OR id_sede = $1)
+       GROUP BY tipo ORDER BY total DESC`,
+      [sede],
     );
     return rows.map((r) => ({ tipo: r.tipo, total: Number(r.total) }));
   }
@@ -288,7 +315,7 @@ export class DashboardService {
     return result;
   }
 
-  private async getStockCritico(): Promise<
+  private async getStockCritico(sede: string | null): Promise<
     { nombre: string; codigo_lote: string; disponible: number; inicial: number; porcentaje: number }[]
   > {
     const rows: {
@@ -301,9 +328,10 @@ export class DashboardService {
       FROM lote l
       JOIN material m ON l.id_material = m.id
       WHERE l.cantidad_disponible <= CEIL(l.cantidad_inicial * 0.25) AND l.cantidad_inicial > 0
+        AND ($1::uuid IS NULL OR l.id_sede = $1)
       ORDER BY (CAST(l.cantidad_disponible AS FLOAT) / NULLIF(l.cantidad_inicial, 0)) ASC
       LIMIT 8
-    `);
+    `, [sede]);
     return rows.map((r) => {
       const disponible = Number(r.cantidad_disponible);
       const inicial = Number(r.cantidad_inicial);
@@ -315,5 +343,67 @@ export class DashboardService {
         porcentaje: Math.round((disponible / inicial) * 100),
       };
     });
+  }
+
+  // Root elige una sede puntual y ve su info + el mismo tablero que vería un admin de esa sede.
+  async getStatsPorSede(idSede: string) {
+    const KEY = `dashboard:stats:sede-detalle:${idSede}`;
+    const cached = await this.cache.get(KEY);
+    if (cached) return cached;
+
+    const [
+      sedeRaw,
+      usuariosActivosRaw,
+      usuariosPorRolRaw,
+      kpis,
+      materialesNoDevueltos,
+      materialesSolicitados,
+      usuariosMorosos,
+      incidenciasTipo,
+      stockCritico,
+    ] = await Promise.all([
+      this.dataSource.query(
+        `SELECT s.nombre, s.direccion, s.telefono, s.estado, c.nombre AS centro
+         FROM sede s JOIN centro c ON s.id_centro = c.id
+         WHERE s.id_sede = $1`,
+        [idSede],
+      ),
+      this.dataSource.query(
+        `SELECT COUNT(*) AS total FROM usuario WHERE id_sede = $1 AND estado = 'activo'`,
+        [idSede],
+      ),
+      this.dataSource.query(
+        `SELECT r.nombre AS rol, COUNT(u.id) AS total
+         FROM usuario u JOIN rol r ON u.id_rol = r.id
+         WHERE u.id_sede = $1 AND u.estado = 'activo'
+         GROUP BY r.nombre ORDER BY total DESC`,
+        [idSede],
+      ),
+      this.getKpis(idSede),
+      this.getMaterialesNoDevueltos(idSede),
+      this.getMaterialesMasSolicitados(idSede),
+      this.getUsuariosMorosos(idSede),
+      this.getIncidenciasPorTipo(idSede),
+      this.getStockCritico(idSede),
+    ]);
+
+    const sedeInfo = (sedeRaw as { nombre: string; direccion: string | null; telefono: string | null; estado: string; centro: string }[])[0] ?? null;
+
+    const result = {
+      sede: sedeInfo,
+      usuariosActivos: Number((usuariosActivosRaw as { total: string }[])[0]?.total ?? 0),
+      usuariosPorRol: (usuariosPorRolRaw as { rol: string; total: string }[]).map((r) => ({
+        rol: r.rol, total: Number(r.total),
+      })),
+      kpis,
+      materialesNoDevueltos,
+      materialesSolicitados,
+      usuariosMorosos,
+      incidenciasTipo,
+      stockCritico,
+    };
+
+    await this.cache.set(KEY, result, TTL_STATS);
+    return result;
   }
 }

@@ -1,28 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class ReportesService {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    private readonly tenant: TenantService,
   ) {}
+
+  // NULL = Root, ve todo (los `IS NULL OR` de cada query dejan pasar todo);
+  // un uuid real = solo esa sede.
+  private get sede(): string | null {
+    return this.tenant.isRoot ? null : this.tenant.tenantId;
+  }
 
   // ── 1. Solicitudes ────────────────────────────────────────────────────────
   async getSolicitudes(filtros: {
     desde?: string; hasta?: string; estado?: string; tipo_flujo?: string;
   }) {
-    const conditions: string[] = [];
-    const params: any[] = [];
-    let i = 1;
+    const conditions: string[] = [`($${1}::uuid IS NULL OR s.id_sede = $${1}::uuid)`];
+    const params: any[] = [this.sede];
+    let i = 2;
 
     if (filtros.desde) { conditions.push(`s.fecha_solicitud >= $${i++}`); params.push(filtros.desde); }
     if (filtros.hasta) { conditions.push(`s.fecha_solicitud <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
     if (filtros.estado) { conditions.push(`s.estado = $${i++}`); params.push(filtros.estado); }
     if (filtros.tipo_flujo) { conditions.push(`s.tipo_flujo = $${i++}`); params.push(filtros.tipo_flujo); }
 
-    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const where = 'WHERE ' + conditions.join(' AND ');
 
     const rows: any[] = await this.dataSource.query(`
       SELECT
@@ -77,8 +85,9 @@ export class ReportesService {
       LEFT JOIN ubicacion ub ON l.id_ubicacion = ub.id_ubicacion
       WHERE l.cantidad_disponible <= CEIL(l.cantidad_inicial * $1::float / 100)
         AND l.cantidad_inicial > 0
+        AND ($2::uuid IS NULL OR l.id_sede = $2::uuid)
       ORDER BY porcentaje ASC
-    `, [umbral]);
+    `, [umbral, this.sede]);
     return rows;
   }
 
@@ -100,8 +109,9 @@ export class ReportesService {
       LEFT JOIN ubicacion ub ON l.id_ubicacion = ub.id_ubicacion
       WHERE l.fecha_vencimiento IS NOT NULL
         AND l.fecha_vencimiento <= NOW() + ($1 || ' days')::interval
+        AND ($2::uuid IS NULL OR l.id_sede = $2::uuid)
       ORDER BY l.fecha_vencimiento ASC
-    `, [dias]);
+    `, [dias, this.sede]);
 
     return rows.map(r => ({
       ...r,
@@ -122,9 +132,10 @@ export class ReportesService {
       FROM prestamo p
       JOIN usuario u ON p.id_usuario = u.id
       WHERE p.estado = 'activo' AND p.fecha_limite < NOW()
+        AND ($1::uuid IS NULL OR p.id_sede = $1::uuid)
       GROUP BY u.id, u.nombres, u.apellidos, u.correo
       ORDER BY prestamos_vencidos DESC
-    `);
+    `, [this.sede]);
     return rows.map(r => ({
       ...r,
       fecha_mas_antigua: r.fecha_mas_antigua
@@ -134,15 +145,15 @@ export class ReportesService {
 
   // ── 5. Kardex ─────────────────────────────────────────────────────────────
   async getKardex(filtros: { desde?: string; hasta?: string; tipo_movimiento?: string }) {
-    const conditions: string[] = [];
-    const params: any[] = [];
-    let i = 1;
+    const conditions: string[] = [`($${1}::uuid IS NULL OR k.id_sede = $${1}::uuid)`];
+    const params: any[] = [this.sede];
+    let i = 2;
 
     if (filtros.desde) { conditions.push(`k.fecha_movimiento >= $${i++}`); params.push(filtros.desde); }
     if (filtros.hasta) { conditions.push(`k.fecha_movimiento <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
     if (filtros.tipo_movimiento) { conditions.push(`k.tipo_movimiento = $${i++}`); params.push(filtros.tipo_movimiento); }
 
-    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const where = 'WHERE ' + conditions.join(' AND ');
 
     const rows: any[] = await this.dataSource.query(`
       SELECT
@@ -174,16 +185,16 @@ export class ReportesService {
   async getIncidencias(filtros: {
     estado?: string; tipo?: string; desde?: string; hasta?: string;
   }) {
-    const conditions: string[] = [];
-    const params: any[] = [];
-    let i = 1;
+    const conditions: string[] = [`($${1}::uuid IS NULL OR i.id_sede = $${1}::uuid)`];
+    const params: any[] = [this.sede];
+    let i = 2;
 
     if (filtros.estado) { conditions.push(`i.estado = $${i++}`); params.push(filtros.estado); }
     if (filtros.tipo) { conditions.push(`i.tipo = $${i++}`); params.push(filtros.tipo); }
     if (filtros.desde) { conditions.push(`i.fecha_incidencia >= $${i++}`); params.push(filtros.desde); }
     if (filtros.hasta) { conditions.push(`i.fecha_incidencia <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
 
-    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const where = 'WHERE ' + conditions.join(' AND ');
 
     const rows: any[] = await this.dataSource.query(`
       SELECT
@@ -323,25 +334,27 @@ export class ReportesService {
       ? filtros.hasta + 'T23:59:59'
       : new Date().toISOString();
 
+    const sede = this.sede;
+
     const [kpis, solicitudesPorEstado, topMateriales, incidenciasTipo, stockCritico] =
       await Promise.all([
         this.dataSource.query(`
           SELECT
-            (SELECT COUNT(*) FROM solicitud WHERE fecha_solicitud BETWEEN $1 AND $2)::int AS total_solicitudes,
-            (SELECT COUNT(*) FROM solicitud WHERE estado='entregado' AND fecha_solicitud BETWEEN $1 AND $2)::int AS entregadas,
-            (SELECT COUNT(*) FROM solicitud WHERE estado='rechazado' AND fecha_solicitud BETWEEN $1 AND $2)::int AS rechazadas,
-            (SELECT COUNT(*) FROM prestamo WHERE estado='activo')::int AS prestamos_activos,
-            (SELECT COUNT(*) FROM prestamo WHERE estado='activo' AND fecha_limite < NOW())::int AS prestamos_vencidos,
-            (SELECT COUNT(*) FROM incidencia WHERE fecha_incidencia BETWEEN $1 AND $2)::int AS total_incidencias,
-            (SELECT COUNT(*) FROM material)::int AS total_materiales,
-            (SELECT COUNT(*) FROM lote WHERE cantidad_disponible <= CEIL(cantidad_inicial*0.25) AND cantidad_inicial>0)::int AS lotes_stock_critico
-        `, [desde, hasta]),
+            (SELECT COUNT(*) FROM solicitud WHERE fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS total_solicitudes,
+            (SELECT COUNT(*) FROM solicitud WHERE estado='entregado' AND fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS entregadas,
+            (SELECT COUNT(*) FROM solicitud WHERE estado='rechazado' AND fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS rechazadas,
+            (SELECT COUNT(*) FROM prestamo WHERE estado='activo' AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS prestamos_activos,
+            (SELECT COUNT(*) FROM prestamo WHERE estado='activo' AND fecha_limite < NOW() AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS prestamos_vencidos,
+            (SELECT COUNT(*) FROM incidencia WHERE fecha_incidencia BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS total_incidencias,
+            (SELECT COUNT(*) FROM material WHERE ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS total_materiales,
+            (SELECT COUNT(*) FROM lote WHERE cantidad_disponible <= CEIL(cantidad_inicial*0.25) AND cantidad_inicial>0 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS lotes_stock_critico
+        `, [desde, hasta, sede]),
 
         this.dataSource.query(`
           SELECT estado, COUNT(*)::int AS total
-          FROM solicitud WHERE fecha_solicitud BETWEEN $1 AND $2
+          FROM solicitud WHERE fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid)
           GROUP BY estado ORDER BY total DESC
-        `, [desde, hasta]),
+        `, [desde, hasta, sede]),
 
         this.dataSource.query(`
           WITH sol_mat AS (
@@ -350,24 +363,24 @@ export class ReportesService {
             JOIN lote l ON sl.id_lote = l.id_lote
             JOIN material m ON l.id_material = m.id
             JOIN solicitud s ON sl.id_solicitud = s.id_solicitud
-            WHERE s.fecha_solicitud BETWEEN $1 AND $2
+            WHERE s.fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR s.id_sede = $3::uuid)
             UNION ALL
             SELECT m.nombre, su.id_solicitud
             FROM solicitud_unidad su
             JOIN unidad u ON su.id_unidad = u.id_unidad
             JOIN material m ON u.id_material = m.id
             JOIN solicitud s ON su.id_solicitud = s.id_solicitud
-            WHERE s.fecha_solicitud BETWEEN $1 AND $2
+            WHERE s.fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR s.id_sede = $3::uuid)
           )
           SELECT nombre, COUNT(DISTINCT id_solicitud)::int AS total
           FROM sol_mat GROUP BY nombre ORDER BY total DESC LIMIT 10
-        `, [desde, hasta]),
+        `, [desde, hasta, sede]),
 
         this.dataSource.query(`
           SELECT tipo, COUNT(*)::int AS total
-          FROM incidencia WHERE fecha_incidencia BETWEEN $1 AND $2
+          FROM incidencia WHERE fecha_incidencia BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid)
           GROUP BY tipo ORDER BY total DESC
-        `, [desde, hasta]),
+        `, [desde, hasta, sede]),
 
         this.getStockCritico(25),
       ]);

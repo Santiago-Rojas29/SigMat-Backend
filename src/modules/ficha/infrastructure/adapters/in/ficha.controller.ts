@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CreateFichaUseCase } from '../../../application/use-cases/create-ficha.use-case';
 import { ActualizarFichaUseCase } from '../../../application/use-cases/actualizar-ficha.use-case';
 import { EliminarFichaUseCase } from '../../../application/use-cases/eliminar-ficha.use-case';
@@ -29,6 +31,8 @@ export class FichaController {
   ) { }
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'fichas', 'crear')
   crear(@Body() body: CreateFichaDto) {
     return this.createUseCase.execute(body);
   }
@@ -44,6 +48,8 @@ export class FichaController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'fichas', 'editar')
   actualizar(
     @Param('id') id: string,
     @Body() body: UpdateFichaDto,
@@ -52,6 +58,8 @@ export class FichaController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'fichas', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

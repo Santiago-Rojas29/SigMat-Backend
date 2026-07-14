@@ -15,6 +15,8 @@ import { UpdateSolicitudDto }          from './dto/update-solicitud.dto';
 import { RechazarSolicitudDto }        from './dto/rechazar-solicitud.dto';
 import { EntregarSolicitudDto }        from './dto/entregar-solicitud.dto';
 import { JwtAuthGuard }                from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard }            from '../../../../../common/guards/permissions.guard';
+import { RequirePermission }           from '../../../../../common/decorators/require-permission.decorator';
 import { RebacGuard }                  from '../../../../rebac/rebac.guard';
 import { RequiereRelacion, Relacion }  from '../../../../rebac/rebac.decorator';
 
@@ -36,6 +38,8 @@ export class SolicitudController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'solicitudes', 'crear')
   crear(@Body() body: CreateSolicitudDto) {
     return this.createUseCase.execute(body);
   }
@@ -54,11 +58,15 @@ export class SolicitudController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'solicitudes', 'editar')
   actualizar(@Param('id') id: string, @Body() body: UpdateSolicitudDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'solicitudes', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

@@ -30,42 +30,42 @@ export class KardexOrmEntity {
   @Column({ type: 'text', nullable: true })
   id_unidad!: string | null;
 
-  @ManyToOne(() => UnidadOrmEntity, (unidad) => unidad.kardex)
+  @ManyToOne(() => UnidadOrmEntity, (unidad) => unidad.kardex, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_unidad' })
   unidad!: UnidadOrmEntity | null;
 
   @Column({ type: 'text', nullable: true })
   id_lote!: string | null;
 
-  @ManyToOne(() => LoteOrmEntity, (lote) => lote.kardex)
+  @ManyToOne(() => LoteOrmEntity, (lote) => lote.kardex, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_lote' })
   lote!: LoteOrmEntity | null;
 
   @Column({ type: 'text', nullable: true })
   id_entrega!: string | null;
 
-  @ManyToOne(() => EntregaOrmEntity, (entrega) => entrega.kardex)
+  @ManyToOne(() => EntregaOrmEntity, (entrega) => entrega.kardex, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_entrega' })
   entrega!: EntregaOrmEntity | null;
 
   @Column({ type: 'text', nullable: true })
   id_devolucion!: string | null;
 
-  @ManyToOne(() => DevolucionOrmEntity, (devolucion) => devolucion.kardex)
+  @ManyToOne(() => DevolucionOrmEntity, (devolucion) => devolucion.kardex, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_devolucion' })
   devolucion!: DevolucionOrmEntity | null;
 
   @Column({ type: 'text', nullable: true })
   id_traslado!: string | null;
 
-  @ManyToOne(() => TrasladoOrmEntity, (traslado) => traslado.kardex)
+  @ManyToOne(() => TrasladoOrmEntity, (traslado) => traslado.kardex, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_traslado' })
   traslado!: TrasladoOrmEntity | null;
 
   @Column({ type: 'text', nullable: true })
   id_incidencia!: string | null;
 
-  @ManyToOne(() => IncidenciaOrmEntity, (incidencia) => incidencia.kardex)
+  @ManyToOne(() => IncidenciaOrmEntity, (incidencia) => incidencia.kardex, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_incidencia' })
   incidencia!: IncidenciaOrmEntity | null;
 }

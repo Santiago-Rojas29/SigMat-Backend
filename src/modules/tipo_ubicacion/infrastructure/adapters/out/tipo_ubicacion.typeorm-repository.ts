@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { TipoUbicacionRepository } from '../../../domain/ports/tipo_ubicacion.repository';
 import { TipoUbicacion } from '../../../domain/entities/tipo_ubicacion.entity';
 import { TipoUbicacionOrmEntity } from '../../entities/tipo_ubicacion.orm-entity';
+import { TenantService } from 'src/common/tenant/tenant.service';
 
 @Injectable()
 export class TipoUbicacionTypeOrmRepository implements TipoUbicacionRepository {
   constructor(
     @InjectRepository(TipoUbicacionOrmEntity)
     private readonly repo: Repository<TipoUbicacionOrmEntity>,
+    private readonly tenant: TenantService,
   ) {}
 
   private toEntity(orm: TipoUbicacionOrmEntity): TipoUbicacion {
@@ -17,6 +19,7 @@ export class TipoUbicacionTypeOrmRepository implements TipoUbicacionRepository {
       orm.id_tipo_ubicacion,
       orm.nombre,
       orm.descripcion,
+      orm.id_sede ?? null,
     );
   }
 
@@ -24,13 +27,15 @@ export class TipoUbicacionTypeOrmRepository implements TipoUbicacionRepository {
     const orm = this.repo.create({
       nombre: tipoUbicacion.nombre as any,
       descripcion: tipoUbicacion.descripcion,
+      id_sede: this.tenant.tenantId,
     });
     const saved = await this.repo.save(orm);
     return this.toEntity(saved);
   }
 
   async obtenerTodos(): Promise<TipoUbicacion[]> {
-    const data = await this.repo.find();
+    const where = this.tenant.isRoot ? {} : { id_sede: this.tenant.tenantId! };
+    const data = await this.repo.find({ where });
     return data.map((orm) => this.toEntity(orm));
   }
 

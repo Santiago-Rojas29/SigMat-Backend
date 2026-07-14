@@ -10,6 +10,6 @@ export class ResetearContrasenaDto {
   codigo!: string;
 
   @IsString()
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres.' })
   nueva_contrasena!: string;
 }

@@ -20,25 +20,35 @@ export class AuthTypeOrmRepository implements AuthRepository {
   async encontrarPorCorreo(correo: string): Promise<CredencialesUsuario | null> {
     const orm = await this.usuarioRepo
       .createQueryBuilder('usuario')
-      .select(['usuario.id', 'usuario.correo', 'usuario.id_rol', 'usuario.nombres', 'usuario.apellidos', 'usuario.estado', 'usuario.id_sede'])
+      .innerJoin('usuario.rol', 'rol')
+      .select(['usuario.id', 'usuario.correo', 'usuario.id_rol', 'usuario.nombres', 'usuario.apellidos', 'usuario.estado', 'usuario.id_sede', 'usuario.disponible'])
       .addSelect('usuario.contrasena')
+      .addSelect('rol.nombre', 'rol_nombre')
       .where('usuario.correo = :correo', { correo })
-      .getOne();
+      .getRawAndEntities();
 
-    if (!orm) return null;
+    const entity = orm.entities[0];
+    if (!entity) return null;
     return {
-      id: orm.id,
-      correo: orm.correo,
-      contrasena: orm.contrasena,
-      id_rol: orm.id_rol,
-      nombres: orm.nombres,
-      apellidos: orm.apellidos,
-      estado: orm.estado,
-      id_sede: orm.id_sede ?? null,
+      id: entity.id,
+      correo: entity.correo,
+      contrasena: entity.contrasena,
+      id_rol: entity.id_rol,
+      nombre_rol: orm.raw[0].rol_nombre,
+      nombres: entity.nombres,
+      apellidos: entity.apellidos,
+      estado: entity.estado,
+      id_sede: entity.id_sede ?? null,
+      disponible: entity.disponible,
     };
   }
 
-  async obtenerModulosPorUsuario(id_usuario: string): Promise<Record<string, string[]>> {
+  /**
+   * Devuelve, por módulo, un mapa submódulo → acciones permitidas.
+   * La clave '' representa "módulo completo" (todos los submódulos con esas acciones).
+   * `acciones: []` en una entrada significa "todas las acciones" para ese submódulo.
+   */
+  async obtenerModulosPorUsuario(id_usuario: string): Promise<Record<string, Record<string, string[]>>> {
     const [directRows, roleRows] = await Promise.all([
       this.usuarioPermisosRepo
         .createQueryBuilder('up')
@@ -53,12 +63,13 @@ export class AuthTypeOrmRepository implements AuthRepository {
         .innerJoin(RolPermisosOrmEntity, 'rp', 'rp.id_rol = u.id_rol')
         .innerJoin(PermisosOrmEntity, 'p', 'p.id = rp.id_permiso')
         .select('p.modulo', 'modulo')
-        .addSelect('rp.submodulos', 'submodulos')
+        .addSelect('rp.submodulo', 'submodulo')
+        .addSelect('rp.acciones', 'acciones')
         .where('u.id = :id_usuario', { id_usuario })
-        .getRawMany<{ modulo: string; submodulos: string[] }>(),
+        .getRawMany<{ modulo: string; submodulo: string; acciones: string[] }>(),
     ]);
 
-    const parseSubs = (val: any): string[] => {
+    const parseArr = (val: any): string[] => {
       if (Array.isArray(val)) return val;
       if (typeof val === 'string') {
         const trimmed = val.replace(/^\{|\}$/g, '');
@@ -67,17 +78,26 @@ export class AuthTypeOrmRepository implements AuthRepository {
       return [];
     };
 
-    const result: Record<string, Set<string>> = {};
-    for (const row of [...directRows, ...roleRows]) {
-      if (!result[row.modulo]) result[row.modulo] = new Set();
-      parseSubs(row.submodulos).forEach(s => result[row.modulo].add(s));
+    const result: Record<string, Record<string, string[]>> = {};
+
+    // usuario_permisos: overrides directas por usuario, sin acciones propias (todas permitidas)
+    for (const row of directRows) {
+      if (!result[row.modulo]) result[row.modulo] = {};
+      const subs = parseArr(row.submodulos);
+      if (subs.length === 0) {
+        if (!('' in result[row.modulo])) result[row.modulo][''] = [];
+      } else {
+        for (const s of subs) if (!(s in result[row.modulo])) result[row.modulo][s] = [];
+      }
     }
 
-    const out: Record<string, string[]> = {};
-    for (const [mod, subs] of Object.entries(result)) {
-      out[mod] = [...subs];
+    // rol_permisos: una fila por submódulo (o '' = módulo completo), cada una con sus acciones
+    for (const row of roleRows) {
+      if (!result[row.modulo]) result[row.modulo] = {};
+      result[row.modulo][row.submodulo] = parseArr(row.acciones);
     }
-    return out;
+
+    return result;
   }
 
   async guardarTokenReset(correo: string, token: string, expires: Date): Promise<void> {

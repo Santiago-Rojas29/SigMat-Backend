@@ -47,16 +47,16 @@ export class ActualizarEntregaLoteUseCase {
             [delta, fichaRow.id],
           );
         } else {
-          // Sin ficha → restaurar a lote.cantidad_disponible como antes
-          const [lote] = await this.dataSource.query(
-            `SELECT cantidad_disponible FROM lote WHERE id_lote = $1`,
-            [id_lote],
+          // Sin ficha → restaurar a lote.cantidad_disponible en un solo UPDATE atómico
+          // (leer y escribir por separado permite pisar ajustes concurrentes).
+          // TypeORM devuelve [filas, contador] para UPDATE.
+          const [[lote]]: [{ cantidad_disponible: number }[], number] = await this.dataSource.query(
+            `UPDATE lote SET cantidad_disponible = cantidad_disponible + $1
+             WHERE id_lote = $2
+             RETURNING cantidad_disponible`,
+            [delta, id_lote],
           );
-          const saldo = lote.cantidad_disponible + delta;
-          await this.dataSource.query(
-            `UPDATE lote SET cantidad_disponible = $1 WHERE id_lote = $2`,
-            [saldo, id_lote],
-          );
+          const saldo = lote.cantidad_disponible;
           if (delta > 0) {
             this.kardexAuto.entradaDevolucionLote(id_lote, delta, saldo, id_entrega).catch(() => {});
           } else {

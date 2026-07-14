@@ -50,6 +50,11 @@ export class UsuarioOrmEntity {
   @Column({ type: 'uuid', nullable: true })
   id_sede!: string | null;
 
+  // Solo relevante para Instructor: si está apagado, sus solicitudes de aprendices
+  // se saltan su aprobación y van directo a bodega/admin.
+  @Column({ type: 'boolean', default: true })
+  disponible!: boolean;
+
   @Column({ type: 'varchar', length: 255, select: false })
   contrasena!: string;
 

@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CreateProgramaUseCase } from '../../../application/use-cases/create-programa.use-case';
 import { ActualizarProgramaUseCase } from '../../../application/use-cases/actualizar-programa.use-case';
 import { EliminarProgramaUseCase } from '../../../application/use-cases/eliminar-programa.use-case';
@@ -29,6 +31,8 @@ export class ProgramaController {
   ) { }
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'programas', 'crear')
   crear(@Body() body: CreateProgramaDto) {
     return this.createUseCase.execute(body);
   }
@@ -44,6 +48,8 @@ export class ProgramaController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'programas', 'editar')
   actualizar(
     @Param('id') id: string,
     @Body() body: UpdateProgramaDto,
@@ -52,6 +58,8 @@ export class ProgramaController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'programas', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

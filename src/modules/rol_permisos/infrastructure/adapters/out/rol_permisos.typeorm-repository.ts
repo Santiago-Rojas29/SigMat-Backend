@@ -17,8 +17,8 @@ export class RolPermisosTypeOrmRepository implements RolPermisosRepository {
       orm.id,
       orm.id_rol,
       orm.id_permiso,
-      orm.submodulos ?? [],
-      orm.acciones   ?? [],
+      orm.submodulo ?? '',
+      orm.acciones  ?? [],
     );
   }
 
@@ -26,7 +26,7 @@ export class RolPermisosTypeOrmRepository implements RolPermisosRepository {
     const orm = this.repo.create({
       id_rol:     entity.id_rol,
       id_permiso: entity.id_permiso,
-      submodulos: entity.submodulos,
+      submodulo:  entity.submodulo,
       acciones:   entity.acciones,
     });
     const saved = await this.repo.save(orm);
@@ -48,8 +48,8 @@ export class RolPermisosTypeOrmRepository implements RolPermisosRepository {
     return orm ? this.toEntity(orm) : null;
   }
 
-  async actualizar(id: string, submodulos: string[], acciones: string[]): Promise<RolPermisos> {
-    await this.repo.update(id, { submodulos, acciones });
+  async actualizar(id: string, acciones: string[]): Promise<RolPermisos> {
+    await this.repo.update(id, { acciones });
     const orm = await this.repo.findOneBy({ id });
     if (!orm) throw new Error(`Asignación con id ${id} no encontrada`);
     return this.toEntity(orm);

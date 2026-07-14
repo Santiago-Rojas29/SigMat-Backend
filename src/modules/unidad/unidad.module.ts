@@ -9,9 +9,11 @@ import { EliminarUnidadUseCase } from './application/use-cases/eliminar-unidad.u
 import { ObtenerPorIdUseCase } from './application/use-cases/obtener-por-id.use-case';
 import { ObtenerTodosUseCase } from './application/use-cases/obtener-todos.use-case';
 import { ObtenerUnidadesPorUbicacionUseCase } from './application/use-cases/obtener-por-ubicacion.use-case';
+import { CrearMasivoUnidadUseCase } from './application/use-cases/crear-masivo-unidad.use-case';
+import { KardexModule } from '../kardex/kardex.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UnidadOrmEntity])],
+  imports: [TypeOrmModule.forFeature([UnidadOrmEntity]), KardexModule],
   controllers: [UnidadController],
   providers: [
     CreateUnidadUseCase,
@@ -20,6 +22,7 @@ import { ObtenerUnidadesPorUbicacionUseCase } from './application/use-cases/obte
     ObtenerPorIdUseCase,
     ObtenerTodosUseCase,
     ObtenerUnidadesPorUbicacionUseCase,
+    CrearMasivoUnidadUseCase,
     {
       provide: 'UnidadRepository',
       useClass: UnidadTypeOrmRepository,

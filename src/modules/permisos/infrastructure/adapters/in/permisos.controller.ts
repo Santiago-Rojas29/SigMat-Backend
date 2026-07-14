@@ -23,7 +23,7 @@ export class PermisosController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermission('administracion')
+  @RequirePermission('administracion', 'permisos', 'crear')
   crear(@Body() body: CrearPermisosDto) {
     return this.crearUseCase.execute(body);
   }
@@ -40,14 +40,14 @@ export class PermisosController {
 
   @Patch(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermission('administracion')
+  @RequirePermission('administracion', 'permisos', 'editar')
   actualizar(@Param('id') id: string, @Body() body: ActualizarPermisosDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermission('administracion')
+  @RequirePermission('administracion', 'permisos', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

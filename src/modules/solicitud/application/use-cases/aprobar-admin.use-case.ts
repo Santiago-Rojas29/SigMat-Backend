@@ -23,6 +23,10 @@ export class AprobarAdminUseCase {
       fecha_respuesta_admin: new Date(),
     });
 
+    await this.notificaciones.notificarCambioEstado(id, EstadoSolicitud.PENDIENTE_BODEGA, solicitud.id_solicitante);
+    if (solicitud.id_bodega) {
+      await this.notificaciones.notificarPendienteBodega(id, solicitud.id_bodega);
+    }
     this.notificaciones.notificarActualizacion('solicitud');
   }
 }

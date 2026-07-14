@@ -14,9 +14,13 @@ import { NotificacionesCronService } from './notificaciones.cron';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject:  [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET', 'clave_secreta_jwt_sigmat_2024'),
-      }),
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET');
+        if (!secret) {
+          throw new Error('JWT_SECRET no está definido en el .env — la app no puede arrancar sin él.');
+        }
+        return { secret };
+      },
     }),
   ],
   controllers: [NotificacionesController],

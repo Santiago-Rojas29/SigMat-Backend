@@ -1,5 +1,7 @@
 import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CreatePrestamoUseCase } from '../../../application/use-cases/crear.use-case';
 import { ActualizarPrestamoUseCase } from '../../../application/use-cases/actualizar.use-case';
 import { EliminarPrestamoUseCase } from '../../../application/use-cases/eliminar.use-case';
@@ -20,6 +22,8 @@ export class PrestamoController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'prestamos', 'crear')
   crear(@Body() body: CreatePrestamoDto) {
     return this.createUseCase.execute(body);
   }
@@ -35,11 +39,15 @@ export class PrestamoController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'prestamos', 'editar')
   actualizar(@Param('id') id: string, @Body() body: UpdatePrestamoDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'prestamos', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

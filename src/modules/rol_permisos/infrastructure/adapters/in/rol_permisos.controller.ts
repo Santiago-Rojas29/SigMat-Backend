@@ -23,7 +23,7 @@ export class RolPermisosController {
 
   @Post()
   @UseGuards(PermissionsGuard)
-  @RequirePermission('administracion')
+  @RequirePermission('administracion', 'roles', 'editar')
   asignar(@Body() body: AsignarRolPermisosDto) {
     return this.asignarUseCase.execute(body);
   }
@@ -40,17 +40,17 @@ export class RolPermisosController {
 
   @Patch(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermission('administracion')
+  @RequirePermission('administracion', 'roles', 'editar')
   actualizar(
     @Param('id') id: string,
     @Body() body: ActualizarRolPermisosDto,
   ) {
-    return this.actualizarUseCase.execute(id, body.submodulos, body.acciones);
+    return this.actualizarUseCase.execute(id, body.acciones);
   }
 
   @Delete(':id')
   @UseGuards(PermissionsGuard)
-  @RequirePermission('administracion')
+  @RequirePermission('administracion', 'roles', 'editar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

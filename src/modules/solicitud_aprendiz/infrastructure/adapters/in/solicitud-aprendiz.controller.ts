@@ -1,10 +1,12 @@
-import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
 import { CreateSolicitudAprendizUseCase } from '../../../application/use-cases/create-solicitud-aprendiz.use-case';
 import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
 import { EliminarSolicitudAprendizUseCase } from '../../../application/use-cases/eliminar-solicitud-aprendiz.use-case';
 import { CreateSolicitudAprendizDto } from './dto/create-solicitud-aprendiz.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('solicitud-aprendiz')
 export class SolicitudAprendizController {
   constructor(

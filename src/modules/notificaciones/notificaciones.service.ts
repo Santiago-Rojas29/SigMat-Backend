@@ -104,6 +104,66 @@ export class NotificacionesService {
     this.gateway.emitirRefresh(`${tipo}_actualizado`);
   }
 
+  async notificarPendienteBodega(solicitudId: string, id_bodega: string): Promise<void> {
+    await this.crear({
+      id_usuario:      id_bodega,
+      tipo:            TipoNotificacion.NUEVA_SOLICITUD,
+      titulo:          'Solicitud pendiente de tu aprobación',
+      mensaje:         'Una solicitud fue aprobada y quedó pendiente de tu revisión.',
+      referencia_id:   solicitudId,
+      referencia_tipo: 'solicitud',
+    });
+  }
+
+  /** Sin responsable de bodega asignado (solicitud de aprendiz) — se notifica a todos los de la MISMA sede. */
+  async notificarPendienteBodegaTodos(solicitudId: string): Promise<void> {
+    const [sol] = await this.dataSource.query(`SELECT id_sede FROM solicitud WHERE id_solicitud = $1`, [solicitudId]);
+    const destinatarios: { id: string }[] = await this.dataSource.query(
+      `SELECT u.id FROM usuario u JOIN rol r ON u.id_rol = r.id
+       WHERE r.nombre = 'Responsable de Bodega' AND u.id_sede = $1`,
+      [sol?.id_sede ?? null],
+    );
+    await Promise.all(
+      destinatarios.map(d => this.crear({
+        id_usuario:      d.id,
+        tipo:            TipoNotificacion.NUEVA_SOLICITUD,
+        titulo:          'Solicitud pendiente de tu aprobación',
+        mensaje:         'Una solicitud fue aprobada y quedó pendiente de tu revisión.',
+        referencia_id:   solicitudId,
+        referencia_tipo: 'solicitud',
+      })),
+    );
+  }
+
+  async notificarInstructorNoDisponible(solicitudId: string, id_instructor: string): Promise<void> {
+    await this.crear({
+      id_usuario:      id_instructor,
+      tipo:            TipoNotificacion.NUEVA_SOLICITUD,
+      titulo:          'Se saltó tu aprobación',
+      mensaje:         'Un aprendiz de tu ficha creó una solicitud. Como estabas marcado como no disponible, se saltó tu aprobación y pasó directo a la siguiente etapa.',
+      referencia_id:   solicitudId,
+      referencia_tipo: 'solicitud',
+    });
+  }
+
+  async notificarPendienteAdmin(solicitudId: string): Promise<void> {
+    const [sol] = await this.dataSource.query(`SELECT id_sede FROM solicitud WHERE id_solicitud = $1`, [solicitudId]);
+    const destinatarios: { id: string }[] = await this.dataSource.query(
+      `SELECT u.id FROM usuario u JOIN rol r ON u.id_rol = r.id WHERE r.nombre ILIKE '%admin%' AND u.id_sede = $1`,
+      [sol?.id_sede ?? null],
+    );
+    await Promise.all(
+      destinatarios.map(d => this.crear({
+        id_usuario:      d.id,
+        tipo:            TipoNotificacion.NUEVA_SOLICITUD,
+        titulo:          'Solicitud pendiente de tu aprobación',
+        mensaje:         'Un instructor aprobó una solicitud que quedó pendiente de tu revisión.',
+        referencia_id:   solicitudId,
+        referencia_tipo: 'solicitud',
+      })),
+    );
+  }
+
   async notificarEntrega(solicitudId: string, id_solicitante: string): Promise<void> {
     await this.crear({
       id_usuario:      id_solicitante,
@@ -144,8 +204,10 @@ export class NotificacionesService {
           referencia_tipo: 'solicitud',
         });
       } else if (tipo_prestamo === 'externo') {
+        const [sol] = await this.dataSource.query(`SELECT id_sede FROM solicitud WHERE id_solicitud = $1`, [solicitudId]);
         const admins: { id: string }[] = await this.dataSource.query(
-          `SELECT u.id FROM usuario u JOIN rol r ON u.id_rol = r.id WHERE r.nombre ILIKE '%admin%'`,
+          `SELECT u.id FROM usuario u JOIN rol r ON u.id_rol = r.id WHERE r.nombre ILIKE '%admin%' AND u.id_sede = $1`,
+          [sol?.id_sede ?? null],
         );
         await Promise.all(
           admins.map(a =>
@@ -172,12 +234,14 @@ export class NotificacionesService {
     const etiquetas: Record<string, string> = { dano: 'daño', perdida: 'pérdida', mantenimiento: 'mantenimiento' };
     const label = etiquetas[tipo] ?? tipo;
 
+    const [inc] = await this.dataSource.query(`SELECT id_sede FROM incidencia WHERE id = $1`, [incidenciaId]);
     const destinatarios: { id: string }[] = await this.dataSource.query(
       `SELECT u.id FROM usuario u
        JOIN rol r ON u.id_rol = r.id
        WHERE r.nombre IN ('Administrador', 'Responsable de Bodega')
-         AND u.id != $1`,
-      [id_creador],
+         AND u.id != $1
+         AND u.id_sede = $2`,
+      [id_creador, inc?.id_sede ?? null],
     );
     await Promise.all(
       destinatarios.map(d =>
@@ -222,12 +286,14 @@ export class NotificacionesService {
   }): Promise<void> {
     const { trasladoId, id_responsable } = params;
 
+    const [tra] = await this.dataSource.query(`SELECT id_sede FROM traslado WHERE id = $1`, [trasladoId]);
     const destinatarios: { id: string }[] = await this.dataSource.query(
       `SELECT u.id FROM usuario u
        JOIN rol r ON u.id_rol = r.id
        WHERE r.nombre IN ('Administrador', 'Responsable de Bodega')
-         AND u.id != $1`,
-      [id_responsable],
+         AND u.id != $1
+         AND u.id_sede = $2`,
+      [id_responsable, tra?.id_sede ?? null],
     );
     await Promise.all(
       destinatarios.map(d =>

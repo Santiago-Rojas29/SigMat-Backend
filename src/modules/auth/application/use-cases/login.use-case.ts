@@ -27,9 +27,11 @@ export class LoginUseCase {
       sub: usuario.id,
       correo: usuario.correo,
       id_rol: usuario.id_rol,
+      nombre_rol: usuario.nombre_rol,
       id_sede: usuario.id_sede,
       nombres: usuario.nombres,
       apellidos: usuario.apellidos,
+      disponible: usuario.disponible,
     };
     return { access_token: this.jwtService.sign(payload) };
   }

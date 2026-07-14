@@ -1,5 +1,7 @@
 import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CrearTrasladoUseCase } from '../../../application/use-cases/crear.use-case';
 import { ObtenerTodosTrasladoUseCase } from '../../../application/use-cases/obtener-todos.use-case';
 import { ObtenerPorIdTrasladoUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
@@ -23,11 +25,15 @@ export class TrasladoController {
   ) {}
 
   @Post('realizar')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('control', 'traslados', 'crear')
   realizar(@Body() body: RealizarTrasladoDto) {
     return this.realizarUseCase.execute(body);
   }
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('control', 'traslados', 'crear')
   crear(@Body() body: CrearTrasladoDto) {
     return this.crearUseCase.execute(body);
   }
@@ -43,11 +49,15 @@ export class TrasladoController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('control', 'traslados', 'editar')
   actualizar(@Param('id') id: string, @Body() body: ActualizarTrasladoDto) {
     return this.actualizarUseCase.execute(id, body);
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('control', 'traslados', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

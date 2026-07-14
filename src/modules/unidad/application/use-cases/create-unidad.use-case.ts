@@ -1,12 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { UnidadRepository } from '../../domain/ports/unidad.repository';
 import { Unidad } from '../../domain/entities/unidad.entity';
+import { KardexAutoService } from '../../../kardex/application/services/kardex-auto.service';
 
 @Injectable()
 export class CreateUnidadUseCase {
   constructor(
     @Inject('UnidadRepository')
     private readonly repo: UnidadRepository,
+    private readonly kardexAuto: KardexAutoService,
   ) {}
 
   async execute(data: {
@@ -26,6 +28,8 @@ export class CreateUnidadUseCase {
       data.estado,
       data.id_ficha,
     );
-    return this.repo.crear(entity);
+    const unidad = await this.repo.crear(entity);
+    await this.kardexAuto.entradaUnidad(unidad.id_unidad);
+    return unidad;
   }
 }

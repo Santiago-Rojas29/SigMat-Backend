@@ -82,9 +82,9 @@ export class NotificacionesCronService {
   @Cron('0 8 * * *')
   async verificarLotesProximosAVencer() {
     try {
-      const lotes: { id_lote: string; nombre_material: string }[] =
+      const lotes: { id_lote: string; nombre_material: string; id_sede: string | null }[] =
         await this.dataSource.query(`
-          SELECT l.id_lote, m.nombre as nombre_material
+          SELECT l.id_lote, m.nombre as nombre_material, l.id_sede
           FROM lote l
           JOIN material m ON l.id_material = m.id
           WHERE l.fecha_vencimiento IS NOT NULL
@@ -100,8 +100,8 @@ export class NotificacionesCronService {
 
       if (lotes.length === 0) return;
 
-      const admins = await this.obtenerAdmins();
       for (const lote of lotes) {
+        const admins = await this.obtenerAdmins(lote.id_sede);
         for (const admin of admins) {
           await this.notifService.crear({
             id_usuario:      admin.id,
@@ -118,18 +118,19 @@ export class NotificacionesCronService {
     }
   }
 
-  // Daily at 9am: find lots with less than 15% stock remaining
+  // Daily at 9am: find lots with less than 25% stock remaining (misma definición de "crítico" que el dashboard)
   @Cron('0 9 * * *')
   async verificarStockBajo() {
     try {
-      const lotes: { id_lote: string; nombre_material: string; porcentaje: string }[] =
+      const lotes: { id_lote: string; nombre_material: string; porcentaje: string; id_sede: string | null }[] =
         await this.dataSource.query(`
           SELECT l.id_lote, m.nombre as nombre_material,
-                 ROUND((l.cantidad_disponible::decimal / NULLIF(l.cantidad_inicial, 0)) * 100, 1)::text as porcentaje
+                 ROUND((l.cantidad_disponible::decimal / NULLIF(l.cantidad_inicial, 0)) * 100, 1)::text as porcentaje,
+                 l.id_sede
           FROM lote l
           JOIN material m ON l.id_material = m.id
           WHERE l.cantidad_inicial > 0
-            AND (l.cantidad_disponible::decimal / NULLIF(l.cantidad_inicial, 0)) < 0.15
+            AND l.cantidad_disponible <= CEIL(l.cantidad_inicial * 0.25)
             AND NOT EXISTS (
               SELECT 1 FROM notificacion n
               WHERE n.referencia_id = l.id_lote::text
@@ -140,8 +141,8 @@ export class NotificacionesCronService {
 
       if (lotes.length === 0) return;
 
-      const admins = await this.obtenerAdmins();
       for (const lote of lotes) {
+        const admins = await this.obtenerAdmins(lote.id_sede);
         for (const admin of admins) {
           await this.notifService.crear({
             id_usuario:      admin.id,
@@ -158,11 +159,13 @@ export class NotificacionesCronService {
     }
   }
 
-  private async obtenerAdmins(): Promise<{ id: string }[]> {
-    return this.dataSource.query(`
-      SELECT u.id FROM usuario u
-      JOIN rol r ON u.id_rol = r.id
-      WHERE r.nombre ILIKE '%admin%' OR r.nombre ILIKE '%bodega%'
-    `);
+  private async obtenerAdmins(id_sede: string | null): Promise<{ id: string }[]> {
+    return this.dataSource.query(
+      `SELECT u.id FROM usuario u
+       JOIN rol r ON u.id_rol = r.id
+       WHERE r.nombre IN ('Administrador', 'Responsable de Bodega')
+         AND u.id_sede = $1`,
+      [id_sede],
+    );
   }
 }

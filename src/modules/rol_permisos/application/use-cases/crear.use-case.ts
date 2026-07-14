@@ -12,14 +12,17 @@ export class AsignarRolPermisosUseCase {
   async execute(data: {
     id_rol: string;
     id_permiso: string;
-    submodulos?: string[];
+    submodulo?: string;
     acciones?: string[];
   }): Promise<RolPermisos> {
+    const submodulo = data.submodulo ?? '';
     const existentes = await this.repo.obtenerPorRol(data.id_rol);
-    const yaExiste = existentes.find((rp) => rp.id_permiso === data.id_permiso);
+    const yaExiste = existentes.find(
+      (rp) => rp.id_permiso === data.id_permiso && rp.submodulo === submodulo,
+    );
     if (yaExiste) {
       throw new ConflictException(
-        'El rol ya tiene asignado ese permiso. Use PATCH para actualizar.',
+        'El rol ya tiene asignado ese permiso para ese submódulo. Use PATCH para actualizar.',
       );
     }
 
@@ -27,8 +30,8 @@ export class AsignarRolPermisosUseCase {
       '',
       data.id_rol,
       data.id_permiso,
-      data.submodulos ?? [],
-      data.acciones   ?? [],
+      submodulo,
+      data.acciones ?? [],
     );
     entity.validar();
     return this.repo.asignar(entity);

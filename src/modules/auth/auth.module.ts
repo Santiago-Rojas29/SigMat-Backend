@@ -12,6 +12,7 @@ import { LoginUseCase } from './application/use-cases/login.use-case';
 import { ObtenerMisPermisosUseCase } from './application/use-cases/obtener-mis-permisos.use-case';
 import { SolicitarResetUseCase } from './application/use-cases/solicitar-reset.use-case';
 import { ResetearContrasenaUseCase } from './application/use-cases/resetear-contrasena.use-case';
+import { CambiarContrasenaUseCase } from './application/use-cases/cambiar-contrasena.use-case';
 import { MailService } from './infrastructure/services/mail.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
@@ -20,10 +21,15 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
     TypeOrmModule.forFeature([UsuarioOrmEntity, UsuarioPermisosOrmEntity, PermisosOrmEntity]),
     PassportModule,
     JwtModule.registerAsync({
-      useFactory: () => ({
-        secret: process.env.JWT_SECRET ?? 'clave_secreta_jwt_sigmat_2024',
-        signOptions: { expiresIn: '8h' },
-      }),
+      useFactory: () => {
+        if (!process.env.JWT_SECRET) {
+          throw new Error('JWT_SECRET no está definido en el .env — la app no puede arrancar sin él.');
+        }
+        return {
+          secret: process.env.JWT_SECRET,
+          signOptions: { expiresIn: '8h' },
+        };
+      },
     }),
   ],
   controllers: [AuthController],
@@ -32,6 +38,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
     ObtenerMisPermisosUseCase,
     SolicitarResetUseCase,
     ResetearContrasenaUseCase,
+    CambiarContrasenaUseCase,
     MailService,
     JwtStrategy,
     JwtAuthGuard,

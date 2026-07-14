@@ -1,98 +1,94 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# SigMat — Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST + WebSocket para SIGMAT (Sistema de Gestión de Materiales), construida con NestJS siguiendo una arquitectura hexagonal (dominio / aplicación / infraestructura por módulo).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Requisitos
 
-## Description
+- Node.js 18+
+- Docker (para levantar Postgres y Redis)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 1. Variables de entorno
 
-## Project setup
+Crea un archivo `.env` en la raíz de `SigMat-Backend/` con estas claves:
 
-```bash
-$ npm install
+```env
+# Base de datos
+DB_HOST=localhost
+DB_PORT=5435
+DB_USERNAME=postgres
+DB_PASSWORD=tu_password
+DB_NAME=Sigmat
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# Correo (recuperación de contraseña, notificaciones)
+MAIL_HOST=smtp.tu-proveedor.com
+MAIL_PORT=587
+MAIL_USER=tu_usuario
+MAIL_PASSWORD=tu_password
+
+# Autenticación
+JWT_SECRET=una_cadena_larga_y_aleatoria
+
+# CORS — orígenes permitidos del frontend, separados por coma
+FRONTEND_URL=http://localhost:5173,http://localhost:4200
+
+# Opcional — sobreescriben las credenciales por defecto del usuario Root
+ROOT_EMAIL=root@sigmat.com
+ROOT_PASSWORD=Sigmat2024*
 ```
 
-## Compile and run the project
+`DB_PORT=5435` porque el contenedor de Postgres mapea `5435:5432` (ver `docker-compose.yml`), para no chocar con un Postgres local corriendo en el puerto por defecto.
+
+## 2. Levantar la infraestructura (Docker)
+
+El backend **no corre dentro de un contenedor**: Docker solo provee Postgres y Redis. La API se ejecuta directo con Node.
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker-compose up -d
 ```
 
-## Run tests
+Esto levanta:
+- `sigmat` — Postgres 14.3 en el puerto `5435`
+- `sigmat-redis` — Redis 7 en el puerto `6379`
+
+## 3. Instalar dependencias y correr
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
+npm run start:dev
 ```
 
-## Deployment
+La API queda disponible en `http://localhost:3000/api`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Qué pasa automáticamente al arrancar
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **`synchronize: true`** en TypeORM: el esquema de la base de datos se crea/sincroniza solo a partir de las entidades. No hace falta correr migraciones a mano en desarrollo (debe desactivarse antes de ir a producción).
+- **El usuario Root se crea solo, la primera vez que arranca el backend.** Un `RootSeedService` (`OnModuleInit`) siembra los roles y permisos base y, si todavía no existe un usuario con el correo `root@sigmat.com` (o el que definas en `ROOT_EMAIL`), lo crea con la contraseña `Sigmat2024*` (o `ROOT_PASSWORD`). Es idempotente: en cada reinicio verifica si ya existe y, de ser así, no hace nada — no reinicia la contraseña ni duplica el usuario.
+
+Con eso ya puedes iniciar sesión con el Root y empezar a crear centros, sedes y administradores desde la UI, sin correr ningún script adicional.
+
+### Scripts de seed manuales (opcionales)
+
+Estos NO son necesarios para tener el Root funcionando — son datos de ejemplo/demo aparte:
+
+- `npm run seed` — crea roles, permisos y asignaciones de ejemplo por SQL directo (pensado para poblar un entorno de pruebas, no reemplaza al `RootSeedService`).
+- `npm run seed:materiales` — importa el catálogo de materiales desde el clasificador UNSPSC (`.xlsx`). Puede apuntarse a otro archivo con `UNSPSC_FILE=/ruta/al/archivo.xlsx npm run seed:materiales`.
+
+## Arquitectura — lo más importante
+
+- **Hexagonal por módulo**: cada módulo en `src/modules/` separa dominio (entidades e interfaces de repositorio), aplicación (casos de uso/servicios) e infraestructura (controladores REST, repositorios TypeORM).
+- **Multitenant por sede**: casi todas las entidades tienen `id_sede`. Un `TenantInterceptor` global lee `req.user.id_sede` del JWT y lo expone vía `TenantService` (basado en `AsyncLocalStorage`) durante toda la petición. Los repositorios filtran automáticamente: `id_sede: tenant.tenantId` para usuarios normales, sin filtro para el rol Root (que ve todas las sedes).
+- **Permisos granulares**: cada rol tiene permisos por módulo y acción (`ver`, `crear`, `editar`, `eliminar`, más acciones específicas como `aprobar`/`prestar`/`devolver`). Se validan con guards (`PermissionsGuard` + `@RequirePermission(...)`).
+- **WebSocket + notificaciones**: gateway Socket.IO para notificaciones en tiempo real (campana en el frontend), más cron jobs para avisos periódicos (préstamos vencidos, stock crítico, etc.).
+- **Reportes**: generación de PDFs con datos filtrados por sede y por rol.
+
+## Tests
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run test        # unitarios
+npm run test:e2e    # end-to-end
+npm run test:cov    # cobertura
 ```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

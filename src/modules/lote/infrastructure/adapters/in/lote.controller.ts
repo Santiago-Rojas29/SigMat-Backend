@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CreateLoteUseCase } from '../../../application/use-cases/create-lote.use-case';
 import { ActualizarLoteUseCase } from '../../../application/use-cases/actualizar-lote.use-case';
 import { EliminarLoteUseCase } from '../../../application/use-cases/eliminar-lote.use-case';
@@ -31,6 +33,8 @@ export class LoteController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('inventario', 'lotes', 'crear')
   crear(@Body() body: CreateLoteDto) {
     return this.createUseCase.execute(body);
   }
@@ -51,6 +55,8 @@ export class LoteController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('inventario', 'lotes', 'editar')
   actualizar(
     @Param('id') id: string,
     @Body() body: UpdateLoteDto,
@@ -59,6 +65,8 @@ export class LoteController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('inventario', 'lotes', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

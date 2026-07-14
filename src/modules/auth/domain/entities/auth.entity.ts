@@ -3,8 +3,10 @@ export interface CredencialesUsuario {
     correo: string;
     contrasena: string;
     id_rol: string;
+    nombre_rol: string;
     nombres: string;
     apellidos: string;
     estado: string;
     id_sede: string | null;
+    disponible: boolean;
 }

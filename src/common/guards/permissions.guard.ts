@@ -8,6 +8,7 @@ interface JwtUser {
   id: string;
   correo: string;
   id_rol: string;
+  nombre_rol: string;
   id_sede: string | null;
 }
 
@@ -30,35 +31,31 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user;
     if (!user?.id) return false;
 
-    if (user.id_sede === null || user.id_sede === undefined) return true;
+    // Solo Root omite la verificación de permisos. Un usuario común sin sede
+    // asignada NO debe heredar ese bypass: se evalúa como cualquier otro.
+    if (user.nombre_rol === 'Root') return true;
 
-    const { modulo, submodulo } = requirement;
+    const { modulo, submodulo, accion } = requirement;
 
-    if (submodulo) {
-      const result = await this.dataSource.query<{ id: string }[]>(
-        `SELECT rp.id
-         FROM usuario u
-         JOIN rol_permisos rp ON rp.id_rol = u.id_rol
-         JOIN permisos p ON p.id = rp.id_permiso
-         WHERE u.id = $1
-           AND p.modulo = $2
-           AND (rp.submodulos = '{}' OR $3 = ANY(rp.submodulos))
-         LIMIT 1`,
-        [user.id, modulo, submodulo],
-      );
-      return result.length > 0;
-    }
-
-    const result = await this.dataSource.query<{ id: string }[]>(
-      `SELECT rp.id
+    // Prioriza la fila del submódulo específico sobre la del módulo completo ('')
+    // cuando ambas existieran para el mismo rol+módulo.
+    const result: { acciones: string[] }[] = await this.dataSource.query(
+      `SELECT rp.acciones
        FROM usuario u
        JOIN rol_permisos rp ON rp.id_rol = u.id_rol
        JOIN permisos p ON p.id = rp.id_permiso
        WHERE u.id = $1
          AND p.modulo = $2
+         AND (rp.submodulo = '' OR rp.submodulo = $3)
+       ORDER BY (rp.submodulo = $3) DESC
        LIMIT 1`,
-      [user.id, modulo],
+      [user.id, modulo, submodulo ?? ''],
     );
-    return result.length > 0;
+
+    if (result.length === 0) return false;
+    if (!accion) return true;
+
+    const acciones = result[0].acciones ?? [];
+    return acciones.length === 0 || acciones.includes(accion);
   }
 }

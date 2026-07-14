@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import type { AuthRepository } from '../../domain/ports/auth.repository';
 import { MailService } from '../../infrastructure/services/mail.service';
 
@@ -13,6 +13,11 @@ export class SolicitarResetUseCase {
   async execute(correo: string): Promise<void> {
     const usuario = await this.repo.encontrarPorCorreo(correo);
     if (!usuario) throw new NotFoundException('No existe una cuenta con ese correo.');
+
+    const dominioValido = await this.mail.dominioPuedeRecibirCorreo(correo);
+    if (!dominioValido) {
+      throw new BadRequestException('El dominio de ese correo no existe o no puede recibir correos.');
+    }
 
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = new Date(Date.now() + 15 * 60 * 1000);

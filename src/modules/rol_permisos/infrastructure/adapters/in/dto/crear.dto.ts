@@ -9,10 +9,10 @@ export class AsignarRolPermisosDto {
   @IsNotEmpty()
   id_permiso!: string;
 
+  // '' o ausente = módulo completo; valor específico = solo ese submódulo
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  submodulos?: string[];
+  @IsString()
+  submodulo?: string;
 
   @IsOptional()
   @IsArray()

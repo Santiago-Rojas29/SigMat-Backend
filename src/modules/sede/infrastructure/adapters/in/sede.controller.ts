@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
 import { CreateSedeUseCase } from '../../../application/use-cases/create-sede.use-case';
 import { ActualizarSedeUseCase } from '../../../application/use-cases/actualizar-sede.use-case';
 import { EliminarSedeUseCase } from '../../../application/use-cases/eliminar-sede.use-case';
@@ -29,6 +31,8 @@ export class SedeController {
   ) {}
 
   @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'sedes', 'crear')
   crear(@Body() body: CreateSedeDto) {
     return this.createUseCase.execute(body);
   }
@@ -44,6 +48,8 @@ export class SedeController {
   }
 
   @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'sedes', 'editar')
   actualizar(
     @Param('id') id: string,
     @Body() body: UpdateSedeDto,
@@ -52,6 +58,8 @@ export class SedeController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'sedes', 'eliminar')
   eliminar(@Param('id') id: string) {
     return this.eliminarUseCase.execute(id);
   }

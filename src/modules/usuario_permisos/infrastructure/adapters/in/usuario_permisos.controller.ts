@@ -11,7 +11,6 @@ import { AsignarPermisoDto } from './dto/asignar.dto';
 import { ActualizarSubmodulosDto } from './dto/actualizar-submodulos.dto';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
-@RequirePermission('administracion')
 @Controller('usuario-permisos')
 export class UsuarioPermisosController {
   constructor(
@@ -23,6 +22,7 @@ export class UsuarioPermisosController {
   ) {}
 
   @Post()
+  @RequirePermission('administracion', 'usuarios', 'editar')
   asignar(@Body() body: AsignarPermisoDto) {
     return this.asignarUseCase.execute(body);
   }
@@ -33,6 +33,7 @@ export class UsuarioPermisosController {
   }
 
   @Patch(':id/submodulos')
+  @RequirePermission('administracion', 'usuarios', 'editar')
   actualizarSubmodulos(
     @Param('id') id: string,
     @Body() body: ActualizarSubmodulosDto,
@@ -41,11 +42,13 @@ export class UsuarioPermisosController {
   }
 
   @Delete(':id')
+  @RequirePermission('administracion', 'usuarios', 'editar')
   revocar(@Param('id') id: string) {
     return this.revocarUseCase.execute(id);
   }
 
   @Delete('usuario/:id_usuario/todos')
+  @RequirePermission('administracion', 'usuarios', 'editar')
   revocarTodos(@Param('id_usuario') id_usuario: string) {
     return this.revocarTodosUseCase.execute(id_usuario);
   }

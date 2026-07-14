@@ -52,6 +52,15 @@ export class KardexAutoService {
     });
   }
 
+  async entradaUnidad(id_unidad: string): Promise<void> {
+    await this.insertar({
+      tipo_movimiento: TipoMovimiento.ENTRADA,
+      cantidad: 1,
+      saldo:    1,
+      id_unidad,
+    });
+  }
+
   async trasladoUnidad(id_unidad: string, id_traslado: string): Promise<void> {
     await this.insertar({
       tipo_movimiento: TipoMovimiento.TRASLADO,

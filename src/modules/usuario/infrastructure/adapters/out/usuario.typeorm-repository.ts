@@ -27,6 +27,7 @@ export class UsuarioTypeOrmRepository implements UsuarioRepository {
       orm.estado,
       '',
       orm.id_sede ?? null,
+      orm.disponible,
     );
   }
 
