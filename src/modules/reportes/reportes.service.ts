@@ -1,0 +1,400 @@
+import { Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { TenantService } from 'src/common/tenant/tenant.service';
+
+@Injectable()
+export class ReportesService {
+  constructor(
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+    private readonly tenant: TenantService,
+  ) {}
+
+  // NULL = Root, ve todo (los `IS NULL OR` de cada query dejan pasar todo);
+  // un uuid real = solo esa sede.
+  private get sede(): string | null {
+    return this.tenant.isRoot ? null : this.tenant.tenantId;
+  }
+
+  // ── 1. Solicitudes ────────────────────────────────────────────────────────
+  async getSolicitudes(filtros: {
+    desde?: string; hasta?: string; estado?: string; tipo_flujo?: string;
+  }) {
+    const conditions: string[] = [`($${1}::uuid IS NULL OR s.id_sede = $${1}::uuid)`];
+    const params: any[] = [this.sede];
+    let i = 2;
+
+    if (filtros.desde) { conditions.push(`s.fecha_solicitud >= $${i++}`); params.push(filtros.desde); }
+    if (filtros.hasta) { conditions.push(`s.fecha_solicitud <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
+    if (filtros.estado) { conditions.push(`s.estado = $${i++}`); params.push(filtros.estado); }
+    if (filtros.tipo_flujo) { conditions.push(`s.tipo_flujo = $${i++}`); params.push(filtros.tipo_flujo); }
+
+    const where = 'WHERE ' + conditions.join(' AND ');
+
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        s.id_solicitud,
+        s.fecha_solicitud,
+        s.estado,
+        s.tipo_flujo,
+        s.tipo_prestamo,
+        s.observaciones,
+        s.motivo_rechazo,
+        s.fecha_entrega,
+        CONCAT(u.nombres, ' ', u.apellidos) AS solicitante,
+        u.correo AS correo_solicitante,
+        CONCAT(inst.nombres, ' ', inst.apellidos) AS instructor,
+        s.fecha_respuesta_instructor,
+        s.fecha_respuesta_admin,
+        s.fecha_respuesta_bodega
+      FROM solicitud s
+      JOIN usuario u ON s.id_solicitante = u.id
+      LEFT JOIN usuario inst ON s.id_instructor = inst.id
+      ${where}
+      ORDER BY s.fecha_solicitud DESC
+      LIMIT 500
+    `, params);
+
+    const fmt = (d: any) => d ? new Date(d).toLocaleDateString('es-CO') : '—';
+    return rows.map(r => ({
+      ...r,
+      fecha_solicitud: fmt(r.fecha_solicitud),
+      fecha_entrega: fmt(r.fecha_entrega),
+      fecha_respuesta_instructor: fmt(r.fecha_respuesta_instructor),
+      fecha_respuesta_admin: fmt(r.fecha_respuesta_admin),
+      fecha_respuesta_bodega: fmt(r.fecha_respuesta_bodega),
+    }));
+  }
+
+  // ── 2. Stock crítico ──────────────────────────────────────────────────────
+  async getStockCritico(umbral = 25) {
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        m.nombre AS material,
+        m.categoria,
+        m.unidad_medida,
+        l.codigo_lote,
+        l.cantidad_disponible::int AS cantidad_disponible,
+        l.cantidad_inicial::int AS cantidad_inicial,
+        ROUND(CAST(l.cantidad_disponible AS FLOAT) / NULLIF(l.cantidad_inicial, 0) * 100)::int AS porcentaje,
+        ub.nombre AS ubicacion,
+        l.estado
+      FROM lote l
+      JOIN material m ON l.id_material = m.id
+      LEFT JOIN ubicacion ub ON l.id_ubicacion = ub.id_ubicacion
+      WHERE l.cantidad_disponible <= CEIL(l.cantidad_inicial * $1::float / 100)
+        AND l.cantidad_inicial > 0
+        AND ($2::uuid IS NULL OR l.id_sede = $2::uuid)
+      ORDER BY porcentaje ASC
+    `, [umbral, this.sede]);
+    return rows;
+  }
+
+  // ── 3. Lotes próximos a vencer ────────────────────────────────────────────
+  async getLotesVencimiento(dias = 30) {
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        l.codigo_lote,
+        m.nombre AS material,
+        m.categoria,
+        l.cantidad_disponible::int AS cantidad_disponible,
+        m.unidad_medida,
+        l.fecha_vencimiento,
+        l.estado,
+        ub.nombre AS ubicacion,
+        CEIL(EXTRACT(EPOCH FROM (l.fecha_vencimiento - NOW())) / 86400)::int AS dias_para_vencer
+      FROM lote l
+      JOIN material m ON l.id_material = m.id
+      LEFT JOIN ubicacion ub ON l.id_ubicacion = ub.id_ubicacion
+      WHERE l.fecha_vencimiento IS NOT NULL
+        AND l.fecha_vencimiento <= NOW() + ($1 || ' days')::interval
+        AND ($2::uuid IS NULL OR l.id_sede = $2::uuid)
+      ORDER BY l.fecha_vencimiento ASC
+    `, [dias, this.sede]);
+
+    return rows.map(r => ({
+      ...r,
+      fecha_vencimiento: r.fecha_vencimiento
+        ? new Date(r.fecha_vencimiento).toLocaleDateString('es-CO') : '—',
+    }));
+  }
+
+  // ── 4. Morosos ────────────────────────────────────────────────────────────
+  async getMorosos() {
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        CONCAT(u.nombres, ' ', u.apellidos) AS usuario,
+        u.correo,
+        COUNT(p.id)::int AS prestamos_vencidos,
+        MIN(p.fecha_limite) AS fecha_mas_antigua,
+        CEIL((EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM MIN(p.fecha_limite))) / 86400)::int AS dias_vencido
+      FROM prestamo p
+      JOIN usuario u ON p.id_usuario = u.id
+      WHERE p.estado = 'activo' AND p.fecha_limite < NOW()
+        AND ($1::uuid IS NULL OR p.id_sede = $1::uuid)
+      GROUP BY u.id, u.nombres, u.apellidos, u.correo
+      ORDER BY prestamos_vencidos DESC
+    `, [this.sede]);
+    return rows.map(r => ({
+      ...r,
+      fecha_mas_antigua: r.fecha_mas_antigua
+        ? new Date(r.fecha_mas_antigua).toLocaleDateString('es-CO') : '—',
+    }));
+  }
+
+  // ── 5. Kardex ─────────────────────────────────────────────────────────────
+  async getKardex(filtros: { desde?: string; hasta?: string; tipo_movimiento?: string }) {
+    const conditions: string[] = [`($${1}::uuid IS NULL OR k.id_sede = $${1}::uuid)`];
+    const params: any[] = [this.sede];
+    let i = 2;
+
+    if (filtros.desde) { conditions.push(`k.fecha_movimiento >= $${i++}`); params.push(filtros.desde); }
+    if (filtros.hasta) { conditions.push(`k.fecha_movimiento <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
+    if (filtros.tipo_movimiento) { conditions.push(`k.tipo_movimiento = $${i++}`); params.push(filtros.tipo_movimiento); }
+
+    const where = 'WHERE ' + conditions.join(' AND ');
+
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        k.fecha_movimiento,
+        k.tipo_movimiento,
+        k.cantidad::int AS cantidad,
+        k.saldo::int AS saldo,
+        COALESCE(ml.nombre, mu.nombre) AS material,
+        COALESCE(l.codigo_lote, u.codigo_unidad) AS codigo,
+        CASE WHEN k.id_lote IS NOT NULL THEN 'Lote' ELSE 'Unidad' END AS tipo_item
+      FROM kardex k
+      LEFT JOIN lote l ON k.id_lote = l.id_lote
+      LEFT JOIN material ml ON l.id_material = ml.id
+      LEFT JOIN unidad u ON k.id_unidad = u.id_unidad
+      LEFT JOIN material mu ON u.id_material = mu.id
+      ${where}
+      ORDER BY k.fecha_movimiento DESC
+      LIMIT 500
+    `, params);
+
+    return rows.map(r => ({
+      ...r,
+      fecha_movimiento: r.fecha_movimiento
+        ? new Date(r.fecha_movimiento).toLocaleDateString('es-CO') : '—',
+    }));
+  }
+
+  // ── 6. Incidencias ────────────────────────────────────────────────────────
+  async getIncidencias(filtros: {
+    estado?: string; tipo?: string; desde?: string; hasta?: string;
+  }) {
+    const conditions: string[] = [`($${1}::uuid IS NULL OR i.id_sede = $${1}::uuid)`];
+    const params: any[] = [this.sede];
+    let i = 2;
+
+    if (filtros.estado) { conditions.push(`i.estado = $${i++}`); params.push(filtros.estado); }
+    if (filtros.tipo) { conditions.push(`i.tipo = $${i++}`); params.push(filtros.tipo); }
+    if (filtros.desde) { conditions.push(`i.fecha_incidencia >= $${i++}`); params.push(filtros.desde); }
+    if (filtros.hasta) { conditions.push(`i.fecha_incidencia <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
+
+    const where = 'WHERE ' + conditions.join(' AND ');
+
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        i.tipo,
+        i.estado,
+        i.descripcion,
+        i.fecha_incidencia,
+        m.nombre AS material,
+        u.codigo_unidad,
+        CONCAT(usr.nombres, ' ', usr.apellidos) AS responsable,
+        usr.correo
+      FROM incidencia i
+      JOIN unidad u ON i.id_unidad = u.id_unidad
+      JOIN material m ON u.id_material = m.id
+      JOIN usuario usr ON i.id_usuario = usr.id
+      ${where}
+      ORDER BY i.fecha_incidencia DESC
+    `, params);
+
+    return rows.map(r => ({
+      ...r,
+      fecha_incidencia: r.fecha_incidencia
+        ? new Date(r.fecha_incidencia).toLocaleDateString('es-CO') : '—',
+    }));
+  }
+
+  // ── 8. Solicitudes del instructor (propias + sus aprendices) ─────────────
+  async getSolicitudesInstructor(id_usuario: string, filtros: {
+    desde?: string; hasta?: string; estado?: string;
+  }) {
+    const conditions: string[] = [
+      `(s.id_instructor = $1 OR s.id_solicitante = $1)`,
+    ];
+    const params: any[] = [id_usuario];
+    let i = 2;
+
+    if (filtros.desde) { conditions.push(`s.fecha_solicitud >= $${i++}`); params.push(filtros.desde); }
+    if (filtros.hasta) { conditions.push(`s.fecha_solicitud <= $${i++}`); params.push(filtros.hasta + 'T23:59:59'); }
+    if (filtros.estado) { conditions.push(`s.estado = $${i++}`); params.push(filtros.estado); }
+
+    const where = 'WHERE ' + conditions.join(' AND ');
+
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        s.id_solicitud,
+        s.fecha_solicitud,
+        s.estado,
+        s.tipo_flujo,
+        s.tipo_prestamo,
+        s.fecha_entrega,
+        CONCAT(u.nombres, ' ', u.apellidos) AS solicitante,
+        CONCAT(inst.nombres, ' ', inst.apellidos) AS instructor,
+        s.fecha_respuesta_instructor,
+        s.fecha_respuesta_admin,
+        s.fecha_respuesta_bodega
+      FROM solicitud s
+      JOIN usuario u ON s.id_solicitante = u.id
+      LEFT JOIN usuario inst ON s.id_instructor = inst.id
+      ${where}
+      ORDER BY s.fecha_solicitud DESC
+      LIMIT 500
+    `, params);
+
+    const fmt = (d: any) => d ? new Date(d).toLocaleDateString('es-CO') : '—';
+    return rows.map(r => ({
+      ...r,
+      fecha_solicitud: fmt(r.fecha_solicitud),
+      fecha_entrega: fmt(r.fecha_entrega),
+      fecha_respuesta_instructor: fmt(r.fecha_respuesta_instructor),
+      fecha_respuesta_admin: fmt(r.fecha_respuesta_admin),
+      fecha_respuesta_bodega: fmt(r.fecha_respuesta_bodega),
+    }));
+  }
+
+  // ── 9. Morosos de las fichas del instructor ───────────────────────────────
+  async getMorososInstructor(id_usuario: string) {
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        CONCAT(u.nombres, ' ', u.apellidos) AS usuario,
+        u.correo,
+        COUNT(p.id)::int AS prestamos_vencidos,
+        MIN(p.fecha_limite) AS fecha_mas_antigua,
+        CEIL((EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM MIN(p.fecha_limite))) / 86400)::int AS dias_vencido
+      FROM prestamo p
+      JOIN usuario u ON p.id_usuario = u.id
+      JOIN ficha_usuario fu_apr ON fu_apr.id_usuario = u.id AND fu_apr.rol_en_ficha = 'aprendiz'
+      JOIN ficha_usuario fu_ins ON fu_ins.id_ficha = fu_apr.id_ficha
+        AND fu_ins.id_usuario = $1 AND fu_ins.rol_en_ficha = 'instructor'
+      WHERE p.estado = 'activo' AND p.fecha_limite < NOW()
+      GROUP BY u.id, u.nombres, u.apellidos, u.correo
+      ORDER BY prestamos_vencidos DESC
+    `, [id_usuario]);
+
+    return rows.map(r => ({
+      ...r,
+      fecha_mas_antigua: r.fecha_mas_antigua
+        ? new Date(r.fecha_mas_antigua).toLocaleDateString('es-CO') : '—',
+    }));
+  }
+
+  // ── 10. Préstamos propios del aprendiz ───────────────────────────────────────
+  async getMisPrestamos(id_usuario: string) {
+    const rows: any[] = await this.dataSource.query(`
+      SELECT
+        p.id AS id_prestamo,
+        p.fecha_limite,
+        p.estado,
+        s.tipo_prestamo,
+        s.tipo_flujo,
+        s.fecha_solicitud,
+        CASE WHEN d.id IS NOT NULL THEN 'Devuelto' ELSE 'Pendiente' END AS devolucion,
+        d.fecha_devolucion,
+        d.condicion AS condicion_devolucion
+      FROM prestamo p
+      JOIN validacion v ON p.id_validacion = v.id
+      JOIN solicitud s ON v.id_solicitud = s.id_solicitud
+      LEFT JOIN entrega e ON e.id_prestamo = p.id
+      LEFT JOIN devolucion d ON d.id_entrega = e.id_entrega
+      WHERE p.id_usuario = $1
+      ORDER BY p.fecha_limite DESC
+      LIMIT 100
+    `, [id_usuario]);
+
+    const fmt = (d: any) => d ? new Date(d).toLocaleDateString('es-CO') : '—';
+    return rows.map(r => ({
+      ...r,
+      fecha_solicitud:  fmt(r.fecha_solicitud),
+      fecha_limite:     fmt(r.fecha_limite),
+      fecha_devolucion: fmt(r.fecha_devolucion),
+    }));
+  }
+
+  // ── 7. Resumen general ────────────────────────────────────────────────────
+  async getResumen(filtros: { desde?: string; hasta?: string }) {
+    const desde = filtros.desde ?? new Date(new Date().getFullYear(), 0, 1).toISOString();
+    const hasta = filtros.hasta
+      ? filtros.hasta + 'T23:59:59'
+      : new Date().toISOString();
+
+    const sede = this.sede;
+
+    const [kpis, solicitudesPorEstado, topMateriales, incidenciasTipo, stockCritico] =
+      await Promise.all([
+        this.dataSource.query(`
+          SELECT
+            (SELECT COUNT(*) FROM solicitud WHERE fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS total_solicitudes,
+            (SELECT COUNT(*) FROM solicitud WHERE estado='entregado' AND fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS entregadas,
+            (SELECT COUNT(*) FROM solicitud WHERE estado='rechazado' AND fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS rechazadas,
+            (SELECT COUNT(*) FROM prestamo WHERE estado='activo' AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS prestamos_activos,
+            (SELECT COUNT(*) FROM prestamo WHERE estado='activo' AND fecha_limite < NOW() AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS prestamos_vencidos,
+            (SELECT COUNT(*) FROM incidencia WHERE fecha_incidencia BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS total_incidencias,
+            (SELECT COUNT(*) FROM material WHERE ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS total_materiales,
+            (SELECT COUNT(*) FROM lote WHERE cantidad_disponible <= CEIL(cantidad_inicial*0.25) AND cantidad_inicial>0 AND ($3::uuid IS NULL OR id_sede = $3::uuid))::int AS lotes_stock_critico
+        `, [desde, hasta, sede]),
+
+        this.dataSource.query(`
+          SELECT estado, COUNT(*)::int AS total
+          FROM solicitud WHERE fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid)
+          GROUP BY estado ORDER BY total DESC
+        `, [desde, hasta, sede]),
+
+        this.dataSource.query(`
+          WITH sol_mat AS (
+            SELECT m.nombre, sl.id_solicitud
+            FROM solicitud_lote sl
+            JOIN lote l ON sl.id_lote = l.id_lote
+            JOIN material m ON l.id_material = m.id
+            JOIN solicitud s ON sl.id_solicitud = s.id_solicitud
+            WHERE s.fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR s.id_sede = $3::uuid)
+            UNION ALL
+            SELECT m.nombre, su.id_solicitud
+            FROM solicitud_unidad su
+            JOIN unidad u ON su.id_unidad = u.id_unidad
+            JOIN material m ON u.id_material = m.id
+            JOIN solicitud s ON su.id_solicitud = s.id_solicitud
+            WHERE s.fecha_solicitud BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR s.id_sede = $3::uuid)
+          )
+          SELECT nombre, COUNT(DISTINCT id_solicitud)::int AS total
+          FROM sol_mat GROUP BY nombre ORDER BY total DESC LIMIT 10
+        `, [desde, hasta, sede]),
+
+        this.dataSource.query(`
+          SELECT tipo, COUNT(*)::int AS total
+          FROM incidencia WHERE fecha_incidencia BETWEEN $1 AND $2 AND ($3::uuid IS NULL OR id_sede = $3::uuid)
+          GROUP BY tipo ORDER BY total DESC
+        `, [desde, hasta, sede]),
+
+        this.getStockCritico(25),
+      ]);
+
+    return {
+      kpis: kpis[0],
+      solicitudesPorEstado,
+      topMateriales,
+      incidenciasTipo,
+      stockCritico,
+      periodo: {
+        desde: new Date(desde).toLocaleDateString('es-CO'),
+        hasta: new Date(hasta).toLocaleDateString('es-CO'),
+      },
+    };
+  }
+}

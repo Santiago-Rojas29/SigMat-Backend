@@ -1,0 +1,108 @@
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { CreateSolicitudUseCase }      from '../../../application/use-cases/create-solicitud.use-case';
+import { ActualizarSolicitudUseCase }  from '../../../application/use-cases/actualizar-solicitud.use-case';
+import { EliminarSolicitudUseCase }    from '../../../application/use-cases/eliminar-solicitud.use-case';
+import { ObtenerPorIdUseCase }         from '../../../application/use-cases/obtener-por-id.use-case';
+import { ObtenerTodosUseCase }         from '../../../application/use-cases/obtener-todos.use-case';
+import { AprobarInstructorUseCase }    from '../../../application/use-cases/aprobar-instructor.use-case';
+import { AprobarAdminUseCase }         from '../../../application/use-cases/aprobar-admin.use-case';
+import { AprobarBodegaUseCase }        from '../../../application/use-cases/aprobar-bodega.use-case';
+import { EntregarSolicitudUseCase }    from '../../../application/use-cases/entregar-solicitud.use-case';
+import { RechazarSolicitudUseCase }    from '../../../application/use-cases/rechazar-solicitud.use-case';
+import { CancelarSolicitudUseCase }    from '../../../application/use-cases/cancelar-solicitud.use-case';
+import { CreateSolicitudDto }          from './dto/create-solicitud.dto';
+import { UpdateSolicitudDto }          from './dto/update-solicitud.dto';
+import { RechazarSolicitudDto }        from './dto/rechazar-solicitud.dto';
+import { EntregarSolicitudDto }        from './dto/entregar-solicitud.dto';
+import { JwtAuthGuard }                from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard }            from '../../../../../common/guards/permissions.guard';
+import { RequirePermission }           from '../../../../../common/decorators/require-permission.decorator';
+import { RebacGuard }                  from '../../../../rebac/rebac.guard';
+import { RequiereRelacion, Relacion }  from '../../../../rebac/rebac.decorator';
+
+@Controller('solicitud')
+@UseGuards(JwtAuthGuard)
+export class SolicitudController {
+  constructor(
+    private readonly createUseCase:           CreateSolicitudUseCase,
+    private readonly actualizarUseCase:       ActualizarSolicitudUseCase,
+    private readonly eliminarUseCase:         EliminarSolicitudUseCase,
+    private readonly obtenerPorIdUseCase:     ObtenerPorIdUseCase,
+    private readonly obtenerTodosUseCase:     ObtenerTodosUseCase,
+    private readonly aprobarInstructorUC:     AprobarInstructorUseCase,
+    private readonly aprobarAdminUC:          AprobarAdminUseCase,
+    private readonly aprobarBodegaUC:         AprobarBodegaUseCase,
+    private readonly entregarUC:              EntregarSolicitudUseCase,
+    private readonly rechazarUC:              RechazarSolicitudUseCase,
+    private readonly cancelarUC:              CancelarSolicitudUseCase,
+  ) {}
+
+  @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'solicitudes', 'crear')
+  crear(@Body() body: CreateSolicitudDto) {
+    return this.createUseCase.execute(body);
+  }
+
+  @Get()
+  obtenerTodos() {
+    return this.obtenerTodosUseCase.execute();
+  }
+
+  // REBAC: solo el solicitante, el instructor asignado, o personal con permiso de módulo
+  @Get(':id')
+  @UseGuards(RebacGuard)
+  @RequiereRelacion(Relacion.VER_SOLICITUD)
+  obtenerPorId(@Param('id') id: string) {
+    return this.obtenerPorIdUseCase.execute(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'solicitudes', 'editar')
+  actualizar(@Param('id') id: string, @Body() body: UpdateSolicitudDto) {
+    return this.actualizarUseCase.execute(id, body);
+  }
+
+  @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'solicitudes', 'eliminar')
+  eliminar(@Param('id') id: string) {
+    return this.eliminarUseCase.execute(id);
+  }
+
+  // ── Transiciones de estado ────────────────────────────────────────────────
+
+  // REBAC: solo el instructor explícitamente asignado a esta solicitud puede aprobarla
+  @Patch(':id/aprobar-instructor')
+  @UseGuards(RebacGuard)
+  @RequiereRelacion(Relacion.APROBAR_COMO_INSTRUCTOR)
+  aprobarInstructor(@Param('id') id: string) {
+    return this.aprobarInstructorUC.execute(id);
+  }
+
+  @Patch(':id/aprobar-admin')
+  aprobarAdmin(@Param('id') id: string, @Body() body: { id_admin: string }) {
+    return this.aprobarAdminUC.execute(id, body.id_admin);
+  }
+
+  @Patch(':id/aprobar-bodega')
+  aprobarBodega(@Param('id') id: string, @Body() body: { id_bodega: string }) {
+    return this.aprobarBodegaUC.execute(id, body.id_bodega);
+  }
+
+  @Patch(':id/entregar')
+  entregar(@Param('id') id: string, @Body() body: EntregarSolicitudDto) {
+    return this.entregarUC.execute(id, body);
+  }
+
+  @Patch(':id/rechazar')
+  rechazar(@Param('id') id: string, @Body() body: RechazarSolicitudDto) {
+    return this.rechazarUC.execute(id, body.rol, body.motivo_rechazo);
+  }
+
+  @Patch(':id/cancelar')
+  cancelar(@Param('id') id: string) {
+    return this.cancelarUC.execute(id);
+  }
+}

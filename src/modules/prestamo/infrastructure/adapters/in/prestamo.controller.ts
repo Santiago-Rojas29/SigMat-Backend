@@ -1,12 +1,54 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { CreatePrestamoUseCase } from '../../../application/use-cases/create-prestamo.use-case';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
+import { CreatePrestamoUseCase } from '../../../application/use-cases/crear.use-case';
+import { ActualizarPrestamoUseCase } from '../../../application/use-cases/actualizar.use-case';
+import { EliminarPrestamoUseCase } from '../../../application/use-cases/eliminar.use-case';
+import { ObtenerPorIdUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
+import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todos.use-case';
+import { CreatePrestamoDto } from './dto/crear.dto';
+import { UpdatePrestamoDto } from './dto/actualizar.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('prestamo')
 export class PrestamoController {
-  constructor(private readonly createUseCase: CreatePrestamoUseCase) {}
+  constructor(
+    private readonly createUseCase: CreatePrestamoUseCase,
+    private readonly actualizarUseCase: ActualizarPrestamoUseCase,
+    private readonly eliminarUseCase: EliminarPrestamoUseCase,
+    private readonly obtenerPorIdUseCase: ObtenerPorIdUseCase,
+    private readonly obtenerTodosUseCase: ObtenerTodosUseCase,
+  ) {}
 
   @Post()
-  create(@Body() body: { id: string; name: string }) {
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'prestamos', 'crear')
+  crear(@Body() body: CreatePrestamoDto) {
     return this.createUseCase.execute(body);
+  }
+
+  @Get()
+  obtenerTodos() {
+    return this.obtenerTodosUseCase.execute();
+  }
+
+  @Get(':id')
+  obtenerPorId(@Param('id') id: string) {
+    return this.obtenerPorIdUseCase.execute(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'prestamos', 'editar')
+  actualizar(@Param('id') id: string, @Body() body: UpdatePrestamoDto) {
+    return this.actualizarUseCase.execute(id, body);
+  }
+
+  @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('movimientos', 'prestamos', 'eliminar')
+  eliminar(@Param('id') id: string) {
+    return this.eliminarUseCase.execute(id);
   }
 }

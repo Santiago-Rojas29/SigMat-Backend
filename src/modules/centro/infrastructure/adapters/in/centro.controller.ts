@@ -1,0 +1,63 @@
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Delete,
+  Patch,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../../../../common/guards/permissions.guard';
+import { RequirePermission } from '../../../../../common/decorators/require-permission.decorator';
+import { CreateCentroUseCase } from '../../../application/use-cases/create-centro.use-case';
+import { ActualizarCentroUseCase } from '../../../application/use-cases/actualizar-centro.use-case';
+import { EliminarCentroUseCase } from '../../../application/use-cases/eliminar-centro.use-case';
+import { ObtenerPorIdUseCase } from '../../../application/use-cases/obtener-por-id.use-case';
+import { ObtenerTodosUseCase } from '../../../application/use-cases/obtener-todos.use-case';
+import { CreateCentroDto } from './dto/create-centro.dto';
+import { UpdateCentroDto } from './dto/update-centro.dto';
+
+@UseGuards(JwtAuthGuard)
+@Controller('centro')
+export class CentroController {
+  constructor(
+    private readonly createUseCase: CreateCentroUseCase,
+    private readonly updateUseCase: ActualizarCentroUseCase,
+    private readonly deleteUseCase: EliminarCentroUseCase,
+    private readonly getByIdUseCase: ObtenerPorIdUseCase,
+    private readonly getAllUseCase: ObtenerTodosUseCase,
+  ) {}
+
+  @Post()
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'centros', 'crear')
+  create(@Body() body: CreateCentroDto) {
+    return this.createUseCase.execute(body);
+  }
+
+  @Patch(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'centros', 'editar')
+  update(@Param('id') id: string, @Body() body: UpdateCentroDto) {
+    return this.updateUseCase.execute(id, body);
+  }
+
+  @Delete(':id')
+  @UseGuards(PermissionsGuard)
+  @RequirePermission('estructura', 'centros', 'eliminar')
+  delete(@Param('id') id: string) {
+    return this.deleteUseCase.execute(id);
+  }
+
+  @Get(':id')
+  getById(@Param('id') id: string) {
+    return this.getByIdUseCase.execute(id);
+  }
+
+  @Get()
+  getAll() {
+    return this.getAllUseCase.execute();
+  }
+}

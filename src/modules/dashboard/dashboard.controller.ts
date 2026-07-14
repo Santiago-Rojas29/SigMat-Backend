@@ -1,0 +1,42 @@
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { DashboardService } from './dashboard.service';
+
+@Controller('dashboard')
+@UseGuards(JwtAuthGuard)
+export class DashboardController {
+  constructor(private readonly dashboardService: DashboardService) {}
+
+  @Get('stats')
+  getStats() {
+    return this.dashboardService.getStats();
+  }
+
+  @Get('stats/personal')
+  getStatsPersonal(@Req() req: any) {
+    return this.dashboardService.getStatsPersonal(req.user.id);
+  }
+
+  @Get('stats/root')
+  getStatsRoot() {
+    return this.dashboardService.getStatsRoot();
+  }
+
+  @Get('stats/sede/:id')
+  getStatsPorSede(@Param('id') id: string) {
+    return this.dashboardService.getStatsPorSede(id);
+  }
+
+  @Get('solicitudes-mes')
+  getSolicitudesMes(@Query('anio') anio: string) {
+    const year = Number(anio) || new Date().getFullYear();
+    return this.dashboardService.getSolicitudesPorAnio(year);
+  }
+
+  @Get('solicitudes-dia')
+  getSolicitudesDia(@Query('anio') anio: string, @Query('mes') mes: string) {
+    const year  = Number(anio) || new Date().getFullYear();
+    const month = Number(mes)  || new Date().getMonth() + 1;
+    return this.dashboardService.getSolicitudesPorDia(year, month);
+  }
+}
